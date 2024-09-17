@@ -44,7 +44,7 @@ def find_word_events_from_annotation(raw):
     return all_word_events, all_word_event_id
 
 def create_word_epochs(raw, tmin=-.01, tmax=.05):
-   all_events, all_event_id = dataset.find_word_events_from_annotation(raw) 
+   all_events, all_event_id = find_word_events_from_annotation(raw) 
    epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
    return epochs
 
