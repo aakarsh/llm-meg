@@ -31,13 +31,22 @@ def filter_word_events(event_json_strings):
 
 def find_word_events_from_annotation(raw):
     all_events, all_event_id = mne.events_from_annotations(raw)
-    word_events = list(map(str, dataset.filter_word_events(all_event_id)))
-    all_word_events = {}
+    word_events = list(map(str, filter_word_events(all_event_id)))
+    all_word_events = []
     all_word_event_id = {}
     for word_event in word_events:
-        all_event_id[word_event]
-        # for event  
-    pass
+        word_event_id = all_event_id[word_event]
+        for event in all_events:
+            if word_event_id == event[2]:
+                all_word_events.append(event)
+                all_word_event_id[word_event] = word_event_id
+
+    return all_word_events, all_word_event_id
+
+def create_word_epochs(raw, tmin=-.01, tmax=.05):
+   all_events, all_event_id = dataset.find_word_events_from_annotation(raw) 
+   epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
+   return epochs
 
 def parse_event_description(event_json_str):
     event_json_str = event_json_str.replace('\'', '"')
