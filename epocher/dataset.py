@@ -51,3 +51,13 @@ def create_word_epochs(raw, tmin=-.01, tmax=.05):
 def parse_event_description(event_json_str):
     event_json_str = event_json_str.replace('\'', '"')
     return json.loads(event_json_str)
+
+
+def create_rsa_matrix():
+    print("How do I create a representational similairty matrix.")
+    pass
+
+def get_layer_activations():
+    print("How do i get layer activations")
+    pass
+
