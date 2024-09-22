@@ -20,7 +20,7 @@ def load_stimuli(directory):
 
 
 
-def get_salient_words(all_text, num_words=10):
+def get_salient_words(all_text, num_words=20):
     # Tokenization: Remove punctuation and split into words
     words = re.findall(r'\b\w+\b', all_text.lower())
     
@@ -28,7 +28,7 @@ def get_salient_words(all_text, num_words=10):
     tagged_words = nltk.pos_tag(words)
     
     # Filter for nouns and verbs
-    salient_words = [word for word, tag in tagged_words if tag.startswith('NN') or tag.startswith('VB')]
+    salient_words = [word for word, tag in tagged_words if len(word)>2 and tag.startswith('NN') ] #or tag.startswith('VB')]
     
     # Count frequencies
     word_counts = Counter(salient_words)

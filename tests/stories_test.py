@@ -10,4 +10,4 @@ def test_stories():
     assert len(S.load_experiment_stories().keys() ) == 4
 
 def test_salient_words():
-    assert len(S.load_experiment_salient_words()) == 10
+    assert len(S.load_experiment_salient_words()) == 20
