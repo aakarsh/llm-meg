@@ -1,11 +1,11 @@
-
+import pandas as pd
 import json
 import numpy as np
 import mne
 from mne_bids import BIDSPath # Import the BIDSPath class
+from .env import *
 
 # Create a BIDSPath object
-
 DATASET_ROOT="/content/drive/MyDrive/TUE-SUMMER-2024/ulm-meg/"
 
 def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",  task="1"):
@@ -59,4 +59,18 @@ def create_rsa_matrix():
 def get_layer_activations():
     print("How do i get layer activations")
     pass
+
+
+
+def load_subject_information():
+    # Read information about subjects
+    subjects = pd.read_csv(MEG_MASC_ROOT +  "/participants.tsv", sep="\t")
+    return subjects
+
+def load_subject_information_per_subject(subject_id):
+    # find subject id
+    subjects = load_subject_information(subject_id)
+    subjects = subjects.participant_id.apply(lambda x: x.split("-")[1]).values
+    return subjects 
+
 
