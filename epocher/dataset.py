@@ -105,11 +105,24 @@ def _load_raw_meta(raw):
 
 
 # [ ] Need to segment by word instead!
-def segment_by_word(raw):
+def segment_by_word(raw, tmax=0.9):
     # preprocess annotations.
     meta = _load_raw_meta(raw)
-    words = meta.query('kind=="word"').copy()
-    pass
+    meta = meta.query('kind=="word"').copy()
+    word_events = np.c_[meta.onset*raw.info['sfreq'], 
+                                np.ones((len(meta), 2))].astype(int)
+    word_epochs = mne.Epochs(raw, 
+                                word_events, 
+                                tmin=-.2, 
+                                tmax=tmax, # TODO: this maynot be right.
+                                decim=10, 
+                                baseline=(-0.2,0.0), 
+                                metadata=meta, 
+                                preload=True, 
+                                event_repeated="drop")
+    word_epochs = _threshold_baseline_epochs(word_epochs)
+
+    return word_epochs
 
 
 
