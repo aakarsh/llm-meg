@@ -101,13 +101,32 @@ def _load_raw_meta(raw):
         meta.append(d)
     meta = pd.DataFrame(meta)
     meta["intercept"] = 1.0
+    return meta
 
 
 # [ ] Need to segment by word instead!
 def segment_by_word(raw):
-	# preprocess annotations.
-	pass
+    # preprocess annotations.
+    meta = _load_raw_meta(raw)
+    words = meta.query('kind=="word"').copy()
+    pass
 
+
+
+def _threshold_baseline_epochs(epochs, threshold_percentile=95):
+    """
+    Threshold and baseline the epochs of 
+    """
+    # threshold
+    th = np.percentile(np.abs(epochs._data), threshold_percentile)
+    # Treshold the data ?
+    epochs._data[:] = np.clip(epochs._data, -th, th)
+    epochs.apply_baseline()
+    th = np.percentile(np.abs(epochs._data), threshold_percentile)
+    epochs._data[:] = np.clip(epochs._data, -th, th)
+    epochs.apply_baseline()
+    return epochs
+ 
 def segment_by_phoneme(raw):
     # preproc annotations
     meta = list()
