@@ -3,10 +3,28 @@ import json
 import numpy as np
 import mne
 from mne_bids import BIDSPath # Import the BIDSPath class
+import mne
+import mne_bids
+import numpy as np
+import pandas as pd
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.model_selection import KFold, cross_val_predict
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler, scale
+from tqdm import trange
+from wordfreq import zipf_frequency
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+import matplotlib
+
 from .env import *
 
 # Create a BIDSPath object
 DATASET_ROOT="/content/drive/MyDrive/TUE-SUMMER-2024/ulm-meg/"
+
+ph_info = pd.read_csv(MEG_MASC_ROOT+"/phoneme_info.csv")
+
 
 def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",  task="1"):
     bids_path = BIDSPath(root=DATASET_ROOT, subject=subject, session=session, task=task,datatype=datatype)
@@ -61,16 +79,159 @@ def get_layer_activations():
     pass
 
 
-
 def load_subject_information():
     # Read information about subjects
     subjects = pd.read_csv(MEG_MASC_ROOT +  "/participants.tsv", sep="\t")
     return subjects
 
-def load_subject_information_per_subject(subject_id):
+def load_subject_ids():
     # find subject id
-    subjects = load_subject_information(subject_id)
+    subjects = load_subject_information()
     subjects = subjects.participant_id.apply(lambda x: x.split("-")[1]).values
     return subjects 
 
+def _load_raw_meta(raw):
+    # preproc annotations
+    meta = list()
+    for annot in raw.annotations:
+        d = eval(annot.pop("description")) # direct of the annotation
+        for k, v in annot.items():
+            assert k not in d.keys()
+            d[k] = v
+        meta.append(d)
+    meta = pd.DataFrame(meta)
+    meta["intercept"] = 1.0
 
+
+# [ ] Need to segment by word instead!
+def segment_by_word(raw):
+	# preprocess annotations.
+	pass
+
+def segment_by_phoneme(raw):
+    # preproc annotations
+    meta = list()
+    for annot in raw.annotations:
+        d = eval(annot.pop("description")) # direct of the annotation
+        for k, v in annot.items():
+            assert k not in d.keys()
+            d[k] = v
+        meta.append(d)
+    meta = pd.DataFrame(meta)
+    meta["intercept"] = 1.0
+
+    # compute voicing
+    phonemes = meta.query('kind=="phoneme"') # find all phonemes
+    assert len(phonemes)
+    for ph, d in phonemes.groupby("phoneme"):
+        ph = ph.split("_")[0]
+        match = ph_info.query("phoneme==@ph")
+        assert len(match) == 1
+        meta.loc[d.index, "voiced"] = match.iloc[0].phonation == "v"
+
+    # compute word frquency and merge w/ phoneme
+    meta["is_word"] = False
+    words = meta.query('kind=="word"').copy()
+    assert len(words) > 10
+    # assert np.all(meta.loc[words.index + 1, "kind"] == "phoneme")
+    meta.loc[words.index + 1, "is_word"] = True
+    wfreq = lambda x: zipf_frequency(x, "en")  # noqa
+    # Create an index of word frequencies.
+    meta.loc[words.index + 1, "wordfreq"] = words.word.apply(wfreq).values
+
+    meta = meta.query('kind=="phoneme"')
+    assert len(meta.wordfreq.unique()) > 2
+
+    # segment
+    events = np.c_[
+        meta.onset * raw.info["sfreq"], np.ones((len(meta), 2))
+    ].astype(int)
+
+    epochs = mne.Epochs(
+        raw,
+        events,
+        tmin=-0.200,
+        tmax=0.6,
+        decim=10,
+        baseline=(-0.2, 0.0),
+        metadata=meta,
+        preload=True,
+        event_repeated="drop",
+    ) # Take the events and segment them
+
+    # threshold
+    th = np.percentile(np.abs(epochs._data), 95)
+    # Treshold the data ?
+    epochs._data[:] = np.clip(epochs._data, -th, th)
+    epochs.apply_baseline()
+    th = np.percentile(np.abs(epochs._data), 95)
+    epochs._data[:] = np.clip(epochs._data, -th, th)
+    epochs.apply_baseline()
+    return epochs
+
+def _get_raw_file(subject, session, task):
+	print(".", end="")
+	bids_path = mne_bids.BIDSPath(
+		subject=subject,
+		session=str(session),
+		task=str(task),
+		datatype="meg",
+		root=MEG_MASC_ROOT
+	)
+	try:
+		raw = mne_bids.read_raw_bids(bids_path)
+	except FileNotFoundError:
+		print("missing", subject, session, task)
+		raise RuntimeError("missing %s, %s, %s" % (subject, session, task))
+	raw = raw.pick_types(
+		meg=True, misc=False, eeg=False, eog=False, ecg=False
+	)
+	# pick the frequency
+	raw.load_data().filter(0.5, 30.0, n_jobs=1)
+	return raw	
+
+def _get_epochs(subject, segment=segment_by_phoneme):
+    all_epochs = list()
+    for session in range(2):
+        for task in range(4):
+            print(".", end="")
+            bids_path = mne_bids.BIDSPath(
+                subject=subject,
+                session=str(session),
+                task=str(task),
+                datatype="meg",
+                root=MEG_MASC_ROOT
+            )
+            try:
+                raw = mne_bids.read_raw_bids(bids_path)
+            except FileNotFoundError:
+                print("missing", subject, session, task)
+                continue
+            raw = raw.pick_types(
+                meg=True, misc=False, eeg=False, eog=False, ecg=False
+            )
+            # pick the frequency
+            raw.load_data().filter(0.5, 30.0, n_jobs=1)
+
+            epochs = segment(raw)
+            epochs.metadata["half"] = np.round(
+                np.linspace(0, 1.0, len(epochs))
+            ).astype(int)
+            epochs.metadata["task"] = task
+            epochs.metadata["session"] = session
+
+            all_epochs.append(epochs)
+    if not len(all_epochs):
+        return
+    epochs = mne.concatenate_epochs(all_epochs)
+    m = epochs.metadata
+    label = (
+        "t"
+        + m.task.astype(str)
+        + "_s"
+        + m.session.astype(str)
+        + "_h"
+        + m.half.astype(str)
+    )
+    epochs.metadata["label"] = label
+    return epochs
