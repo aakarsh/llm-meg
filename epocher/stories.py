@@ -19,6 +19,10 @@ def load_stimuli(directory):
     return content_map
 
 
+def filter_stop_words(words, num_words = None):
+    tagged_words = nltk.pos_tag(words)
+    salient_words = [word for word, tag in tagged_words if len(word)>2 and tag.startswith('NN') or tag.startswith('VB')]
+    return list(set(salient_words))
 
 def get_salient_words(all_text, num_words=20):
     # Tokenization: Remove punctuation and split into words

@@ -19,6 +19,7 @@ from pathlib import Path
 import matplotlib
 
 from .env import *
+from . import stories as S 
 
 # Create a BIDSPath object
 DATASET_ROOT="/content/drive/MyDrive/TUE-SUMMER-2024/ulm-meg/"
@@ -106,12 +107,15 @@ def _load_raw_meta(raw):
 
 # [ ] Need to segment by word instead!
 def segment_by_word(raw, tmax=0.9):
+    """
+    Loads the segmeted word data
+    """
     # preprocess annotations.
     meta = _load_raw_meta(raw)
     meta = meta.query('kind=="word"').copy()
     word_events = np.c_[meta.onset*raw.info['sfreq'], 
                                 np.ones((len(meta), 2))].astype(int)
-    word_epochs = mne.Epochs(raw, 
+    word_epochs = mne.Epochs(raw,
                                 word_events, 
                                 tmin=-.2, 
                                 tmax=tmax, # TODO: this maynot be right.
@@ -121,9 +125,7 @@ def segment_by_word(raw, tmax=0.9):
                                 preload=True, 
                                 event_repeated="drop")
     word_epochs = _threshold_baseline_epochs(word_epochs)
-
     return word_epochs
-
 
 
 def _threshold_baseline_epochs(epochs, threshold_percentile=95):
@@ -201,26 +203,31 @@ def segment_by_phoneme(raw):
     epochs.apply_baseline()
     return epochs
 
+
+def _word_epoch_words(word_meta):
+    unique_words = list(word_meta["word"].unique())
+    return S.filter_stop_words(unique_words)
+
 def _get_raw_file(subject, session, task):
-	print(".", end="")
-	bids_path = mne_bids.BIDSPath(
-		subject=subject,
-		session=str(session),
-		task=str(task),
-		datatype="meg",
-		root=MEG_MASC_ROOT
-	)
-	try:
-		raw = mne_bids.read_raw_bids(bids_path)
-	except FileNotFoundError:
-		print("missing", subject, session, task)
-		raise RuntimeError("missing %s, %s, %s" % (subject, session, task))
-	raw = raw.pick_types(
-		meg=True, misc=False, eeg=False, eog=False, ecg=False
-	)
-	# pick the frequency
-	raw.load_data().filter(0.5, 30.0, n_jobs=1)
-	return raw	
+    print(".", end="")
+    bids_path = mne_bids.BIDSPath(
+        subject=subject,
+        session=str(session),
+        task=str(task),
+        datatype="meg",
+        root=MEG_MASC_ROOT
+    )
+    try:
+        raw = mne_bids.read_raw_bids(bids_path)
+    except FileNotFoundError:
+        print("missing", subject, session, task)
+        raise RuntimeError("missing %s, %s, %s" % (subject, session, task))
+    raw = raw.pick_types(
+        meg=True, misc=False, eeg=False, eog=False, ecg=False
+    )
+    # pick the frequency
+    raw.load_data().filter(0.5, 30.0, n_jobs=1)
+    return raw  
 
 def _get_epochs(subject, segment=segment_by_phoneme):
     all_epochs = list()
