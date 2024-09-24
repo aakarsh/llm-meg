@@ -15,6 +15,6 @@ def test_construct_subject_rsa():
     meta_data = D._load_raw_meta(raw_file)
     word_epochs = D.segment_by_word(raw_file) 
     assert len(word_epochs) > 0
-    assert len(D._word_epoch_words(word_epochs.meta_data)) > 0
+    assert len(D._word_epoch_words(word_epochs.metadata)) > 0
 
 

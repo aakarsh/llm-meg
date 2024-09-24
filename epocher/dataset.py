@@ -206,7 +206,8 @@ def segment_by_phoneme(raw):
 
 def _word_epoch_words(word_meta):
     unique_words = list(word_meta["word"].unique())
-    return S.filter_stop_words(unique_words)
+    lower_case_unique_words = list(map(lambda s : s.lower(), unique_words))
+    return S.filter_stop_words(lower_case_unique_words)
 
 def _get_raw_file(subject, session, task):
     print(".", end="")
