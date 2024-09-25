@@ -61,7 +61,7 @@ def find_word_events_from_annotation(raw):
 
     return all_word_events, all_word_event_id
 
-def create_word_epochs(raw, tmin=-.01, tmax=.05):
+def create_word_epochs(raw, tmin=-.01, tmax=.25):
    all_events, all_event_id = find_word_events_from_annotation(raw) 
    epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
    return epochs
@@ -106,7 +106,7 @@ def _load_raw_meta(raw):
 
 
 # [ ] Need to segment by word instead!
-def segment_by_word(raw, tmax=0.9):
+def segment_by_word(raw, tmax=0.25):
     """
     Loads the segmeted word data
     """
