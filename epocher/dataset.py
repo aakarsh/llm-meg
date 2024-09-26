@@ -81,8 +81,10 @@ def _get_epoch_word_map(subject_id, session_id, task_id):
 
     target_word_epochs = { word: word_epochs[words_meta[words_meta["word"] == word].index] for word in words_found 
             if len(word_epochs[words_meta[words_meta["word"] == word].index]) >0 }
-
-    return  words_sorted_metadata_df, target_word_epochs 
+   
+    word_index = list(sorted(target_word_epochs.keys()))
+    
+    return  word_index, words_sorted_metadata_df, target_word_epochs 
 
 
 def parse_event_description(event_json_str):
