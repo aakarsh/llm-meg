@@ -68,17 +68,19 @@ def create_word_epochs(raw, tmin=-.01, tmax=.25):
 
 def _get_epoch_word_map(subject_id, session_id, task_id):
     raw_file = _get_raw_file(subject_id, session_id, task_id)
-    word_epochs = segment_by_word(raw_file)
-    meta_data = _load_raw_meta(raw_file)
-    words_meta = word_epochs.metadata
-    words_found = _word_epoch_words(words_meta)
-    # Filter out the empty epochs here.
 
-    words_found_metadata_df =  word_meta[word_meta["word"].isin(words_found)]
+    word_epochs = segment_by_word(raw_file)
+    words_meta = word_epochs.metadata
+
+    # Filter out the stop words. 
+    words_found = _word_epoch_words(words_meta)
+
+    words_found_metadata_df =  words_meta[words_meta["word"].isin(words_found)]
     words_sorted_metadata_df = words_found_metadata_df.sort_values(by="word")
     words_sorted_index = words_sorted_metadata_df.index
-    target_word_epochs = { word: word_epochs[word_meta[word_meta["word"] == word].index] for word in word_found 
-            if len(word_epochs[word_meta[word_meta["word"] == word]]) >0 }
+
+    target_word_epochs = { word: word_epochs[words_meta[words_meta["word"] == word].index] for word in words_found 
+            if len(word_epochs[words_meta[words_meta["word"] == word].index]) >0 }
 
     return  words_sorted_metadata_df, target_word_epochs 
 
