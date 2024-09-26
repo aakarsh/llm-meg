@@ -31,7 +31,7 @@ from . import stories as S
 from . import dataset as D
 
 
-def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=40):
+def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
       word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
       # Initialize dictionary to store ICA-transformed epochs
       ica_epochs = {}
@@ -66,32 +66,10 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=40):
         print("epoch_ica", word, epochs_ica.average().get_data())
 
       return word_index, word_metadata_df, word_epoch_map, ica_epochs
+
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
-
-      word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
       # Initialize dictionary to store ICA-transformed epochs
-      ica_epochs = {}
-
-      # Loop through each target word and apply ICA
-      for word in word_index:
-        print("word", word)
-        epochs = word_epoch_map[word]
-          # Get the epoch data for the target word
-        if len(epochs) == 0:
-          continue
-        # Initialize ICA model
-        ica = ICA(n_components=20, random_state=42)
-
-        # Fit ICA to the epochs data
-        ica.fit(epochs)
-
-        # Apply ICA to the epochs to get independent components
-        epochs_ica = ica.apply(epochs.copy())
-
-        # Store the ICA-transformed epochs
-        ica_epochs[word] = epochs_ica
-        print("epoch_ica", word, epochs_ica.average().get_data())
-
+      word_index, word_metadata_df, word_epoch_map, ica_epochs = _get_ica_epochs(subject_id, session_id, task_id)
       # Extract ICA data for RSA
       target_word_vectors = []
 
