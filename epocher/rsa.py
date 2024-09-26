@@ -75,7 +75,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
 
       for word in word_index:
         print("word", word)
-        epoch_ica = ica_epochs[word]
+        epochs_ica = ica_epochs[word]
         # Average the ICA components over time
         avg_ica = epochs_ica.average().get_data()  # Shape: (n_channels, n_times)
 
