@@ -66,6 +66,17 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
 
       return word_index, word_metadata_df, word_epoch_map, ica_epochs
 
+
+def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
+    # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
+    correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
+    return correlation
+
+def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0):
+    rd_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id)
+    _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, session_id=session_id, task_id=task_id)
+    return _compare_rsa(similarity_matrix_0,similarity_matrix_1)
+
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
       # Initialize dictionary to store ICA-transformed epochs
       word_index, word_metadata_df, word_epoch_map, ica_epochs = _get_ica_epochs(subject_id, session_id, task_id)
