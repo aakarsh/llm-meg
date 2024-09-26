@@ -52,6 +52,15 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=40):
         # Apply ICA to the epochs to get independent components
         epochs_ica = ica.apply(epochs.copy())
 
+
+
+        # Baseline-correct the ICA-transformed epochs
+        # Define the baseline period. For example, (-0.2, 0) takes the time period between -200 ms and 0 ms.
+        baseline_period = (-0.2, 0)
+
+        # Apply baseline correction to the ICA-transformed data
+        epochs_ica.apply_baseline(baseline=baseline_period)
+
         # Store the ICA-transformed epochs
         ica_epochs[word] = epochs_ica
         print("epoch_ica", word, epochs_ica.average().get_data())
