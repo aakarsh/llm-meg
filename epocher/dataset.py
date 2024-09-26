@@ -124,7 +124,7 @@ def segment_by_word(raw, tmax=0.25):
                                 metadata=meta, 
                                 preload=True, 
                                 event_repeated="drop")
-    word_epochs = _threshold_baseline_epochs(word_epochs)
+    #word_epochs = _threshold_baseline_epochs(word_epochs)
     return word_epochs
 
 
