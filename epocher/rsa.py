@@ -35,6 +35,8 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
       word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
       # Initialize dictionary to store ICA-transformed epochs
       ica_epochs = {}
+      # Initialize ICA model
+      ica = ICA(n_components=n_components, random_state=42)
 
       # Loop through each target word and apply ICA
       for word in word_index:
@@ -43,9 +45,6 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
           # Get the epoch data for the target word
         if len(epochs) == 0:
           continue
-        # Initialize ICA model
-        ica = ICA(n_components=n_components, random_state=42)
-
         # Fit ICA to the epochs data
         ica.fit(epochs)
 
@@ -106,6 +105,6 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
       normalized_vectors = np.array(normalized_vectors)
 
       # Compute cosine similarity matrix
-      similarity_matrix = cosine_similarity(target_word_vectors)
+      similarity_matrix = cosine_similarity(normalized_vectors)
 
       return word_index, similarity_matrix
