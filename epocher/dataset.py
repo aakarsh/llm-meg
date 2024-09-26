@@ -66,6 +66,23 @@ def create_word_epochs(raw, tmin=-.01, tmax=.25):
    epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
    return epochs
 
+def _get_epoch_word_map(subject_id, session_id, task_id):
+    raw_file = _get_raw_file(subject_id, session_id, task_id)
+    word_epochs = segment_by_word(raw_file)
+    meta_data = _load_raw_meta(raw_file)
+    words_meta = word_epochs.metadata
+    words_found = _word_epoch_words(words_meta)
+    # Filter out the empty epochs here.
+
+    words_found_metadata_df =  word_meta[word_meta["word"].isin(words_found)]
+    words_sorted_metadata_df = words_found_metadata_df.sort_values(by="word")
+    words_sorted_index = words_sorted_metadata_df.index
+    target_word_epochs = { word: word_epochs[word_meta[word_meta["word"] == word].index] for word in word_found 
+            if len(word_epochs[word_meta[word_meta["word"] == word]]) >0 }
+
+    return  words_sorted_metadata_df, target_word_epochs 
+
+
 def parse_event_description(event_json_str):
     event_json_str = event_json_str.replace('\'', '"')
     return json.loads(event_json_str)
@@ -105,7 +122,6 @@ def _load_raw_meta(raw):
     return meta
 
 
-# [ ] Need to segment by word instead!
 def segment_by_word(raw, tmax=0.25):
     """
     Loads the segmeted word data
