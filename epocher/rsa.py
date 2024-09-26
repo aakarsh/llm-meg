@@ -30,6 +30,33 @@ from .env import *
 from . import stories as S 
 from . import dataset as D
 
+
+def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=40):
+      word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
+      # Initialize dictionary to store ICA-transformed epochs
+      ica_epochs = {}
+
+      # Loop through each target word and apply ICA
+      for word in word_index:
+        print("word", word)
+        epochs = word_epoch_map[word]
+          # Get the epoch data for the target word
+        if len(epochs) == 0:
+          continue
+        # Initialize ICA model
+        ica = ICA(n_components=n_components, random_state=42)
+
+        # Fit ICA to the epochs data
+        ica.fit(epochs)
+
+        # Apply ICA to the epochs to get independent components
+        epochs_ica = ica.apply(epochs.copy())
+
+        # Store the ICA-transformed epochs
+        ica_epochs[word] = epochs_ica
+        print("epoch_ica", word, epochs_ica.average().get_data())
+
+      return word_index, word_metadata_df, word_epoch_map, ica_epochs
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
 
       word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
@@ -54,6 +81,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
 
         # Store the ICA-transformed epochs
         ica_epochs[word] = epochs_ica
+        print("epoch_ica", word, epochs_ica.average().get_data())
 
       # Extract ICA data for RSA
       target_word_vectors = []
@@ -70,6 +98,14 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
         print("vector",vector.shape, vector) 
       # Convert to numpy array
       target_word_vectors = np.array(target_word_vectors)
+
+      for i, vec in enumerate(target_word_vectors):
+          print(f"Word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
+
+      for word, epochs_ica in ica_epochs.items():
+          print(f"ICA data for {word}: {epochs_ica.get_data().shape}")
+
+
 
       # Normalize each word vector across its flattened dimensions (n_channels, n_padded_times, n_trials)
       normalized_vectors = []
