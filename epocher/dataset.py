@@ -31,12 +31,6 @@ def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",
     bids_path = BIDSPath(root=DATASET_ROOT, subject=subject, session=session, task=task,datatype=datatype)
     return bids_path
 
-def find_word_events(raw):
-    pass
-
-def find_sentence_events(raw):
-    pass
-
 def is_word(event_json):
     return event_json['kind'] == "word"
 

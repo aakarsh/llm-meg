@@ -17,4 +17,3 @@ def test_construct_subject_rsa():
     assert len(word_epochs) > 0
     assert len(D._word_epoch_words(word_epochs.metadata)) > 0
 
-

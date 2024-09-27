@@ -32,6 +32,9 @@ from . import dataset as D
 
 
 def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
+      """
+      ICA epochs for task_id.
+      """
       word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
       # Initialize dictionary to store ICA-transformed epochs
       ica_epochs = {}
@@ -52,9 +55,9 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
         epochs_ica = ica.apply(epochs.copy())
 
 
-
         # Baseline-correct the ICA-transformed epochs
-        # Define the baseline period. For example, (-0.2, 0) takes the time period between -200 ms and 0 ms.
+        # Define the baseline period. For example, (-0.2, 0) takes the 
+        # time period between -200 ms and 0 ms.
         baseline_period = (-0.2, 0)
 
         # Apply baseline correction to the ICA-transformed data
@@ -76,6 +79,7 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0):
     rd_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id)
     _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, session_id=session_id, task_id=task_id)
     return _compare_rsa(similarity_matrix_0,similarity_matrix_1)
+
 
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
       # Initialize dictionary to store ICA-transformed epochs
