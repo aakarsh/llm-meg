@@ -39,7 +39,7 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, t
           # Given  a task list.
           session_id = session_id[0]
 
-      word_index, word_metadata_df, word_epoch_map = \ 
+      word_index, word_metadata_df, word_epoch_map = \
           D._get_epoch_word_map(subject_id, session_id, task_id, tmax=tmax)
 
       # Initialize dictionary to store ICA-transformed epochs
@@ -84,16 +84,17 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
     _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, session_id=session_id, task_id=task_id, tmax=tmax)
     return _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
-def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, tmax=0.25):
+def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
+
       # Initialize dictionary to store ICA-transformed epochs
-      word_index, word_metadata_df, word_epoch_map, ica_epochs = \ 
-          _get_ica_epochs(subject_id, session_id, task_id, tmax=tmax)
+      word_index, word_metadata_df, word_epoch_map, ica_epochs = \
+          _get_ica_epochs(subject_id, session_id, task_id,n_components=n_components, tmax=tmax)
 
       # Extract ICA data for RSA
       target_word_vectors = []
 
       for word in word_index:
-        print("word", word)
+        # print("word", word)
         epochs_ica = ica_epochs[word]
         # Average the ICA components over time
         avg_ica = epochs_ica.average().get_data()  # Shape: (n_channels, n_times)
@@ -101,17 +102,17 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, tmax=0.25):
         # Flatten the data (optional: you can decide to not flatten depending on your approach)
         vector = avg_ica.flatten()
         target_word_vectors.append(vector)
-        print("vector",vector.shape, vector) 
+        # print("vector",vector.shape, vector) 
       # Convert to numpy array
       target_word_vectors = np.array(target_word_vectors)
 
-      for i, vec in enumerate(target_word_vectors):
-          print(f"Word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
+      debug = False
+      if debug:
+          for i, vec in enumerate(target_word_vectors):
+              print(f"Word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
 
-      for word, epochs_ica in ica_epochs.items():
-          print(f"ICA data for {word}: {epochs_ica.get_data().shape}")
-
-
+          for word, epochs_ica in ica_epochs.items():
+              print(f"ICA data for {word}: {epochs_ica.get_data().shape}")
 
       # Normalize each word vector across its flattened dimensions (n_channels, n_padded_times, n_trials)
       normalized_vectors = []
