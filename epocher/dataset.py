@@ -60,10 +60,10 @@ def create_word_epochs(raw, tmin=-.01, tmax=.25):
    epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
    return epochs
 
-def _get_epoch_word_map(subject_id, session_id, task_id):
+def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
     raw_file = _get_raw_file(subject_id, session_id, task_id)
 
-    word_epochs = segment_by_word(raw_file)
+    word_epochs = segment_by_word(raw_file, tmax=tmax)
     words_meta = word_epochs.metadata
 
     # Filter out the stop words. 
@@ -85,14 +85,6 @@ def parse_event_description(event_json_str):
     event_json_str = event_json_str.replace('\'', '"')
     return json.loads(event_json_str)
 
-
-def create_rsa_matrix():
-    print("How do I create a representational similairty matrix.")
-    pass
-
-def get_layer_activations():
-    print("How do i get layer activations")
-    pass
 
 
 def load_subject_information():

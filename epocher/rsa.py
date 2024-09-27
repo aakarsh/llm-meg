@@ -31,19 +31,25 @@ from . import stories as S
 from . import dataset as D
 
 
-def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
+def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
       """
-      ICA epochs for task_id.
+      ICA: Aggregate for same task accross sessions. 
       """
-      word_index, word_metadata_df, word_epoch_map = D._get_epoch_word_map(subject_id, session_id, task_id)
+      if type(session_id) == list:
+          # Given  a task list.
+          session_id = session_id[0]
+
+      word_index, word_metadata_df, word_epoch_map = \ 
+          D._get_epoch_word_map(subject_id, session_id, task_id, tmax=tmax)
+
       # Initialize dictionary to store ICA-transformed epochs
       ica_epochs = {}
+
       # Initialize ICA model
       ica = ICA(n_components=n_components, random_state=42)
 
       # Loop through each target word and apply ICA
       for word in word_index:
-        print("word", word)
         epochs = word_epoch_map[word]
           # Get the epoch data for the target word
         if len(epochs) == 0:
@@ -53,7 +59,6 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
 
         # Apply ICA to the epochs to get independent components
         epochs_ica = ica.apply(epochs.copy())
-
 
         # Baseline-correct the ICA-transformed epochs
         # Define the baseline period. For example, (-0.2, 0) takes the 
@@ -65,8 +70,7 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15):
 
         # Store the ICA-transformed epochs
         ica_epochs[word] = epochs_ica
-        print("epoch_ica", word, epochs_ica.average().get_data())
-
+        
       return word_index, word_metadata_df, word_epoch_map, ica_epochs
 
 
@@ -75,15 +79,16 @@ def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
     return correlation
 
-def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0):
-    rd_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id)
-    _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, session_id=session_id, task_id=task_id)
-    return _compare_rsa(similarity_matrix_0,similarity_matrix_1)
+def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
+    rd_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id, tmax=tmax)
+    _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, session_id=session_id, task_id=task_id, tmax=tmax)
+    return _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
-
-def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0):
+def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, tmax=0.25):
       # Initialize dictionary to store ICA-transformed epochs
-      word_index, word_metadata_df, word_epoch_map, ica_epochs = _get_ica_epochs(subject_id, session_id, task_id)
+      word_index, word_metadata_df, word_epoch_map, ica_epochs = \ 
+          _get_ica_epochs(subject_id, session_id, task_id, tmax=tmax)
+
       # Extract ICA data for RSA
       target_word_vectors = []
 
