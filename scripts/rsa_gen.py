@@ -61,8 +61,8 @@ def main():
     generate_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
 
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
-    plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=True, help='ID of the subject')
-    plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=True, help='ID of the task')
+    plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=False, help='ID of the subject', default=None)
+    plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=False, help='ID of the task', default=None)
 
     args = parser.parse_args()
 

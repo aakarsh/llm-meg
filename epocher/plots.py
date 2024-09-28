@@ -10,11 +10,18 @@ import numpy as np
 import plotly.express as px
 from sklearn.manifold import TSNE
 
-# Step 2: Create a DataFrame for Plotly
 import pandas as pd
 import json
+import os
 
 from .env import *
+import epocher.dataset as D
+
+def word_index_file_name(subject_id, task_id):
+   return f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
+
+def similarity_index_file_name(subject_id, task_id):
+    return f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
 
 def load_similarity_matrix(subject_id, task_id):
     word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
@@ -30,10 +37,23 @@ def load_similarity_matrix(subject_id, task_id):
     
 
 def plot_saved_similarity_matrix(subject_id=None, task_id=None):
-    file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png" 
-  
-    word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id)
-    plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
+
+    if subject_id == None and task_id == None:
+        for subject_id in D.load_subject_ids():
+            for task_id in D.load_task_ids():
+                if os.path.exists(word_index_file_name(subject_id, task_id)) and \
+                    os.path.exists(similarity_index_file_name(subject_id, task_id)):
+
+                    file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png" 
+                    word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id)
+                    plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
+    else: # single 
+        if os.path.exists(word_index_file_name(subject_id, task_id)) and \
+            os.path.exists(similarity_index_file_name(subject_id, task_id)):
+            word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id)
+            file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png" 
+            plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
+
 
 def plot_similarity_matrix(word_index, similarity_matrix, h=160, w=128, file_path="./images/sim_words.png"):
     # Assuming 'similarity_matrix' is already computed
