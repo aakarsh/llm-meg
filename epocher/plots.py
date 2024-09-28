@@ -12,7 +12,22 @@ from sklearn.manifold import TSNE
 
 # Step 2: Create a DataFrame for Plotly
 import pandas as pd
+import json
 
+
+
+def load_similarity_matrix(subject_id, task_id):
+    word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
+    similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+
+    word_index = None
+    with open(file_path, 'r') as infile:
+         word_index = json.load(infile)
+
+def plot_saved_similarity_matrix(subject_id, task_id):
+    file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png") 
+    
+    plot_similarity_matrix(word_index, similarity_matrix, file_path)
 
 def plot_similarity_matrix(word_index, similarity_matrix, h=160, w=128, file_path="./images/sim_words.png"):
     # Assuming 'similarity_matrix' is already computed
