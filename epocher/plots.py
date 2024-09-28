@@ -37,7 +37,6 @@ def load_similarity_matrix(subject_id, task_id):
     
 
 def plot_saved_similarity_matrix(subject_id=None, task_id=None):
-
     if subject_id == None and task_id == None:
         for subject_id in D.load_subject_ids():
             for task_id in D.load_task_ids():
