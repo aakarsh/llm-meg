@@ -98,6 +98,9 @@ def load_subject_ids():
     subjects = subjects.participant_id.apply(lambda x: x.split("-")[1]).values
     return subjects 
 
+def load_task_ids():
+    return [0, 1, 2, 3]
+
 def _load_raw_meta(raw):
     # preproc annotations
     meta = list()

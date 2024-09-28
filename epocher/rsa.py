@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import matplotlib
-
+import logging
 
 import mne
 from mne.preprocessing import ICA
@@ -80,15 +80,23 @@ def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     return correlation
 
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
-    rd_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id, tmax=tmax)
-    _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, session_id=session_id, task_id=task_id, tmax=tmax)
-    return _compare_rsa(similarity_matrix_0, similarity_matrix_1)
+    word_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id, tmax=tmax)
+    _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, 
+            session_id=session_id, task_id=task_id, tmax=tmax, reference_word_idx = word_index)
 
-def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
+    return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
+
+
+def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
+        reference_word_idx = None, save_similarity_matrix=False, debug=False):
 
       # Initialize dictionary to store ICA-transformed epochs
       word_index, word_metadata_df, word_epoch_map, ica_epochs = \
           _get_ica_epochs(subject_id, session_id, task_id,n_components=n_components, tmax=tmax)
+
+      # Overwrite word index with reference word index
+      if reference_word_idx: 
+          word_index = reference_word_idx
 
       # Extract ICA data for RSA
       target_word_vectors = []
@@ -106,7 +114,6 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
       # Convert to numpy array
       target_word_vectors = np.array(target_word_vectors)
 
-      debug = False
       if debug:
           for i, vec in enumerate(target_word_vectors):
               print(f"Word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
@@ -128,4 +135,14 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
       # Compute cosine similarity matrix
       similarity_matrix = cosine_similarity(normalized_vectors)
 
+
+      if save_similarity_matrix: 
+          # Serialize the word index as JSON
+          word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
+          with open(word_index_file, 'w') as f:
+              json.dump(word_index, f)
+          #Serialize the similarity matrix as an `.npy` file
+          similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+          np.save(similarity_matrix_file, similarity_matrix)
       return word_index, similarity_matrix
+
