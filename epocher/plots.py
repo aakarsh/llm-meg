@@ -54,22 +54,35 @@ def plot_saved_similarity_matrix(subject_id=None, task_id=None):
             plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
 
 
-def plot_similarity_matrix(word_index, similarity_matrix, h=160, w=128, file_path="./images/sim_words.png"):
+def plot_similarity_matrix(word_index, similarity_matrix, 
+        h=160, w=128, 
+        cell_size=1.5, font_size_multiplier=0.4,
+        file_path="./images/sim_words.png"):
     # Assuming 'similarity_matrix' is already computed
     # Set up the labels for the heatmap
-    labels = word_index #[word_epochs[i].metadata['word'].values[0] for i in target_words_index]
+    labels = word_index 
+
+
+    # Calculate dynamic figure size based on number of words and the cell size
+    num_words = len(word_index)
+    fig_w = fig_h = num_words * cell_size
+                    
+    # Dynamically set the annotation font size based on cell size
+    annot_fontsize = cell_size * font_size_multiplier * 10
 
     # Create the heatmap
     plt.figure(figsize=(h, w))
     sns.heatmap(similarity_matrix, annot=True, fmt=".2f", cmap="coolwarm",
-                        xticklabels=labels, yticklabels=labels, square=True, cbar_kws={"shrink": .8})
+                        xticklabels=labels, yticklabels=labels, 
+                        square=True, cbar_kws={"shrink": .8}, 
+                        annot_kws={"size": annot_fontsize})
 
     # Title and labels
     plt.title("Cosine Similarity Matrix for Target Words")
     plt.xlabel("Target Words")
     plt.ylabel("Target Words")
 
-    plt.savefig(file_path)
+    plt.savefig(file_path, bbox_inches='tight')
     # Show the plot
     plt.show()
 
