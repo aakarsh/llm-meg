@@ -24,6 +24,8 @@ def load_similarity_matrix(subject_id, task_id):
     with open(file_path, 'r') as infile:
          word_index = json.load(infile)
 
+    
+
 def plot_saved_similarity_matrix(subject_id, task_id):
     file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png") 
     
