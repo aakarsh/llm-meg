@@ -35,8 +35,10 @@ def compute_all_rsa_matrics(task_id = None):
             word_index, similarity_matrix_0 = \
                 rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
 
+
 def compute_rsa_matrix(subject_id, task_id):
     word_index, similarity_matrix_0 = rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
+
 
 def main():
     # Parse arguments
@@ -57,6 +59,10 @@ def main():
 
     generate_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
 
+    plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
+    plot_rsa_tabe_parser.add_argument('--subject', type=str, required=True, help='ID of the subject')
+    plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=True, help='ID of the task')
+
     args = parser.parse_args()
 
     if args.command == 'compare':
@@ -68,6 +74,8 @@ def main():
         compute_rsa_matrix(subject_id=args.subject, task_id=args.task_id)
     elif args.command == 'generate-all':
         compute_all_rsa_matrics()
+    elif args.command == 'plot-rsa-table':
+        # plot rsa-table 
     else:
         print("Please provide a valid command ('compare' or 'generate').")
 
