@@ -103,7 +103,7 @@ def main():
     elif args.command == 'generate-all':
         compute_all_rsa_matrics()
     elif args.command == 'generate-model':
-       compute_similarity_matrics()
+       compute_similarity_matrics(model=args.model)
     elif args.command == 'compare-model':
        compare_with_model(args.model)
     elif args.command == 'plot-rsa-table':

@@ -30,6 +30,7 @@ from .env import *
 from . import stories as S 
 from . import dataset as D
 from . import llm_glove as G
+from . import llm_bert as B
 
 
 def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
@@ -160,9 +161,10 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", save_similari
     if model == "GLOVE":
           similarity_matrix = G.create_rsa_matrix(word_index)
     elif model == "BERT":
-          similarity_matrix = B.create_rsa_matrix(word_index)
+          similarity_matrix = B.create_rsa_matrix(word_index, task_id)
     else:
         raise RuntimeError(f'Unkown model: {model}')
+
     if save_similarity_matrix: 
       # Serialize the word index as JSON
       word_index_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'

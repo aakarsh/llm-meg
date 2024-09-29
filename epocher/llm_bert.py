@@ -57,6 +57,8 @@ def get_index_stimulus_stories(word_index, task_id, use_cache=True):
 
     avg_word_embeddings = []
     for word_to_avg in word_index:
+        #word_inputs = tokenizer(word_to_avg, return_tensors='pt', truncation=True, padding=True)
+        #decoded_word = tokenizer.decode(word_inputs['input_ids'][0])
         avg_word_embedding =  average_embeddings[word_to_avg]
         avg_word_embeddings.append(avg_word_embedding)
 
