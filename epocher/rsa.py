@@ -80,6 +80,12 @@ def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
     return correlation
 
+def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE"):
+    word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id)
+    model_similarity_matrix = load_model_similarity_matrix(subject_id, task_id, model)
+    return _compare_rsa(similarity_matrix, model_similarity_matrix) 
+
+
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
     word_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id, tmax=tmax)
     _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, 
@@ -171,6 +177,10 @@ def load_word_index(subject_id, task_id, output_dir = OUTPUT_DIR):
          word_index = json.load(infile)
     return word_index
 
+def load_model_similarity_matrix(subject_id, task_id, model):
+    similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+    similarity_matrix = np.load(similarity_matrix_file)
+    return similarity_matrix
 
 def load_similarity_matrix(subject_id, task_id):
     similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'

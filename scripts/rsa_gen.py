@@ -9,10 +9,10 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import epocher
-
 import epocher.rsa as rsa
 import epocher.dataset as D
 import epocher.plots as P
+from epocher.env import *
 
 def compute_rsa_similarity(subject1, subject2, task_id):
     """
@@ -26,9 +26,19 @@ def compute_rsa_similarity(subject1, subject2, task_id):
     correlation = rsa._compare_subjects(subject1, subject2, task_id=task_id)
     return correlation
 
-def compare_with_model(model):
-    correlation = rsa._compare_with_model(task_id, model=model)
+def compare_with_model(model, save_comparisons=True):
+    subject_ids = D.load_subject_ids()
+    task_ids = D.load_task_ids() 
+    correlation_comparisons = np.zeros((len(subject_ids), len(task_ids)))
+    for subject_id in subject_ids:
+        for task_id in task_ids: 
+             correlation = rsa._compare_with_model(subject_id, task_id, model=model)
+             print(f"Comparing {subject_id}, {task_id}: {correlation} with {model}")
+             correlation_comparisons[(int(subject_id)-1, int(task_id)-1)] = correlation 
+    comparison_file_name = f'{OUTPUT_DIR}/model_comparison_{model}_similarity_matrix.npy'
+    np.save(comparison_file_name, correlation_comparisons)
 
+    return correlation_comparisons
 
 def compute_all_rsa_matrics(task_id = None):
     subject_ids = D.load_subject_ids()
@@ -78,7 +88,6 @@ def main():
 
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
     generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
-    args = parser.parse_args()
 
     compare_model = subparsers.add_parser('compare-model', help='Generate comparisons')
     compare_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
@@ -97,7 +106,7 @@ def main():
     elif args.command == 'generate-model':
        generate_glove_rsa_metrics()
     elif args.command == 'compare-model':
-       compare_with_model()
+       compare_with_model(args.model)
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id)
     else:
