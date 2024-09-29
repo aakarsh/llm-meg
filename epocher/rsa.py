@@ -159,15 +159,19 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", save_similari
     similarity_matrix = None
     if model == "GLOVE":
           similarity_matrix = G.create_rsa_matrix(word_index)
-          if save_similarity_matrix: 
-              # Serialize the word index as JSON
-              word_index_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'
-              with open(word_index_file, 'w') as f:
-                  json.dump(word_index, f)
-              # serialize the similarity matrix as an `.npy` file
-              similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-              np.save(similarity_matrix_file, similarity_matrix)
-              print(f'Created {similarity_matrix_file}')
+    elif model == "BERT":
+          similarity_matrix = B.create_rsa_matrix(word_index)
+    else:
+        raise RuntimeError(f'Unkown model: {model}')
+    if save_similarity_matrix: 
+      # Serialize the word index as JSON
+      word_index_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'
+      with open(word_index_file, 'w') as f:
+          json.dump(word_index, f)
+      # serialize the similarity matrix as an `.npy` file
+      similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+      np.save(similarity_matrix_file, similarity_matrix)
+      print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
 def load_word_index(subject_id, task_id, output_dir = OUTPUT_DIR):
