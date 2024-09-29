@@ -15,6 +15,9 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', clean_up_tokeniza
 model = BertModel.from_pretrained('bert-base-uncased')
 
 def get_index_stimulus_stories(story_path):
+    """
+    get_index_stimulus_stories - story_path
+    """
     # Sample story text
     story = "The cat sat on the mat. The cat is happy."
     word_to_avg = "cat"
