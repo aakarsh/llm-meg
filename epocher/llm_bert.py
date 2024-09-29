@@ -19,13 +19,16 @@ model = BertModel.from_pretrained('bert-base-uncased')
 
 task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_widow' ]
 
-STORY_CACHE = None
+EMBEDDING_TASK_CACHE = {}
 
-def get_index_stimulus_stories(word_index, task_id):
+def get_index_stimulus_stories(word_index, task_id, use_cache=True):
     """
     get_index_stimulus_stories - story_path
     """
     story_key = f'{task_stimuli[task_id]}.txt'
+    if story_key in EMBEDDING_TASK_CACHE:
+        return  EMBEDDING_TASK_CACHE[story_key]
+
     story_map = load_experiment_stories()
     story = story_map[story_key]
 
@@ -61,6 +64,14 @@ def get_index_stimulus_stories(word_index, task_id):
                                         for embedding in avg_word_embeddings])
     return retval_embeddings 
 
-def create_rsa_matrix(words):
-    pass
+def create_rsa_matrix(words, task_id):
+    word_vectors = get_index_stimulus_stories(words, task_id)
+    
+    # Normalize word vectors before computing cosine similarity
+    normalized_vectors = normalize_vectors(word_vectors)
+    
+    # Compute similarity matrix
+    similarity_matrix = compute_similarity_matrix(normalized_vectors)
+    
+    return similarity_matrix
 
