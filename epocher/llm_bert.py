@@ -8,6 +8,7 @@ from nltk.tokenize import sent_tokenize
 
 from .env import GLOVE_PATH
 from epocher.stories import load_experiment_stories
+from collections import defaultdict
 
 CACHED_EMBEDDING = {}
 
@@ -50,39 +51,15 @@ def get_index_stimulus_stories(word_index, task_id):
     # Average the embeddings
     average_embeddings = {word: word_embeddings[word] / word_counts[word] 
                                   for word in word_embeddings if word_counts[word] > 0}
-    # tokenize the text
-    inputs = tokenizer(story, return_tensors="pt", padding=True, truncation=True)
-    input_ids = inputs['input_ids']
 
-    # Get embeddings from BERT
-    with torch.no_grad():
-        outputs = model(input_ids)
-        embeddings = outputs.last_hidden_state  # Shape: [batch_size, sequence_length, hidden_size]
-
-    # Decode the tokenized inputs to get the token-ids and find positions of the word 'cat'
-    tokens = tokenizer.convert_ids_to_tokens(input_ids[0])
-    print(tokens)
+    avg_word_embeddings = []
     for word_to_avg in word_index:
-        word_positions = [ i for i, token in enumerate(tokens) 
-                                            if token == word_to_avg]
+        avg_word_embedding =  average_embeddings[word_to_avg]
+        avg_word_embeddings.append(avg_word_embedding)
 
-        if len(word_positions) == 0:
-            raise RuntimeError(f'Not found: {word_to_avg}')
-        print(word_positions)
-        # Extract the embeddings for the occurrences of the word 'cat'
-        word_embeddings = embeddings[0, word_positions, :]  # Extract embeddings for the specific positions
-
-        print("word_embedding", word_embeddings)
-        # Compute the average embedding
-        avg_embedding = word_embeddings.mean(dim=0)
-
-        print(f"Average embedding for '{word_to_avg}': {avg_embedding}")
-
-    return np.array([avg_embedding])
-
-
-def create_contextual_embeddings():
-    pass
+    retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
+                                        for embedding in avg_word_embeddings])
+    return retval_embeddings 
 
 def create_rsa_matrix(words):
     pass

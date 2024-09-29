@@ -14,7 +14,7 @@ def load_glove_embeddings(glove_file_path, embedding_dim=300, use_cache=True):
         return CACHED_EMBEDDING
 
     glove_embeddings = {}
-	# super inefficent and memory consumptive
+    # super inefficent and memory consumptive
     with open(glove_file_path, 'r') as f:
         for line in f:
             # Split the line into tokens
