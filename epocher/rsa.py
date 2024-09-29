@@ -151,7 +151,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 def compute_similarity_matrics(subject_id, task_id, model="GLOVE", save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
-    if model == "glove":
+    if model == "GLOVE":
           similarity_matrix = G.create_rsa_matrix(word_index)
           if save_similarity_matrix: 
               # Serialize the word index as JSON
@@ -159,8 +159,9 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", save_similari
               with open(word_index_file, 'w') as f:
                   json.dump(word_index, f)
               # serialize the similarity matrix as an `.npy` file
-              similarity_matrix_file = f'{OUTPUT_DIR}/model_{mdoel_}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+              similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
               np.save(similarity_matrix_file, similarity_matrix)
+              print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
 def load_word_index(subject_id, task_id, output_dir = OUTPUT_DIR):

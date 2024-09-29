@@ -4,10 +4,12 @@ from sklearn.preprocessing import normalize
 
 from .env import GLOVE_PATH
 
-CACHED_EMBEDDING = None
+CACHED_EMBEDDING = {}
 
 # 1. Load GloVe embeddings
 def load_glove_embeddings(glove_file_path, embedding_dim=300, use_cache=True):
+    global CACHED_EMBEDDING  # Declare CACHED_EMBEDDING as global
+
     if use_cache and CACHED_EMBEDDING:
         return CACHED_EMBEDDING
 
