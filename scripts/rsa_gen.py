@@ -26,6 +26,9 @@ def compute_rsa_similarity(subject1, subject2, task_id):
     correlation = rsa._compare_subjects(subject1, subject2, task_id=task_id)
     return correlation
 
+def compare_with_model(model):
+    correlation = rsa._compare_with_model(task_id, model=model)
+
 
 def compute_all_rsa_matrics(task_id = None):
     subject_ids = D.load_subject_ids()
@@ -77,6 +80,11 @@ def main():
     generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
     args = parser.parse_args()
 
+    compare_model = subparsers.add_parser('compare-model', help='Generate comparisons')
+    compare_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
+    args = parser.parse_args()
+
+
     if args.command == 'compare':
         _compare_subjects(args.subject1, args.subject2, task_id=args.task_id)
         correlation = compute_rsa_similarity(args.subject1, args.subject2, args.task_id)
@@ -88,6 +96,8 @@ def main():
         compute_all_rsa_matrics()
     elif args.command == 'generate-model':
        generate_glove_rsa_metrics()
+    elif args.command == 'compare-model':
+       compare_with_model()
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id)
     else:
