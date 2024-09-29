@@ -96,6 +96,8 @@ def load_subject_ids():
     # find subject id
     subjects = load_subject_information()
     subjects = subjects.participant_id.apply(lambda x: x.split("-")[1]).values
+    subjects = subjects[0:11]
+    print(subjects)
     return subjects 
 
 def load_task_ids():

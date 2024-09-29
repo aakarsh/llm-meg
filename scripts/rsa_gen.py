@@ -36,12 +36,13 @@ def compute_all_rsa_matrics(task_id = None):
             word_index, similarity_matrix_0 = \
                 rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
 
-def regenerate_glove_rsa_metrics_subject_task():
+def generate_glove_rsa_metrics(task_id=None):
+    subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() if not task_id else [task_id] 
 
     for subject_id in subject_ids:
         for task_id in task_ids: 
-            word_index, similarity_matrix_0 = \
+             similarity_matrix_0 = \
                 rsa.compute_similarity_matrics(subject_id, task_id, save_similarity_matrix=True)
 
 
@@ -67,12 +68,13 @@ def main():
     generate_parser.add_argument('--subject_id', type=str, required=True, help='ID of the subject')
     generate_parser.add_argument('--task_id', type=int, required=True, help='ID of the task')
 
-    generate_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
-
+    generate_all_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
     plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=False, help='ID of the subject', default=None)
     plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=False, help='ID of the task', default=None)
 
+    generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
+    generate_model.add_argument('--model', type=int, required=False, help='Model Name', default=None)
     args = parser.parse_args()
 
     if args.command == 'compare':
@@ -84,6 +86,8 @@ def main():
         compute_rsa_matrix(subject_id=args.subject_id, task_id=args.task_id)
     elif args.command == 'generate-all':
         compute_all_rsa_matrics()
+    elif args.command == 'generate-model':
+       generate_glove_rsa_metrics()
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id)
     else:
@@ -92,5 +96,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
