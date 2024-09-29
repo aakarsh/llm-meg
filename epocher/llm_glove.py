@@ -7,6 +7,7 @@ from .env import GLOVE_PATH
 # 1. Load GloVe embeddings
 def load_glove_embeddings(glove_file_path, embedding_dim=300):
     glove_embeddings = {}
+	# super inefficent and memory consumptive
     with open(glove_file_path, 'r') as f:
         for line in f:
             # Split the line into tokens
