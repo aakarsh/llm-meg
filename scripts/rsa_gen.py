@@ -74,7 +74,7 @@ def main():
     plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=False, help='ID of the task', default=None)
 
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
-    generate_model.add_argument('--model', type=int, required=False, help='Model Name', default=None)
+    generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
     args = parser.parse_args()
 
     if args.command == 'compare':
