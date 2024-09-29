@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 
 from .env import GLOVE_PATH
-form .stories import load_experiment_stories
+from epocher.stories import load_experiment_stories
 
 CACHED_EMBEDDING = {}
 
@@ -24,12 +24,14 @@ def get_index_stimulus_stories(word_index, task_id):
     get_index_stimulus_stories - story_path
     """
     story_key = f'{task_stimuli[task_id]}.txt'
-    story = load_experiment_salient_words(story_key)
-
+    story_map = load_experiment_stories()
+    story = story_map[story_key]
 
     # tokenize the text
-    inputs = tokenizer(story, return_tensors="pt", 
-                        padding=True, truncation=True)
+    inputs = tokenizer(story, 
+                            return_tensors="pt", 
+                            padding=True, 
+                            truncation=True)
 
     input_ids = inputs['input_ids']
 
@@ -37,7 +39,6 @@ def get_index_stimulus_stories(word_index, task_id):
     with torch.no_grad():
         outputs = model(input_ids)
         embeddings = outputs.last_hidden_state  # Shape: [batch_size, sequence_length, hidden_size]
-
 
     # Decode the tokenized inputs to get the token-ids and find positions of the word 'cat'
     tokens = tokenizer.convert_ids_to_tokens(input_ids[0])

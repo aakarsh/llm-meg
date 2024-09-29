@@ -50,12 +50,12 @@ STORY_CHACHE = None
 def load_experiment_stories(): 
     global STORY_CHACHE
     if not STORY_CHACHE:
-       STORY_CHACHE = load_stimuli(MEG_MASC_STIMULI_DIRECTORY) 
-	return  STORY_CHACHE
+       STORY_CHACHE = load_stimuli(MEG_MASC_STIMULI_DIRECTORY)
+    return  STORY_CHACHE
 
 def load_experiment_salient_words():
-	stories_map = load_experiment_stories()
-	return get_salient_words(stories_map[list(stories_map.keys())[0]])
+    stories_map = load_experiment_stories()
+    return get_salient_words(stories_map[list(stories_map.keys())[0]])
 
 def parse_stories():
     pass
