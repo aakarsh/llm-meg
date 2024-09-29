@@ -10,10 +10,11 @@ from .env import GLOVE_PATH
 CACHED_EMBEDDING = {}
 
 # Initialize tokenizer and model
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+ 
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', clean_up_tokenization_spaces=False)
 model = BertModel.from_pretrained('bert-base-uncased')
 
-def get_index_stimulus_stories():
+def get_index_stimulus_stories(story_path):
     # Sample story text
     story = "The cat sat on the mat. The cat is happy."
     word_to_avg = "cat"
@@ -39,6 +40,7 @@ def get_index_stimulus_stories():
     avg_embedding = word_embeddings.mean(dim=0)
 
     print(f"Average embedding for '{word_to_avg}': {avg_embedding}")
+    return np.array([avg_embedding])
 
 
 def create_contextual_embeddings():
