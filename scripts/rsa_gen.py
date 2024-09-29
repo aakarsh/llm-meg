@@ -49,15 +49,14 @@ def compute_all_rsa_matrics(task_id = None):
             word_index, similarity_matrix_0 = \
                 rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
 
-def generate_glove_rsa_metrics(task_id=None):
+def compute_similarity_matrics(task_id=None, model='GLOVE'):
     subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() if not task_id else [task_id] 
 
     for subject_id in subject_ids:
         for task_id in task_ids: 
              similarity_matrix_0 = \
-                rsa.compute_similarity_matrics(subject_id, task_id, save_similarity_matrix=True)
-
+                rsa.compute_similarity_matrics(subject_id, task_id, model=model, save_similarity_matrix=True)
 
 
 def compute_rsa_matrix(subject_id, task_id):
@@ -104,7 +103,7 @@ def main():
     elif args.command == 'generate-all':
         compute_all_rsa_matrics()
     elif args.command == 'generate-model':
-       generate_glove_rsa_metrics()
+       compute_similarity_matrics()
     elif args.command == 'compare-model':
        compare_with_model(args.model)
     elif args.command == 'plot-rsa-table':
