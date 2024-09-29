@@ -56,16 +56,38 @@ def get_index_stimulus_stories(word_index, task_id, use_cache=True):
                                   for word in word_embeddings if word_counts[word] > 0}
 
     avg_word_embeddings = []
+    word_index = []
     for word_to_avg in word_index:
         word_inputs = tokenizer(word_to_avg, return_tensors='pt', truncation=True, padding=True)
         decoded_word = tokenizer.decode(word_inputs['input_ids'][0])
         word_stem = decoded_word.split()[1]
+        if not word_stem in average_embeddings:
+            print(f'skipping {word_to_avg}, {word_stem} not found ')
+            continue
+        else:
+            print(f'found {word_to_avg}')
+        word_index.append(word_to_avg)
         avg_word_embedding =  average_embeddings[word_stem]
         avg_word_embeddings.append(avg_word_embedding)
 
-    retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
+
+    retval_embeddings = torch.empty((0, 768))  # Handle case when no embeddings are found
+    if avg_word_embeddings:  # Check if list is not empty
+        retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
                                         for embedding in avg_word_embeddings])
-    return retval_embeddings 
+    
+    return word_index, retval_embeddings 
+
+
+# 3. Normalize the word vectors
+def normalize_vectors(word_vectors):
+    return normalize(word_vectors, axis=1)
+
+# 4. Compute RSA matrix using cosine similarity
+def compute_similarity_matrix(word_vectors):
+    return cosine_similarity(word_vectors)
+
+
 
 def create_rsa_matrix(words, task_id):
     word_vectors = get_index_stimulus_stories(words, task_id)
