@@ -36,6 +36,16 @@ def compute_all_rsa_matrics(task_id = None):
             word_index, similarity_matrix_0 = \
                 rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
 
+def create_glove_rsa_metrics_subject_task():
+    task_ids = D.load_task_ids() if not task_id else [task_id] 
+
+    for subject_id in subject_ids:
+        for task_id in task_ids: 
+            word_index, similarity_matrix_0 = \
+                rsa._get_similarity_matrix(subject_id=subject_id, 
+                        task_id=task_id, save_similarity_matrix=True)
+
+
 
 def compute_rsa_matrix(subject_id, task_id):
     word_index, similarity_matrix_0 = rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)

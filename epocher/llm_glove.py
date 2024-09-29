@@ -4,8 +4,13 @@ from sklearn.preprocessing import normalize
 
 from .env import GLOVE_PATH
 
+CACHED_EMBEDDING = None
+
 # 1. Load GloVe embeddings
-def load_glove_embeddings(glove_file_path, embedding_dim=300):
+def load_glove_embeddings(glove_file_path, embedding_dim=300, use_cache=True):
+    if use_cache and CACHED_EMBEDDING:
+        return CACHED_EMBEDDING
+
     glove_embeddings = {}
 	# super inefficent and memory consumptive
     with open(glove_file_path, 'r') as f:
@@ -19,6 +24,8 @@ def load_glove_embeddings(glove_file_path, embedding_dim=300):
             # The vector is the last 'embedding_dim' tokens
             vector = np.array(values[-embedding_dim:], dtype='float32')
             glove_embeddings[word] = vector
+
+    CACHED_EMBEDDING = glove_embeddings
     return glove_embeddings
 
 # 2. Get word embeddings for a list of words
@@ -38,6 +45,7 @@ def normalize_vectors(word_vectors):
 # 4. Compute RSA matrix using cosine similarity
 def compute_similarity_matrix(word_vectors):
     return cosine_similarity(word_vectors)
+
 
 # Main function to create RSA matrix
 def create_rsa_matrix(words, glove_file_path=GLOVE_PATH):

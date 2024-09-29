@@ -29,6 +29,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .env import *
 from . import stories as S 
 from . import dataset as D
+from . import llm_glove as G
 
 
 def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
@@ -146,3 +147,34 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
           np.save(similarity_matrix_file, similarity_matrix)
       return word_index, similarity_matrix
 
+
+def compute_similarity_matrics(subject_id, task_id, model="GLOVE", save_similarity_matrix=True):
+    word_index = load_word_index(subject_id, task_id)
+    similarity_matrix = None
+    if model == "glove":
+          similarity_matrix = G.create_rsa_matrix(word_index)
+          if save_similarity_matrix: 
+              # Serialize the word index as JSON
+              word_index_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'
+              with open(word_index_file, 'w') as f:
+                  json.dump(word_index, f)
+              # serialize the similarity matrix as an `.npy` file
+              similarity_matrix_file = f'{OUTPUT_DIR}/model_{mdoel_}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+              np.save(similarity_matrix_file, similarity_matrix)
+   return similarity_matrix  
+
+def load_word_index(subject_id, task_id, output_dir = OUTPUT_DIR):
+    word_index_file = f'{output_dir}/subject_{subject_id}_task_{task_id}_word_index.json'
+    word_index = None
+    with open(word_index_file, 'r') as infile:
+         word_index = json.load(infile)
+    return word_index
+
+
+def load_similarity_matrix(subject_id, task_id):
+    similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+    word_index = load_word_index(subject_id, task_id)
+    similarity_matrix = np.load(similarity_matrix_file)
+
+    return word_index, similarity_matrix
+ 

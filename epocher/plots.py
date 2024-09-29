@@ -16,6 +16,7 @@ import os
 
 from .env import *
 import epocher.dataset as D
+import epocher.rsa as rsa
 
 def word_index_file_name(subject_id, task_id):
    return f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
@@ -23,18 +24,7 @@ def word_index_file_name(subject_id, task_id):
 def similarity_index_file_name(subject_id, task_id):
     return f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
 
-def load_similarity_matrix(subject_id, task_id):
-    word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
-    similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-
-    word_index = None
-    with open(word_index_file, 'r') as infile:
-         word_index = json.load(infile)
-
-    similarity_matrix = np.load(similarity_matrix_file)
-
-    return word_index, similarity_matrix
-    
+   
 
 def plot_saved_similarity_matrix(subject_id=None, task_id=None):
     if subject_id == None and task_id == None:
@@ -44,12 +34,12 @@ def plot_saved_similarity_matrix(subject_id=None, task_id=None):
                     os.path.exists(similarity_index_file_name(subject_id, task_id)):
 
                     file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png" 
-                    word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id)
+                    word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id)
                     plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
     else: # single 
         if os.path.exists(word_index_file_name(subject_id, task_id)) and \
             os.path.exists(similarity_index_file_name(subject_id, task_id)):
-            word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id)
+            word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id)
             file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png" 
             plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
 
