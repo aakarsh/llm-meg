@@ -5,13 +5,18 @@ from sklearn.preprocessing import normalize
 from .env import GLOVE_PATH
 
 # 1. Load GloVe embeddings
-def load_glove_embeddings(glove_file_path):
+def load_glove_embeddings(glove_file_path, embedding_dim=300):
     glove_embeddings = {}
     with open(glove_file_path, 'r') as f:
         for line in f:
+            # Split the line into tokens
             values = line.split()
-            word = values[0]
-            vector = np.array(values[1:], dtype='float32')
+            
+            # The word is everything before the last 'embedding_dim' tokens
+            word = ' '.join(values[:-embedding_dim])
+            
+            # The vector is the last 'embedding_dim' tokens
+            vector = np.array(values[-embedding_dim:], dtype='float32')
             glove_embeddings[word] = vector
     return glove_embeddings
 
@@ -45,11 +50,4 @@ def create_rsa_matrix(words, glove_file_path=GLOVE_PATH):
     similarity_matrix = compute_similarity_matrix(normalized_vectors)
     
     return similarity_matrix
-
-# Example usage:
-glove_file_path = 'path_to_glove.txt'  # Update with your GloVe file path
-words = ['cat', 'dog', 'apple', 'banana']
-rsa_matrix = create_rsa_matrix(words, glove_file_path)
-
-print(rsa_matrix)
 
