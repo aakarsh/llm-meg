@@ -45,8 +45,13 @@ def get_salient_words(all_text, num_words=20):
     
     return most_common
 
+STORY_CHACHE = None
+
 def load_experiment_stories(): 
-	return  load_stimuli(MEG_MASC_STIMULI_DIRECTORY)
+    global STORY_CHACHE
+    if not STORY_CHACHE:
+       STORY_CHACHE = load_stimuli(MEG_MASC_STIMULI_DIRECTORY) 
+	return  STORY_CHACHE
 
 def load_experiment_salient_words():
 	stories_map = load_experiment_stories()

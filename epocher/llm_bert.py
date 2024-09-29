@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 
 from .env import GLOVE_PATH
+form .stories import load_experiment_stories
 
 CACHED_EMBEDDING = {}
 
@@ -14,16 +15,22 @@ CACHED_EMBEDDING = {}
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', clean_up_tokenization_spaces=False)
 model = BertModel.from_pretrained('bert-base-uncased')
 
-def get_index_stimulus_stories(story_path):
+task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_widow' ]
+
+STORY_CACHE = None
+
+def get_index_stimulus_stories(word_index, task_id):
     """
     get_index_stimulus_stories - story_path
     """
-    # Sample story text
-    story = "The cat sat on the mat. The cat is happy."
-    word_to_avg = "cat"
+    story_key = f'{task_stimuli[task_id]}.txt'
+    story = load_experiment_salient_words(story_key)
 
-    # Tokenize the text
-    inputs = tokenizer(story, return_tensors="pt", padding=True, truncation=True)
+
+    # tokenize the text
+    inputs = tokenizer(story, return_tensors="pt", 
+                        padding=True, truncation=True)
+
     input_ids = inputs['input_ids']
 
     # Get embeddings from BERT
@@ -34,15 +41,19 @@ def get_index_stimulus_stories(story_path):
 
     # Decode the tokenized inputs to get the token-ids and find positions of the word 'cat'
     tokens = tokenizer.convert_ids_to_tokens(input_ids[0])
-    word_positions = [i for i, token in enumerate(tokens) if token == word_to_avg]
 
-    # Extract the embeddings for the occurrences of the word 'cat'
-    word_embeddings = embeddings[0, word_positions, :]  # Extract embeddings for the specific positions
+    for word_to_avg in word_index:
+        word_positions = [i for i, token in enumerate(tokens) 
+                                            if token == word_to_avg]
 
-    # Compute the average embedding
-    avg_embedding = word_embeddings.mean(dim=0)
+        # Extract the embeddings for the occurrences of the word 'cat'
+        word_embeddings = embeddings[0, word_positions, :]  # Extract embeddings for the specific positions
 
-    print(f"Average embedding for '{word_to_avg}': {avg_embedding}")
+        # Compute the average embedding
+        avg_embedding = word_embeddings.mean(dim=0)
+
+        print(f"Average embedding for '{word_to_avg}': {avg_embedding}")
+
     return np.array([avg_embedding])
 
 
