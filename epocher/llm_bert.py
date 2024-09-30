@@ -52,7 +52,6 @@ def get_whole_word_embeddings(word_index, task_id, use_cache=True):
 
 
     story_map = load_experiment_stories()
-    # print("STORY_KEYS", story_map.keys())
     story = story_map[story_key]
 
     # Initialize dictionaries
