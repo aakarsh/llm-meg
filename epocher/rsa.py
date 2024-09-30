@@ -172,6 +172,13 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
           np.save(similarity_matrix_file, similarity_matrix)
       return word_index, similarity_matrix
 
+# TODO: Slice the epochs.
+# TODO: 1. Refactor the code above to resue the peoching
+# TODO: 2. Crate windowed sections of the code above. 
+# TODO: 3. Save the window id and interface to a similarity file.
+# TODO: 4. For each window id and BERT Layer embedding compute the correlation score. 
+# TODO: 5. Plot the Correlation Coefficient between each BERT Layer and the time window which it explains most.
+# Assumning each word is devided into 100 onsite times, then we will have 100 rsa which compare word in that window
 
 def compute_similarity_matrics(subject_id, task_id, model="GLOVE", save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)

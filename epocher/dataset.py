@@ -61,6 +61,9 @@ def create_word_epochs(raw, tmin=-.01, tmax=.25):
    return epochs
 
 def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
+    """ 
+    We use a 250 ms window.
+    """
     raw_file = _get_raw_file(subject_id, session_id, task_id)
 
     word_epochs = segment_by_word(raw_file, tmax=tmax)
