@@ -39,12 +39,10 @@ def get_whole_word_embeddings(word_index, task_id):
     sentences = sent_tokenize(story)
     
     for idx, sentence in enumerate(sentences):
-        text = sentence
-        inputs = tokenizer(text, return_tensors='pt', add_special_tokens=True, return_offsets_mapping=True)
+        inputs = tokenizer(sentence, return_tensors='pt', add_special_tokens=True, return_offsets_mapping=True)
 
         offset_mapping = inputs['offset_mapping'][0]  # This maps tokens back to character-level offsets in the original text
         inputs.pop('offset_mapping')
-
 
         with torch.no_grad():
             outputs = model(**inputs)
@@ -110,9 +108,7 @@ def get_whole_word_embeddings(word_index, task_id):
     if found_words_embeddings:  # Check if list is not empty
         retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
                                         for embedding in found_words_embeddings])
- 
     return found_words_in_index, retval_embeddings
-
 
 
 def get_index_stimulus_stories(word_index, task_id, use_cache=True):
