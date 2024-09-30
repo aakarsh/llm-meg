@@ -13,8 +13,9 @@ from collections import defaultdict
 CACHED_EMBEDDING = {}
 
 # Initialize tokenizer and model
+from transformers import BertTokenizerFast
  
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', clean_up_tokenization_spaces=False)
+tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', clean_up_tokenization_spaces=False)
 model = BertModel.from_pretrained('bert-base-uncased')
 
 task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_widow' ]
@@ -23,53 +24,93 @@ EMBEDDING_TASK_CACHE = {}
 
 
 def get_whole_word_embeddings(word_index, task_id):
-	# Input text
-	text = "I am running fast"
+    story_key = f'{task_stimuli[task_id]}.txt'
+    story_map = load_experiment_stories()
+    story = story_map[story_key]
 
-	# Tokenize the input
-	inputs = tokenizer(text, return_tensors='pt', add_special_tokens=True, return_offsets_mapping=True)
+    # Initialize dictionaries
+    # Step 1: Split the story into sentences
+    words_found = []
+    embeddings_found = []
 
-	# Get BERT embeddings
-	with torch.no_grad():
-		outputs = model(**inputs)
-		token_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
+    word_embeddings = defaultdict(lambda: np.zeros((model.config.hidden_size,)))
+    word_counts = defaultdict(int)
 
-	# Decode tokenized words
-	tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
-	offset_mapping = inputs['offset_mapping'][0]  # This maps tokens back to character-level offsets in the original text
+    sentences = sent_tokenize(story)
+    
+    for idx, sentence in enumerate(sentences):
+        text = sentence
+        inputs = tokenizer(text, return_tensors='pt', add_special_tokens=True, return_offsets_mapping=True)
 
-	# Store aggregated embeddings for each word
-	whole_word_embeddings = []
-	current_word = ""
-	current_word_embedding = []
-	current_word_start = None
+        offset_mapping = inputs['offset_mapping'][0]  # This maps tokens back to character-level offsets in the original text
+        inputs.pop('offset_mapping')
 
-	for idx, token in enumerate(tokens):
-		# Skip [CLS] and [SEP] tokens
-		if token in ['[CLS]', '[SEP]']:
-			continue
 
-		# If token is part of a new word (no '##' prefix), process previous word
-		if not token.startswith('##'):
-			if current_word:  # Save previous word embedding
-				whole_word_embeddings.append(torch.mean(torch.stack(current_word_embedding), dim=0))
-			current_word = token
-			current_word_embedding = [token_embeddings[0, idx]]
-			current_word_start = offset_mapping[idx][0]
-		else:  # This is a subword, add its embedding to the current word
-			current_word += token[2:]  # Remove '##'
-			current_word_embedding.append(token_embeddings[0, idx])
+        with torch.no_grad():
+            outputs = model(**inputs)
+            # shape: (batch_size, sequence_length, hidden_size)
+            token_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
 
-	# Add the last word
-	if current_word:
-		whole_word_embeddings.append(torch.mean(torch.stack(current_word_embedding), dim=0))
+        # Decode tokenized words
+        tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
+        # Store aggregated embeddings for each word
+        whole_word_embeddings = []
+        current_word = ""
+        current_word_embedding = []
+        current_word_start = None
 
-	# Result is now a list of whole-word embeddings
-	whole_word_embeddings = torch.stack(whole_word_embeddings)
+        for idx, token in enumerate(tokens):
+            # Skip [CLS] and [SEP] tokens
+            if token in ['[CLS]', '[SEP]']:
+                continue
 
-	print(whole_word_embeddings.shape)  # Should be (number_of_words_in_sentence, hidden_size)
+            # If token is part of a new word (no '##' prefix), process previous word
+            if not token.startswith('##'):
+                if current_word:  # Save previous word embedding
+                    current_word_embedding = torch.mean(torch.stack(current_word_embedding), dim=0)
+                    whole_word_embeddings.append(current_word_embedding)
+                    words_found.append(current_word)
+                    embeddings_found.append(current_word_embedding)
+                    word_embeddings[current_word] += current_word_embedding.numpy()
+                    word_counts[current_word] += 1
 
-	return whole_word_embeddings
+
+                    print("found word", current_word)
+                current_word = token
+                current_word_embedding = [token_embeddings[0, idx]]
+                current_word_start = offset_mapping[idx][0]
+            else:  # This is a subword, add its embedding to the current word
+                current_word += token[2:]  # Remove '##'
+                current_word_embedding.append(token_embeddings[0, idx])
+
+
+        # Add the last word
+        if current_word:
+            current_word_embedding  = torch.mean(torch.stack(current_word_embedding), dim=0)
+            whole_word_embeddings.append(current_word_embedding)
+            words_found.append(current_word)
+            embeddings_found.append(current_word_embedding)
+            word_embeddings[current_word] += current_word_embedding.numpy()
+            word_counts[current_word] += 1
+            print("found word", current_word)
+
+
+    print("compute avarege_word embeddings")
+    # Average the embeddings
+    average_embeddings = { word: word_embeddings[word] / word_counts[word] 
+                                  for word in word_embeddings if word_counts[word] > 0}
+
+    found_words_in_index = []
+    fournd_words_embeddings = []
+    retval_embeddings = torch.empty((0, 768)) 
+    for word in word_index:
+        lower_case_word = word.lower()
+        if lower_case_word in average_embeddings:
+            avg_word_embedding =  average_embeddings[word.lower()]
+            found_words_embeddings.append(avg_word_embedding) 
+        
+        
+    return whole_word_embeddings
 
 
 
@@ -78,12 +119,11 @@ def get_index_stimulus_stories(word_index, task_id, use_cache=True):
     """
     get_index_stimulus_stories - story_path
     """
-    story_key = f'{task_stimuli[task_id]}.txt'
     """
     if story_key in EMBEDDING_TASK_CACHE:
         return  EMBEDDING_TASK_CACHE[story_key]
     """
-
+    story_key = f'{task_stimuli[task_id]}.txt'
     story_map = load_experiment_stories()
     story = story_map[story_key]
 
