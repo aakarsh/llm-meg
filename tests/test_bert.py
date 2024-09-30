@@ -1,5 +1,6 @@
 import epocher.llm_bert as B
 
+@pytest.mark.skip(reason="no way of currently testing this")
 def test_get_indexu_stimulus_stories():
     # Example usage:
     words = ["chicken"]

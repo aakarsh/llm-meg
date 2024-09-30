@@ -21,6 +21,59 @@ task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_widow' ]
 
 EMBEDDING_TASK_CACHE = {}
 
+
+def get_whole_word_embeddings(word_index, task_id):
+	# Input text
+	text = "I am running fast"
+
+	# Tokenize the input
+	inputs = tokenizer(text, return_tensors='pt', add_special_tokens=True, return_offsets_mapping=True)
+
+	# Get BERT embeddings
+	with torch.no_grad():
+		outputs = model(**inputs)
+		token_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
+
+	# Decode tokenized words
+	tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
+	offset_mapping = inputs['offset_mapping'][0]  # This maps tokens back to character-level offsets in the original text
+
+	# Store aggregated embeddings for each word
+	whole_word_embeddings = []
+	current_word = ""
+	current_word_embedding = []
+	current_word_start = None
+
+	for idx, token in enumerate(tokens):
+		# Skip [CLS] and [SEP] tokens
+		if token in ['[CLS]', '[SEP]']:
+			continue
+
+		# If token is part of a new word (no '##' prefix), process previous word
+		if not token.startswith('##'):
+			if current_word:  # Save previous word embedding
+				whole_word_embeddings.append(torch.mean(torch.stack(current_word_embedding), dim=0))
+			current_word = token
+			current_word_embedding = [token_embeddings[0, idx]]
+			current_word_start = offset_mapping[idx][0]
+		else:  # This is a subword, add its embedding to the current word
+			current_word += token[2:]  # Remove '##'
+			current_word_embedding.append(token_embeddings[0, idx])
+
+	# Add the last word
+	if current_word:
+		whole_word_embeddings.append(torch.mean(torch.stack(current_word_embedding), dim=0))
+
+	# Result is now a list of whole-word embeddings
+	whole_word_embeddings = torch.stack(whole_word_embeddings)
+
+	print(whole_word_embeddings.shape)  # Should be (number_of_words_in_sentence, hidden_size)
+
+	return whole_word_embeddings
+
+
+
+
 def get_index_stimulus_stories(word_index, task_id, use_cache=True):
     """
     get_index_stimulus_stories - story_path
