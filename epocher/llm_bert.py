@@ -92,26 +92,26 @@ def get_whole_word_embeddings(word_index, task_id):
             embeddings_found.append(current_word_embedding)
             word_embeddings[current_word] += current_word_embedding.numpy()
             word_counts[current_word] += 1
-            print("found word", current_word)
 
-
-    print("compute avarege_word embeddings")
     # Average the embeddings
     average_embeddings = { word: word_embeddings[word] / word_counts[word] 
-                                  for word in word_embeddings if word_counts[word] > 0}
+                                  for word in word_embeddings if word_counts[word] > 0 }
 
     found_words_in_index = []
-    fournd_words_embeddings = []
+    found_words_embeddings = []
     retval_embeddings = torch.empty((0, 768)) 
     for word in word_index:
         lower_case_word = word.lower()
         if lower_case_word in average_embeddings:
             avg_word_embedding =  average_embeddings[word.lower()]
             found_words_embeddings.append(avg_word_embedding) 
-        
-        
-    return whole_word_embeddings
+            found_words_in_index.append(word)
 
+    if found_words_embeddings:  # Check if list is not empty
+        retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
+                                        for embedding in found_words_embeddings])
+ 
+    return found_words_in_index, retval_embeddings
 
 
 
