@@ -62,3 +62,4 @@ def create_rsa_matrix(words, glove_file_path=GLOVE_PATH):
     
     return similarity_matrix
 
+

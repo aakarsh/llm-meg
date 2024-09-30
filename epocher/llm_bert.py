@@ -10,22 +10,49 @@ from .env import GLOVE_PATH
 from epocher.stories import load_experiment_stories
 from collections import defaultdict
 
-CACHED_EMBEDDING = {}
+
+import hashlib
+import pickle
 
 # Initialize tokenizer and model
 from transformers import BertTokenizerFast
  
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', clean_up_tokenization_spaces=False)
 model = BertModel.from_pretrained('bert-base-uncased')
-
-task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_widow' ]
+#'cable_spool_fort.txt', 'the_black_willow.txt', 'easy_money.txt', 'lw1.txt'
+task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_willow' ]
 
 EMBEDDING_TASK_CACHE = {}
 
 
-def get_whole_word_embeddings(word_index, task_id):
+
+def compute_md5_hash(word_index, task_id):
+    # Combine word_index and task_id into a string and compute MD5
+    data_to_hash = f"{task_id}_{'_'.join(word_index)}"
+    return hashlib.md5(data_to_hash.encode()).hexdigest()
+
+def cache_result(hash_key, result):
+    # Store the result in the cache using the hash_key
+    EMBEDDING_TASK_CACHE[hash_key] = result
+
+def get_cached_result(hash_key):
+    # Retrieve from the cache
+    return EMBEDDING_TASK_CACHE.get(hash_key, None)
+
+def get_whole_word_embeddings(word_index, task_id, use_cache=True):
     story_key = f'{task_stimuli[task_id]}.txt'
+
+    # Compute the hash of the inputs
+    hash_key = compute_md5_hash(word_index, task_id)
+    
+    # Check if the cache contains a result for this hash
+    if use_cache and hash_key in EMBEDDING_TASK_CACHE:
+        print(f"Loading from cache: {hash_key}")
+        return EMBEDDING_TASK_CACHE[hash_key]
+
+
     story_map = load_experiment_stories()
+    # print("STORY_KEYS", story_map.keys())
     story = story_map[story_key]
 
     # Initialize dictionaries
@@ -72,8 +99,6 @@ def get_whole_word_embeddings(word_index, task_id):
                     word_embeddings[current_word] += current_word_embedding.numpy()
                     word_counts[current_word] += 1
 
-
-                    print("found word", current_word)
                 current_word = token
                 current_word_embedding = [token_embeddings[0, idx]]
                 current_word_start = offset_mapping[idx][0]
@@ -97,78 +122,21 @@ def get_whole_word_embeddings(word_index, task_id):
 
     found_words_in_index = []
     found_words_embeddings = []
-    retval_embeddings = torch.empty((0, 768)) 
+
     for word in word_index:
         lower_case_word = word.lower()
         if lower_case_word in average_embeddings:
             avg_word_embedding =  average_embeddings[word.lower()]
             found_words_embeddings.append(avg_word_embedding) 
             found_words_in_index.append(word)
-
-    if found_words_embeddings:  # Check if list is not empty
-        retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
-                                        for embedding in found_words_embeddings])
-    return found_words_in_index, retval_embeddings
+            print("found word adding to index", word)
 
 
-def get_index_stimulus_stories(word_index, task_id, use_cache=True):
-    """
-    get_index_stimulus_stories - story_path
-    """
-    """
-    if story_key in EMBEDDING_TASK_CACHE:
-        return  EMBEDDING_TASK_CACHE[story_key]
-    """
-    story_key = f'{task_stimuli[task_id]}.txt'
-    story_map = load_experiment_stories()
-    story = story_map[story_key]
-
-    # Initialize dictionaries
-    word_embeddings = defaultdict(lambda: np.zeros((model.config.hidden_size,)))
-    word_counts = defaultdict(int)
+    # Cache the result
     
-    # Step 1: Split the story into sentences
-    sentences = sent_tokenize(story)
-    for idx, sentence in enumerate(sentences):
-        inputs = tokenizer(sentence, return_tensors='pt', truncation=True, padding=True)
-        with torch.no_grad():
-            outputs = model(**inputs)
-            # shape: (batch_size, sequence_length, hidden_size)
-            embeddings = outputs[0]  
-
-            for token, embedding in zip(inputs['input_ids'][0], embeddings[0]):
-                    word = tokenizer.decode([token.item()])
-                    if word.strip() and word not in ['[CLS]', '[SEP]']:
-                        word_embeddings[word] += embedding.numpy()
-                        word_counts[word] += 1
-
-    # Average the embeddings
-    average_embeddings = {word: word_embeddings[word] / word_counts[word] 
-                                  for word in word_embeddings if word_counts[word] > 0}
-
-    avg_word_embeddings = []
-    word_index = []
-    for word_to_avg in word_index:
-        word_inputs = tokenizer(word_to_avg, return_tensors='pt', truncation=True, padding=True)
-        decoded_word = tokenizer.decode(word_inputs['input_ids'][0])
-        word_stem = decoded_word.split()[1]
-        print(f"word_stem : {word_stem}")
-        if not word_stem in average_embeddings:
-            print(f'skipping {word_to_avg}, {word_stem} not found ')
-            continue
-        else:
-            print(f'found {word_to_avg}')
-        word_index.append(word_to_avg)
-        avg_word_embedding =  average_embeddings[word_stem]
-        avg_word_embeddings.append(avg_word_embedding)
-
-
-    retval_embeddings = torch.empty((0, 768))  # Handle case when no embeddings are found
-    if avg_word_embeddings:  # Check if list is not empty
-        retval_embeddings = torch.cat([torch.tensor(embedding).unsqueeze(0) 
-                                        for embedding in avg_word_embeddings])
-    
-    return word_index, retval_embeddings 
+    result = (found_words_in_index, { word: found_words_embeddings[idx] for idx, word in enumerate(found_words_in_index)})
+    cache_result(hash_key, result)
+    return result 
 
 
 # 3. Normalize the word vectors
@@ -180,15 +148,26 @@ def compute_similarity_matrix(word_vectors):
     return cosine_similarity(word_vectors)
 
 
+# 2. Get word embeddings for a list of words
+def get_word_vectors(words, glove_embeddings):
+    vectors = []
+    for word in words:
+        if word in glove_embeddings:
+            vectors.append(glove_embeddings[word])
+        else:
+            vectors.append(np.zeros(300))  # If word not found, use a zero vector
+    return np.array(vectors)
+
 
 def create_rsa_matrix(words, task_id):
-    word_vectors = get_index_stimulus_stories(words, task_id)
-    print(f"len word vectors {len(word_vectors)}")
+    words_found, word_embeddings = get_whole_word_embeddings(words, task_id)
+    word_vectors = get_word_vectors(words_found, word_embeddings)
+    print(f"len word vectors {len(word_vectors)}, for words: {len(words)} found words {len(words_found)}")
     # Normalize word vectors before computing cosine similarity
     normalized_vectors = normalize_vectors(word_vectors)
     
     # Compute similarity matrix
     similarity_matrix = compute_similarity_matrix(normalized_vectors)
     
-    return similarity_matrix
+    return words_found, similarity_matrix
 
