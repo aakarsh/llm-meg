@@ -65,7 +65,7 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
     retval_similarity_matrix = np.zeros((10, 12))
 
     for segment_idx in range(1, 10):
-        for layer_idx in range(2, 13):
+        for layer_idx in range( 12, 1, -1):
             word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, segmented=True)
             model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, layer_id=layer_idx)
             # load model word index. make sure only intersection of 
