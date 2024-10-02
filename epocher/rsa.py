@@ -61,6 +61,33 @@ def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE"):
     # Compare the submatrices using RSA or other metrics
     return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
 
+def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model="BERT"):
+    for segment_idx in range(1, 10):
+        for layer_idx in range(1, 13):
+
+        word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id)
+    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model)
+    # load model word index. make sure only intersection of 
+    # these two are considered in model comparison. 
+    # Ensure that same words are included ? 
+    # Find common words between the human and model word indices
+    common_words = list(set(word_index).intersection(set(model_word_index)))
+
+    if not common_words:
+        raise ValueError("No common words found between human and model word indices.")
+
+    # Get the indices of the common words in both matrices
+    word_index_positions = [word_index.index(word) for word in common_words]
+    model_word_index_positions = [model_word_index.index(word) for word in common_words]
+
+    # Subset the similarity matrices using the indices of common words
+    human_similarity_submatrix = similarity_matrix[np.ix_(word_index_positions, word_index_positions)]
+    model_similarity_submatrix = model_similarity_matrix[np.ix_(model_word_index_positions, model_word_index_positions)]
+
+    # Compare the submatrices using RSA or other metrics
+    return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
+
+
 
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
     word_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id, tmax=tmax)
@@ -253,7 +280,7 @@ def load_model_similarity_matrix(subject_id, task_id, model):
 
     return similarity_matrix
 
-def load_similarity_matrix(subject_id, task_id, model=None):
+def load_similarity_matrix(subject_id, task_id, model=None, segmented=False, layer_id=None):
     similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
     if model: 
         similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
