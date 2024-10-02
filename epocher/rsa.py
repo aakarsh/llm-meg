@@ -92,10 +92,10 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
     def plot_heatmap(rsa_matrix, title='RSA Comparison Heatmap'):
         """Plot a heatmap of the RSA comparison matrix."""
         plt.figure(figsize=(10, 8))
-        sns.heatmap(rsa_matrix, annot=True, fmt=".2f", cmap='coolwarm', cbar_kws={"shrink": .8})
+        sns.heatmap(rsa_matrix.T, annot=True, fmt=".2f", cmap='coolwarm', cbar_kws={"shrink": .8})
         plt.title(title)
-        plt.xlabel('BERT Layers')
-        plt.ylabel('MEG Segments')
+        plt.ylabel('BERT Layers')
+        plt.xlabel('MEG Segments')
         plt.savefig(f'./images/segment-similarity_matrix-subject_id-{subject_id}-task_id-{task_id}.png')
         plt.close()
 
