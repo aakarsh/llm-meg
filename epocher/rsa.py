@@ -71,7 +71,7 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
 
 
 def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
-                                        n_segments=10, n_components=15, tmax=0.25, 
+                                        n_segments=25, n_components=15, tmax=0.25, 
                                         reference_word_idx = None, save_similarity_matrix=False, 
                                         debug=False):
     """
@@ -87,10 +87,40 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
 
     ica_average_map = average_word_occurances(word_index, word_epoch_map)
     segmented_epochs = D._segment_word_epoch_map(n_segments, word_index, ica_average_map)
+    similarity_matrices = []
 
-    per_segment_rsa = []
     for segment_idx in range(n_segments):
-        pass
+       target_word_vectors = []
+       for word in word_idx:
+           epoch_ica = segmented_epochs[word_idx][segment_idx]
+           avg_ica = epochs_ica.average().get_data()
+           # Flatten the data (optional: you can decide to not flatten depending on your approach)
+           vector = avg_ica.flatten()
+           target_word_vectors.append(vector)
+
+       target_word_vectors = np.array(target_word_vectors)
+
+       if debug:
+          for i, vec in enumerate(target_word_vectors):
+              print(f"word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
+
+          for word, epochs_ica in ica_epochs.items():
+              print(f"ICA data for {word}: {epochs_ica.get_data().shape}")
+
+       # Normalize each word vector across its flattened dimensions (n_channels, n_padded_times, n_trials)
+       normalized_vectors = []
+       for vec in target_word_vectors:
+            vec_flat = vec.flatten()  # Flatten the vector
+            norm = np.linalg.norm(vec_flat)  # Compute the L2 norm
+            normalized_vec = vec_flat / norm  # Normalize the vector
+            normalized_vectors.append(normalized_vec)
+
+       # Convert normalized vectors to numpy array
+       normalized_vectors = np.array(normalized_vectors)
+
+       # Compute cosine similarity matrix
+       similarity_matrices.append(cosine_similarity(normalized_vectors))
+    return word_idx, np.array(similarity_matrices)
 
 
 def average_word_occurances(word_index, ica_epochs):
