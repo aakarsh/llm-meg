@@ -129,7 +129,7 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
           json.dump(word_index, f)
       #Serialize the similarity matrix as an `.npy` file
       similarity_matrix_file = f'{OUTPUT_DIR}/segmented-subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-      np.save(similarity_matrix_file, similarity_matrix)
+      np.save(similarity_matrix_file, segmented_similarity_matrices)
 
     return word_index, segmented_similarity_matrices
 
