@@ -23,6 +23,6 @@ def test_get_segmented_similarity_matrix():
                                         n_segments=10, n_components=15, tmax=0.25, 
                                         reference_word_idx = None, save_similarity_matrix=False, 
                                         debug=False)
-    assert similarity_matrices
+    assert len(similarity_matrices) > 0
     print("shape", similarity_matrices.shape)
 
