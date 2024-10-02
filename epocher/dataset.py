@@ -18,6 +18,13 @@ import seaborn as sns
 from pathlib import Path
 import matplotlib
 
+import mne
+from mne.preprocessing import ICA
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics.pairwise import cosine_similarity
+
+
 from .env import *
 from . import stories as S 
 

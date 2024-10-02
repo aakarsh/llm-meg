@@ -16,8 +16,12 @@ def test_segment_word_epcoh_map():
 
 
 def test_segment_ica_epochmap():
-    word_index, words_sorted_metadata_df, target_word_epochs, ica_epochs = \
-      word_index, word_metadata_df, word_epoch_map, ica_epochs = \
+    subject_id='03'
+    session_id=0
+    task_id=0
+    n_components=15
+    tmax=0.25
+    word_index, word_metadata_df, word_epoch_map, ica_epochs = \
           D._get_ica_epochs(subject_id, session_id, task_id,n_components=n_components, tmax=tmax)
 
     n_segments=10
