@@ -73,10 +73,10 @@ def get_whole_word_embeddings(word_index, task_id, use_cache=True, hidden_layer=
         with torch.no_grad():
             outputs = model(**inputs, output_hidden_states=True)
             # shape: (batch_size, sequence_length, hidden_size)
-            if hidden_layer == -1
+            if hidden_layer == -1:
                 token_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
             else:
-                token_embedding = hidden_states[hidden_layer]
+                token_embeddings = outputs.hidden_states[hidden_layer]
 
         # Decode tokenized words
         tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])

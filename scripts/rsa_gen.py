@@ -55,14 +55,16 @@ def compute_all_rsa_matrics(task_id = None, segmented=False):
                                                         save_similarity_matrix=True)
   
 
-def compute_similarity_matrics(task_id=None, model='GLOVE'):
+def compute_similarity_matrics(task_id=None, model='GLOVE', hidden_layer=-1):
     subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() if not task_id else [task_id] 
 
     for subject_id in subject_ids:
         for task_id in task_ids: 
              similarity_matrix_0 = \
-                rsa.compute_similarity_matrics(subject_id, task_id, model=model, save_similarity_matrix=True)
+                rsa.compute_similarity_matrics(subject_id, task_id, 
+                        model=model, save_similarity_matrix=True, 
+                        hidden_layer=hidden_layer)
 
 
 def compute_rsa_matrix(subject_id, task_id):
@@ -97,6 +99,7 @@ def main():
 
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
     generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
+    generate_model.add_argument('--hidden-layer', type=int, required=False, help='Model Name', default=-1)
 
     compare_model = subparsers.add_parser('compare-model', help='Generate comparisons')
     compare_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
@@ -113,7 +116,7 @@ def main():
     elif args.command == 'generate-all':
         compute_all_rsa_matrics(segmented=args.segmented)
     elif args.command == 'generate-model':
-       compute_similarity_matrics(model=args.model)
+       compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer)
     elif args.command == 'compare-model':
        compare_with_model(args.model)
     elif args.command == 'plot-rsa-table':

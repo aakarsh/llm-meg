@@ -213,20 +213,20 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 # TODO: 5. Plot the Correlation Coefficient between each BERT Layer and the time window which it explains most.
 # Assumning each word is devided into 100 onsite times, then we will have 100 rsa which compare word in that window
 
-def compute_similarity_matrics(subject_id, task_id, model="GLOVE", bert_hidden_layer=-1, save_similarity_matrix=True):
+def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
     if model == "GLOVE":
           similarity_matrix = G.create_rsa_matrix(word_index)
     elif model == "BERT":
           # some words not found
-          word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, hidden_layer=bert_hidden_layer)
+          word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, hidden_layer=hidden_layer)
     else:
         raise RuntimeError(f'Unkown model: {model}')
 
     layer_tag = ""
-    if model == "BERT" and bert_hidden_layer!=-1:
-        layer_tag = f"_layer_{bert_hidden_layer}"
+    if model == "BERT" and hidden_layer!=-1:
+        layer_tag = f"_layer_{hidden_layer}"
     if save_similarity_matrix: 
       # Serialize the word index as JSON
       word_index_file = f'{OUTPUT_DIR}/model_{model}_{layer_tag}_subject_{subject_id}_task_{task_id}_word_index.json'
