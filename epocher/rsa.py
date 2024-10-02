@@ -33,49 +33,6 @@ from . import llm_glove as G
 from . import llm_bert as B
 
 
-def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
-      """
-      ICA: Aggregate for same task accross sessions. 
-      """
-      if type(session_id) == list:
-          # Given  a task list.
-          session_id = session_id[0]
-
-      word_index, word_metadata_df, word_epoch_map = \
-          D._get_epoch_word_map(subject_id, session_id, task_id, tmax=tmax)
-
-      # Initialize dictionary to store ICA-transformed epochs
-      ica_epochs = {}
-
-      # Initialize ICA model
-      ica = ICA(n_components=n_components, random_state=42)
-
-      # Loop through each target word and apply ICA
-      for word in word_index:
-        epochs = word_epoch_map[word]
-          # Get the epoch data for the target word
-        if len(epochs) == 0:
-          continue
-        # Fit ICA to the epochs data
-        ica.fit(epochs)
-
-        # Apply ICA to the epochs to get independent components
-        epochs_ica = ica.apply(epochs.copy())
-
-        # Baseline-correct the ICA-transformed epochs
-        # Define the baseline period. For example, (-0.2, 0) takes the 
-        # time period between -200 ms and 0 ms.
-        baseline_period = (-0.2, 0)
-
-        # Apply baseline correction to the ICA-transformed data
-        epochs_ica.apply_baseline(baseline=baseline_period)
-
-        # Store the ICA-transformed epochs
-        ica_epochs[word] = epochs_ica
-        
-      return word_index, word_metadata_df, word_epoch_map, ica_epochs
-
-
 def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
@@ -112,13 +69,16 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
 
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
+def _get_segmentd_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
+        reference_word_idx = None, save_similarity_matrix=False, debug=False):
+    pass
 
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
         reference_word_idx = None, save_similarity_matrix=False, debug=False):
 
       # Initialize dictionary to store ICA-transformed epochs
       word_index, word_metadata_df, word_epoch_map, ica_epochs = \
-          _get_ica_epochs(subject_id, session_id, task_id,n_components=n_components, tmax=tmax)
+          D._get_ica_epochs(subject_id, session_id, task_id,n_components=n_components, tmax=tmax)
 
       # Overwrite word index with reference word index
       if reference_word_idx: 

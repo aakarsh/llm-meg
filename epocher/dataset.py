@@ -60,6 +60,49 @@ def create_word_epochs(raw, tmin=-.01, tmax=.25):
    epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
    return epochs
 
+def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
+      """
+      ICA: Aggregate for same task accross sessions. 
+      """
+      if type(session_id) == list:
+          # Given  a task list.
+          session_id = session_id[0]
+
+      word_index, word_metadata_df, word_epoch_map = \
+          _get_epoch_word_map(subject_id, session_id, task_id, tmax=tmax)
+
+      # Initialize dictionary to store ICA-transformed epochs
+      ica_epochs = {}
+
+      # Initialize ICA model
+      ica = ICA(n_components=n_components, random_state=42)
+
+      # Loop through each target word and apply ICA
+      for word in word_index:
+        epochs = word_epoch_map[word]
+          # Get the epoch data for the target word
+        if len(epochs) == 0:
+          continue
+        # Fit ICA to the epochs data
+        ica.fit(epochs)
+
+        # Apply ICA to the epochs to get independent components
+        epochs_ica = ica.apply(epochs.copy())
+
+        # Baseline-correct the ICA-transformed epochs
+        # Define the baseline period. For example, (-0.2, 0) takes the 
+        # time period between -200 ms and 0 ms.
+        baseline_period = (-0.2, 0)
+
+        # Apply baseline correction to the ICA-transformed data
+        epochs_ica.apply_baseline(baseline=baseline_period)
+
+        # Store the ICA-transformed epochs
+        ica_epochs[word] = epochs_ica
+        
+      return word_index, word_metadata_df, word_epoch_map, ica_epochs
+
+
 def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
     """ 
     We use a 250 ms window.
@@ -83,7 +126,7 @@ def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
     
     return  word_index, words_sorted_metadata_df, target_word_epochs 
 
-def _segment_word_epoch_map(word_index, words_sorted_metadata_df, target_word_epochs):
+def _segment_word_epoch_map(num_segments, word_index,  target_word_epochs):
     """
     We want to segment the word epochs by chunks of certain segment 
     duration. Thus instead of a single word_peoch we will have 
@@ -91,7 +134,32 @@ def _segment_word_epoch_map(word_index, words_sorted_metadata_df, target_word_ep
     generate a RSA_map.
     """
     print("something")
-    pass
+    segmented_epochs = {}
+    for word in word_index:
+        # Get the epochs for the word
+        word_epoch = target_word_epochs[word]
+        
+        # Get the time points in the epoch (this assumes all epochs have the same time range)
+        tmin, tmax = word_epoch.tmin, word_epoch.tmax
+        total_time = tmax - tmin
+        
+        # Divide the total time by the number of segments
+        segment_duration = total_time / num_segments
+        
+        # Define the segment boundaries (sliding windows)
+        for i in range(num_segments):
+            segment_tmin = tmin + i * segment_duration
+            segment_tmax = segment_tmin + segment_duration
+            
+            # Create new segmented epoch
+            segmented_epoch = word_epoch.copy().crop(tmin=segment_tmin, tmax=segment_tmax)
+            
+            # Add to the dictionary
+            if word not in segmented_epochs:
+                segmented_epochs[word] = []
+            segmented_epochs[word].append(segmented_epoch)
+    
+    return segmented_epochs
 
 def parse_event_description(event_json_str):
     event_json_str = event_json_str.replace('\'', '"')
