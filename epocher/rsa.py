@@ -62,31 +62,33 @@ def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE"):
     return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
 
 def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model="BERT"):
+    similarity_matrix = np.zeros(10, 12))
+
     for segment_idx in range(1, 10):
         for layer_idx in range(1, 13):
+            word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, segmented=True)
+            model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, layer_id=layer_idx)
+            # load model word index. make sure only intersection of 
+            # these two are considered in model comparison. 
+            # Ensure that same words are included ? 
+            # Find common words between the human and model word indices
+            common_words = list(set(word_index).intersection(set(model_word_index)))
 
-        word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id)
-    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model)
-    # load model word index. make sure only intersection of 
-    # these two are considered in model comparison. 
-    # Ensure that same words are included ? 
-    # Find common words between the human and model word indices
-    common_words = list(set(word_index).intersection(set(model_word_index)))
+            if not common_words:
+                raise ValueError("No common words found between human and model word indices.")
 
-    if not common_words:
-        raise ValueError("No common words found between human and model word indices.")
+            # Get the indices of the common words in both matrices
+            word_index_positions = [word_index.index(word) for word in common_words]
+            model_word_index_positions = [model_word_index.index(word) for word in common_words]
 
-    # Get the indices of the common words in both matrices
-    word_index_positions = [word_index.index(word) for word in common_words]
-    model_word_index_positions = [model_word_index.index(word) for word in common_words]
+            # Subset the similarity matrices using the indices of common words
+            human_similarity_submatrix = similarity_matrix[np.ix_(word_index_positions, word_index_positions)]
+            model_similarity_submatrix = model_similarity_matrix[np.ix_(model_word_index_positions, model_word_index_positions)]
 
-    # Subset the similarity matrices using the indices of common words
-    human_similarity_submatrix = similarity_matrix[np.ix_(word_index_positions, word_index_positions)]
-    model_similarity_submatrix = model_similarity_matrix[np.ix_(model_word_index_positions, model_word_index_positions)]
-
-    # Compare the submatrices using RSA or other metrics
-    return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
-
+            # Compare the submatrices using RSA or other metrics
+            similarity_matrix[segment_idx-1, layer_idx-1] = _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
+    print(f"Final-Similairty subject-id{subject_id} {task_id} {session_id}", similarity_matrix)
+    return similarity_matrix
 
 
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
@@ -265,10 +267,16 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
-def load_word_index(subject_id, task_id, model=None, output_dir = OUTPUT_DIR):
+def load_word_index(subject_id, task_id, model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False):
     word_index_file = f'{output_dir}/subject_{subject_id}_task_{task_id}_word_index.json'
     if model: 
         word_index_file = f'{output_dir}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'
+        if layer_id: 
+            word_index_file = f'{output_dir}/model_{model}__layer_-{layer_id}_subject_{subject_id}_task_{task_id}_word_index.json'
+
+    if segmented:
+        word_index_file = f'{output_dir}/segmented-subject_{subject_id}_task_{task_id}_word_index.json'
+
     word_index = None
     with open(word_index_file, 'r') as infile:
          word_index = json.load(infile)
@@ -282,9 +290,15 @@ def load_model_similarity_matrix(subject_id, task_id, model):
 
 def load_similarity_matrix(subject_id, task_id, model=None, segmented=False, layer_id=None):
     similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-    if model: 
-        similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-    word_index = load_word_index(subject_id, task_id, model=model)
+    if model:
+        if layer_id:
+            similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}__layer_-{layer_id}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+        else:
+            similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+    if segmented:
+            similarity_matrix_file = f'{OUTPUT_DIR}/segmented-subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+            
+    word_index = load_word_index(subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id)
     similarity_matrix = np.load(similarity_matrix_file)
 
     return word_index, similarity_matrix
