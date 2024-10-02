@@ -69,8 +69,15 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
 
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
-def _get_segmentd_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
-        reference_word_idx = None, save_similarity_matrix=False, debug=False):
+def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
+                                        n_segments=10, n_components=15, tmax=0.25, 
+                                        reference_word_idx = None, save_similarity_matrix=False, 
+                                        debug=False):
+    """Segmented siilarity matrices."""
+
+    pass
+
+def average_word_occurances(word_index, word_epoch_map):
     pass
 
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
@@ -97,12 +104,13 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
         vector = avg_ica.flatten()
         target_word_vectors.append(vector)
         # print("vector",vector.shape, vector) 
-      # Convert to numpy array
+
+      # convert to numpy array
       target_word_vectors = np.array(target_word_vectors)
 
       if debug:
           for i, vec in enumerate(target_word_vectors):
-              print(f"Word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
+              print(f"word {i} vector (before normalization):", vec[:10])  # Check first 10 valuesA
 
           for word, epochs_ica in ica_epochs.items():
               print(f"ICA data for {word}: {epochs_ica.get_data().shape}")
@@ -130,6 +138,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
           #Serialize the similarity matrix as an `.npy` file
           similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
           np.save(similarity_matrix_file, similarity_matrix)
+
       return word_index, similarity_matrix
 
 # TODO: Slice the epochs.
