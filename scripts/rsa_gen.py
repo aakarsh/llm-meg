@@ -40,6 +40,20 @@ def compare_with_model(model, save_comparisons=True):
 
     return correlation_comparisons
 
+def compare_with_model_layers_segmented(model, save_comparisons=True):
+    subject_ids = D.load_subject_ids()
+    task_ids = D.load_task_ids() 
+    correlation_comparisons = np.zeros((len(subject_ids), len(task_ids)))
+    for subject_id in subject_ids:
+        for task_id in task_ids: 
+             correlation = rsa._compare_segemnts_with_model_layers(subject_id, task_id, model=model)
+             print(f"Comparing {subject_id}, {task_id}: {correlation} with {model}")
+             # correlation_comparisons[(int(subject_id)-1, int(task_id)-1)] = correlation 
+    # comparison_file_name = f'{OUTPUT_DIR}/model_comparison_{model}_similarity_matrix.npy'
+    # np.save(comparison_file_name, correlation_comparisons)
+
+     pass
+
 def compute_all_rsa_matrics(task_id = None, segmented=False):
     subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() if not task_id else [task_id] 
@@ -103,6 +117,10 @@ def main():
 
     compare_model = subparsers.add_parser('compare-model', help='Generate comparisons')
     compare_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
+    
+    compare_segmented_model_layers = subparsers.add_parser('compare-segmented-model-layers', help='Generate comparisons')
+    compare_segmented_model_layers.add_argument('--model', type=str, required=True, help='Model Name', default=None)
+ 
     args = parser.parse_args()
 
 
@@ -119,6 +137,8 @@ def main():
        compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer)
     elif args.command == 'compare-model':
        compare_with_model(args.model)
+    elif args.command == 'compare-segmented-model-layers':
+        compare_with_model_layers_segmented(args.model)
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id)
     else:
