@@ -47,12 +47,11 @@ def compare_with_model_layers_segmented(model, save_comparisons=True):
     for subject_id in subject_ids:
         for task_id in task_ids: 
              correlation = rsa._compare_segemnts_with_model_layers(subject_id, task_id, model=model)
-             print(f"Comparing {subject_id}, {task_id}: {correlation} with {model}")
+             print(f"Comparing {subject_id}, {task_id}: {correlation} with {model}", correlation)
              # correlation_comparisons[(int(subject_id)-1, int(task_id)-1)] = correlation 
     # comparison_file_name = f'{OUTPUT_DIR}/model_comparison_{model}_similarity_matrix.npy'
     # np.save(comparison_file_name, correlation_comparisons)
 
-     pass
 
 def compute_all_rsa_matrics(task_id = None, segmented=False):
     subject_ids = D.load_subject_ids()

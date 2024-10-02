@@ -62,10 +62,10 @@ def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE"):
     return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
 
 def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model="BERT"):
-    similarity_matrix = np.zeros((10, 12))
+    retval_similarity_matrix = np.zeros((10, 12))
 
     for segment_idx in range(1, 10):
-        for layer_idx in range(1, 13):
+        for layer_idx in range(2, 13):
             word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, segmented=True)
             model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, layer_id=layer_idx)
             # load model word index. make sure only intersection of 
@@ -82,13 +82,25 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
             model_word_index_positions = [model_word_index.index(word) for word in common_words]
 
             # Subset the similarity matrices using the indices of common words
+            similarity_matrix=similarity_matrix[segment_idx]
             human_similarity_submatrix = similarity_matrix[np.ix_(word_index_positions, word_index_positions)]
             model_similarity_submatrix = model_similarity_matrix[np.ix_(model_word_index_positions, model_word_index_positions)]
 
             # Compare the submatrices using RSA or other metrics
-            similarity_matrix[segment_idx-1, layer_idx-1] = _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
+            retval_similarity_matrix[segment_idx-1, layer_idx-1] = _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
     print(f"Final-Similairty subject-id{subject_id} {task_id} {session_id}", similarity_matrix)
-    return similarity_matrix
+    def plot_heatmap(rsa_matrix, title='RSA Comparison Heatmap'):
+        """Plot a heatmap of the RSA comparison matrix."""
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(rsa_matrix, annot=True, fmt=".2f", cmap='coolwarm', cbar_kws={"shrink": .8})
+        plt.title(title)
+        plt.xlabel('BERT Layers')
+        plt.ylabel('MEG Segments')
+        plt.savefig(f'./images/segment-similarity_matrix-subject_id-{subject_id}-task_id-{task_id}.png')
+        plt.close()
+
+    plot_heatmap(retval_similarity_matrix)
+    return retval_similarity_matrix 
 
 
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
