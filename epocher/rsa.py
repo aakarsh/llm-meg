@@ -120,7 +120,9 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
 
        # Compute cosine similarity matrix
        similarity_matrices.append(cosine_similarity(normalized_vectors))
-    return word_index, np.array(similarity_matrices)
+
+    segmented_similarity_matrices = np.array(similarity_matrices)
+    return word_index, segmented_similarity_matrices
 
 
 def average_word_occurances(word_index, ica_epochs):
