@@ -1,5 +1,6 @@
 import epocher.stories as S
 import epocher.dataset as D
+import epocher.rsa as R
 
 def test_always_pass():
     pass
@@ -21,6 +22,6 @@ def test_get_segmented_similarity_matrix():
     retval = R._get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
                                         n_segments=10, n_components=15, tmax=0.25, 
                                         reference_word_idx = None, save_similarity_matrix=False, 
-                                        debug=False):
+                                        debug=False)
     assert retval
 

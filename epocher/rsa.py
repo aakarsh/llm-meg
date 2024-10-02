@@ -93,7 +93,7 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
         pass
 
 
-def average_word_occurances(word_index, word_epoch_map):
+def average_word_occurances(word_index, ica_epochs):
       # Extract ICA data for RSA
       target_word_vectors = []
       ica_avarage_map = {}
