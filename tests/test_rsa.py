@@ -24,5 +24,6 @@ def test_get_segmented_similarity_matrix():
                                         reference_word_idx = None, save_similarity_matrix=False, 
                                         debug=False)
     assert len(similarity_matrices) > 0
-    print("shape", similarity_matrices.shape)
+    assert (10, len(word_index), len(word_index)) == similarity_matrices.shape
+ 
 
