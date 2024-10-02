@@ -83,6 +83,15 @@ def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
     
     return  word_index, words_sorted_metadata_df, target_word_epochs 
 
+def _segment_word_epoch_map(word_index, words_sorted_metadata_df, target_word_epochs):
+    """
+    We want to segment the word epochs by chunks of certain segment 
+    duration. Thus instead of a single word_peoch we will have 
+    multiple epochs, each one will then be inidividually used to 
+    generate a RSA_map.
+    """
+    print("something")
+    pass
 
 def parse_event_description(event_json_str):
     event_json_str = event_json_str.replace('\'', '"')
