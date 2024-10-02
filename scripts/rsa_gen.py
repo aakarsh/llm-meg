@@ -49,6 +49,7 @@ def compute_all_rsa_matrics(task_id = None, segmented=False):
             if not segmented:
                 rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
             else:
+                print("Generating segmented matrices")
                 rsa._get_segmented_similarity_matrix(subject_id=subject_id, 
                                                         task_id=task_id, 
                                                         save_similarity_matrix=True)
@@ -88,10 +89,11 @@ def main():
     generate_parser.add_argument('--task_id', type=int, required=True, help='ID of the task')
 
     generate_all_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
+    generate_all_parser.add_argument('--segmented', type=bool, required=False, help='Segment word into parts, each with its won similairty matrix', default=None)
+    
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
     plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=False, help='ID of the subject', default=None)
     plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=False, help='ID of the task', default=None)
-    plot_rsa_tabe_parser.add_argument('--segmented', type=bool, required=False, help='Segment word into parts, each with its won similairty matrix', default=None)
 
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
     generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
