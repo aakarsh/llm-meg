@@ -92,8 +92,8 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
     for segment_idx in range(n_segments):
        target_word_vectors = []
        for word in word_index:
-           epoch_ica = segmented_epochs[word_idx][segment_idx]
-           avg_ica = epochs_ica.average().get_data()
+           epochs_ica = segmented_epochs[word][segment_idx]
+           avg_ica = epochs_ica.get_data()
            # Flatten the data (optional: you can decide to not flatten depending on your approach)
            vector = avg_ica.flatten()
            target_word_vectors.append(vector)
