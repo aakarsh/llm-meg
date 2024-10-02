@@ -39,7 +39,7 @@ def get_cached_result(hash_key):
     # Retrieve from the cache
     return EMBEDDING_TASK_CACHE.get(hash_key, None)
 
-def get_whole_word_embeddings(word_index, task_id, use_cache=True):
+def get_whole_word_embeddings(word_index, task_id, use_cache=True, hidden_layer=-1):
     story_key = f'{task_stimuli[task_id]}.txt'
 
     # Compute the hash of the inputs
@@ -71,9 +71,12 @@ def get_whole_word_embeddings(word_index, task_id, use_cache=True):
         inputs.pop('offset_mapping')
 
         with torch.no_grad():
-            outputs = model(**inputs)
+            outputs = model(**inputs, output_hidden_states=True)
             # shape: (batch_size, sequence_length, hidden_size)
-            token_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
+            if hidden_layer == -1
+                token_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
+            else:
+                token_embedding = hidden_states[hidden_layer]
 
         # Decode tokenized words
         tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
@@ -158,8 +161,8 @@ def get_word_vectors(words, glove_embeddings):
     return np.array(vectors)
 
 
-def create_rsa_matrix(words, task_id):
-    words_found, word_embeddings = get_whole_word_embeddings(words, task_id)
+def create_rsa_matrix(words, task_id, hidden_layer=-1):
+    words_found, word_embeddings = get_whole_word_embeddings(words, task_id, hidden_layer=hidden_layer)
     word_vectors = get_word_vectors(words_found, word_embeddings)
     print(f"len word vectors {len(word_vectors)}, for words: {len(words)} found words {len(words_found)}")
     # Normalize word vectors before computing cosine similarity
