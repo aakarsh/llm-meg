@@ -112,7 +112,7 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
 
 
 def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
-                                        n_segments=10, n_components=15, tmax=0.25, 
+                                        n_segments=20, n_components=15, tmax=0.25, 
                                         reference_word_idx = None, save_similarity_matrix=False, 
                                         debug=False):
     """
