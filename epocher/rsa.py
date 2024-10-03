@@ -91,7 +91,7 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
     print(f"Final-Similairty subject-id{subject_id} {task_id} {session_id}", similarity_matrix)
     def plot_heatmap(rsa_matrix, title='RSA Comparison Heatmap'):
         """Plot a heatmap of the RSA comparison matrix."""
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(20, 16))
         sns.heatmap(rsa_matrix.T, annot=True, fmt=".2f", cmap='coolwarm', cbar_kws={"shrink": .8})
         plt.title(title)
         plt.ylabel('BERT Layers')
