@@ -62,9 +62,9 @@ def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE"):
     return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
 
 def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model="BERT"):
-    retval_similarity_matrix = np.zeros((10, 12))
+    retval_similarity_matrix = np.zeros((20, 12))
 
-    for segment_idx in range(1, 10):
+    for segment_idx in range(1, 20):
         for layer_idx in range( 12, 1, -1):
             word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, segmented=True)
             model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, layer_id=layer_idx)
