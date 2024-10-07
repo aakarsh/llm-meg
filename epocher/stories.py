@@ -8,6 +8,8 @@ from collections import Counter
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
+task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_willow' ]
+
 def load_stimuli(directory):
     content_map = {}
     for filename in os.listdir(directory):
@@ -57,5 +59,12 @@ def load_experiment_salient_words():
     stories_map = load_experiment_stories()
     return get_salient_words(stories_map[list(stories_map.keys())[0]])
 
-def parse_stories():
-    pass
+def get_story_key(task_id):
+    story_key = f'{task_stimuli[task_id]}.txt'
+    return story_key 
+
+def get_experiment_story(task_id):
+    story_map = load_experiment_stories()
+    story_key = get_story_key(task_id)
+    story = story_map[story_key]
+    return story

@@ -7,7 +7,7 @@ from sklearn.preprocessing import normalize
 from nltk.tokenize import sent_tokenize
 
 from .env import GLOVE_PATH
-from epocher.stories import load_experiment_stories
+from epocher.stories import load_experiment_stories, get_story_key
 from collections import defaultdict
 
 
@@ -40,7 +40,7 @@ def get_cached_result(hash_key):
     return EMBEDDING_TASK_CACHE.get(hash_key, None)
 
 def get_whole_word_embeddings(word_index, task_id, use_cache=True, hidden_layer=-1):
-    story_key = f'{task_stimuli[task_id]}.txt'
+    story_key = get_story_key(task_id)
 
     # Compute the hash of the inputs
     hash_key = compute_md5_hash(word_index, task_id)
