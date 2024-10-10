@@ -4,10 +4,14 @@ from sklearn.preprocessing import normalize
 
 from .env import GLOVE_PATH
 
+# Hash of word embeddings if it has been fetched, alternative to 
+# loading and searching through glove embedding file.
 CACHED_EMBEDDING = {}
 
-# 1. Load GloVe embeddings
 def load_glove_embeddings(glove_file_path, embedding_dim=300, use_cache=True):
+    """
+    Load glove embeddings using the provide glove embedding filepath.
+    """
     global CACHED_EMBEDDING  # Declare CACHED_EMBEDDING as global
 
     if use_cache and CACHED_EMBEDDING:
@@ -30,8 +34,11 @@ def load_glove_embeddings(glove_file_path, embedding_dim=300, use_cache=True):
     CACHED_EMBEDDING = glove_embeddings
     return glove_embeddings
 
-# 2. Get word embeddings for a list of words
 def get_word_vectors(words, glove_embeddings):
+    """
+    Convert map of glove embeddings into a list of vectors of following the same 
+    ordering as provided list of words.
+    """
     vectors = []
     for word in words:
         if word in glove_embeddings:
@@ -40,17 +47,24 @@ def get_word_vectors(words, glove_embeddings):
             vectors.append(np.zeros(300))  # If word not found, use a zero vector
     return np.array(vectors)
 
-# 3. Normalize the word vectors
 def normalize_vectors(word_vectors):
+    """
+    Normalize word vectors to be used a pre-processing for 
+    cosine similarity computation.
+    """
     return normalize(word_vectors, axis=1)
 
-# 4. Compute RSA matrix using cosine similarity
 def compute_similarity_matrix(word_vectors):
+    """
+    Compute the cosine similarity for word vectors.
+    """
     return cosine_similarity(word_vectors)
 
-
-# Main function to create RSA matrix
 def create_rsa_matrix(words, glove_file_path=GLOVE_PATH):
+    """
+    Construct a RSA matrix to compare stimulus similarity 
+    accross model representations.
+    """
     glove_embeddings = load_glove_embeddings(glove_file_path)
     word_vectors = get_word_vectors(words, glove_embeddings)
     

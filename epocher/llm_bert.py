@@ -6,7 +6,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 from nltk.tokenize import sent_tokenize
 
-from .env import GLOVE_PATH
 from epocher.stories import load_experiment_stories, get_story_key
 from collections import defaultdict
 
@@ -19,12 +18,8 @@ from transformers import BertTokenizerFast
  
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', clean_up_tokenization_spaces=False)
 model = BertModel.from_pretrained('bert-base-uncased')
-#'cable_spool_fort.txt', 'the_black_willow.txt', 'easy_money.txt', 'lw1.txt'
-task_stimuli = ['lw1', 'cable_spool_fort','easy_money','the_black_willow' ]
 
 EMBEDDING_TASK_CACHE = {}
-
-
 
 def compute_md5_hash(word_index, task_id):
     # Combine word_index and task_id into a string and compute MD5
@@ -164,12 +159,9 @@ def get_word_vectors(words, glove_embeddings):
 def create_rsa_matrix(words, task_id, hidden_layer=-1):
     words_found, word_embeddings = get_whole_word_embeddings(words, task_id, hidden_layer=hidden_layer)
     word_vectors = get_word_vectors(words_found, word_embeddings)
-    print(f"len word vectors {len(word_vectors)}, for words: {len(words)} found words {len(words_found)}")
     # Normalize word vectors before computing cosine similarity
     normalized_vectors = normalize_vectors(word_vectors)
-    
     # Compute similarity matrix
     similarity_matrix = compute_similarity_matrix(normalized_vectors)
-    
     return words_found, similarity_matrix
 
