@@ -32,6 +32,21 @@ from . import dataset as D
 from . import llm_glove as G
 from . import llm_bert as B
 
+# TODO: Slice the epochs.
+# TODO: 1. Refactor the code above to resue the peoching
+# TODO: 2. Crate windowed sections of the code above. 
+# TODO: 3. Save the window id and interface to a similarity file.
+# TODO: 4. For each window id and BERT Layer embedding compute the correlation score. 
+# TODO: 5. Plot the Correlation Coefficient between each BERT Layer and the time window which it explains most.
+# TODO: 6. Perform per-electrode correlations 
+# TODO: 7. Look at doing noun comparisons.
+# TODO: 8. Look at doing functional part of speech comparisons
+# TODO: 9. Look at doing BootStrapping and Cross Validation
+# TODO: 10. Look at encoding models.
+# TODO: 10. Look at sentence concept. 
+
+# Assumning each word is devided into 100 onsite times, then we will have 100 rsa which compare word in that window
+
 
 def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
@@ -89,6 +104,7 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
             # Compare the submatrices using RSA or other metrics
             retval_similarity_matrix[segment_idx-1, layer_idx-1] = _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
     print(f"Final-Similairty subject-id{subject_id} {task_id} {session_id}", similarity_matrix)
+
     def plot_heatmap(rsa_matrix, title='RSA Comparison Heatmap'):
         """Plot a heatmap of the RSA comparison matrix."""
         plt.figure(figsize=(64, 32))
@@ -246,13 +262,6 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
       return word_index, similarity_matrix
 
-# TODO: Slice the epochs.
-# TODO: 1. Refactor the code above to resue the peoching
-# TODO: 2. Crate windowed sections of the code above. 
-# TODO: 3. Save the window id and interface to a similarity file.
-# TODO: 4. For each window id and BERT Layer embedding compute the correlation score. 
-# TODO: 5. Plot the Correlation Coefficient between each BERT Layer and the time window which it explains most.
-# Assumning each word is devided into 100 onsite times, then we will have 100 rsa which compare word in that window
 
 def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)
