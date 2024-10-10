@@ -119,7 +119,7 @@ def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25, word_pos=Non
     word_epochs = segment_by_word(raw_file, tmax=tmax)
     words_meta = word_epochs.metadata
 
-    # Filter out the stop words. 
+    # Filter out the stop words.
     words_found = _word_epoch_words(words_meta)
 
     words_found_metadata_df =  words_meta[words_meta["word"].isin(words_found)]
@@ -300,10 +300,10 @@ def segment_by_phoneme(raw):
     return epochs
 
 
-def _word_epoch_words(word_meta):
+def _word_epoch_words(word_meta, word_pos=['VB']):
     unique_words = list(word_meta["word"].unique())
     lower_case_unique_words = list(map(lambda s : s.lower(), unique_words))
-    selected_words = S.filter_stop_words(lower_case_unique_words)
+    selected_words = S.select_words_by_part_of_speech(lower_case_unique_words)
     return selected_words
 
 def _get_raw_file(subject, session, task):

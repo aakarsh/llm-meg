@@ -38,7 +38,6 @@ dataset	./epocher/dataset.py	1
 decod	./epocher/check_decoding.py	/^def decod(/
 env	./epocher/env.py	1
 extract_verbs_from_sentence	./epocher/verb_cat.py	/^def extract_verbs_from_sentence(/
-filter_stop_words	./epocher/stories.py	/^def filter_stop_words(/
 filter_word_events	./epocher/dataset.py	/^def filter_word_events(/
 find_word_events_from_annotation	./epocher/dataset.py	/^def find_word_events_from_annotation(/
 get_cached_result	./epocher/llm_bert.py	/^def get_cached_result(/
@@ -49,6 +48,7 @@ get_whole_word_embeddings	./epocher/llm_bert.py	/^def get_whole_word_embeddings(
 get_word_vectors	./epocher/llm_bert.py	/^def get_word_vectors(/
 get_word_vectors	./epocher/llm_glove.py	/^def get_word_vectors(/
 is_phoneme	./epocher/dataset.py	/^def is_phoneme(/
+is_selectable_tag	./epocher/stories.py	/^    def is_selectable_tag(/
 is_word	./epocher/dataset.py	/^def is_word(/
 llm_bert	./epocher/llm_bert.py	1
 llm_glove	./epocher/llm_glove.py	1
@@ -82,6 +82,7 @@ rsa_experiments	./scripts/rsa_experiments.py	1
 segment	./epocher/check_decoding.py	/^def segment(/
 segment_by_phoneme	./epocher/dataset.py	/^def segment_by_phoneme(/
 segment_by_word	./epocher/dataset.py	/^def segment_by_word(/
+select_words_by_part_of_speech	./epocher/stories.py	/^def select_words_by_part_of_speech(/
 similarity_index_file_name	./epocher/plots.py	/^def similarity_index_file_name(/
 stories	./epocher/stories.py	1
 test_always_pass	./tests/test_rsa.py	/^def test_always_pass(/

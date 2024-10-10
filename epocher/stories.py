@@ -21,12 +21,17 @@ def load_stimuli(directory):
     return content_map
 
 
-def filter_stop_words(words, num_words = None):
+def select_words_by_part_of_speech(words, num_words = None, word_pos=['VB']):
     tagged_words = nltk.pos_tag(words)
+
+    def is_selectable_tag(current_tag, tags=['VB']):
+        for filter_tag in tags: 
+            if current_tag.startswith(filter_tag):
+                return True
+        return False
+
     salient_words = [word for word, tag in tagged_words if len(word)>2 and 
-            #tag.startswith('NN') 
-            tag.startswith('VB')
-    ]
+            is_selectable_tag(tag) ]
     return list(set(salient_words))
 
 def get_salient_words(all_text, num_words=20):
