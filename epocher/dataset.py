@@ -135,10 +135,9 @@ def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25, word_pos=Non
 
 def _segment_word_epoch_map(num_segments, word_index,  target_word_epochs):
     """
-    We want to segment the word epochs by chunks of certain segment 
-    duration. Thus instead of a single word_peoch we will have 
-    multiple epochs, each one will then be inidividually used to 
-    generate a RSA_map.
+    We want to segment the word epochs by chunks of certain-segment duration. Thus 
+    instead of a single word_epoch we will have multiple epochs, each one will 
+    then be individually used to generate a RSA_map.
     """
     segmented_epochs = {}
     for word in word_index:
@@ -327,6 +326,7 @@ def _get_raw_file(subject, session, task):
     raw.load_data().filter(0.5, 30.0, n_jobs=1)
     return raw  
 
+"""
 def _get_epochs(subject, segment=segment_by_phoneme):
     all_epochs = list()
     for session in range(2):
@@ -372,3 +372,5 @@ def _get_epochs(subject, segment=segment_by_phoneme):
     )
     epochs.metadata["label"] = label
     return epochs
+"""
+
