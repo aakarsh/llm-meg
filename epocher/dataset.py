@@ -131,7 +131,7 @@ def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
    
     word_index = list(sorted(target_word_epochs.keys()))
     
-    return  word_index, words_sorted_metadata_df, target_word_epochs 
+    return word_index, words_sorted_metadata_df, target_word_epochs 
 
 def _segment_word_epoch_map(num_segments, word_index,  target_word_epochs):
     """
@@ -140,7 +140,6 @@ def _segment_word_epoch_map(num_segments, word_index,  target_word_epochs):
     multiple epochs, each one will then be inidividually used to 
     generate a RSA_map.
     """
-    print("something")
     segmented_epochs = {}
     for word in word_index:
         # Get the epochs for the word
