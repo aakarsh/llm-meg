@@ -110,7 +110,7 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, t
       return word_index, word_metadata_df, word_epoch_map, ica_epochs
 
 
-def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25):
+def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25, word_pos=None):
     """ 
     We use a 250 ms window.
     """
@@ -303,7 +303,8 @@ def segment_by_phoneme(raw):
 def _word_epoch_words(word_meta):
     unique_words = list(word_meta["word"].unique())
     lower_case_unique_words = list(map(lambda s : s.lower(), unique_words))
-    return S.filter_stop_words(lower_case_unique_words)
+    selected_words = S.filter_stop_words(lower_case_unique_words)
+    return selected_words
 
 def _get_raw_file(subject, session, task):
     print(".", end="")

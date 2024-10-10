@@ -1,0 +1,113 @@
+PATHS	./epocher/check_decoding.py	/^class PATHS:/
+__init__	./epocher/__init__.py	1
+__init__	./tests/__init__.py	1
+_compare_rsa	./epocher/rsa.py	/^def _compare_rsa(/
+_compare_segemnts_with_model_layers	./epocher/rsa.py	/^def _compare_segemnts_with_model_layers(/
+_compare_subjects	./epocher/rsa.py	/^def _compare_subjects(/
+_compare_with_model	./epocher/rsa.py	/^def _compare_with_model(/
+_decod_one_subject	./epocher/check_decoding.py	/^def _decod_one_subject(/
+_get_epoch_word_map	./epocher/dataset.py	/^def _get_epoch_word_map(/
+_get_epochs	./epocher/check_decoding.py	/^def _get_epochs(/
+_get_epochs	./epocher/dataset.py	/^def _get_epochs(/
+_get_ica_epochs	./epocher/dataset.py	/^def _get_ica_epochs(/
+_get_raw_file	./epocher/dataset.py	/^def _get_raw_file(/
+_get_segmented_similarity_matrix	./epocher/rsa.py	/^def _get_segmented_similarity_matrix(/
+_get_similarity_matrix	./epocher/rsa.py	/^def _get_similarity_matrix(/
+_load_raw_meta	./epocher/dataset.py	/^def _load_raw_meta(/
+_segment_word_epoch_map	./epocher/dataset.py	/^def _segment_word_epoch_map(/
+_threshold_baseline_epochs	./epocher/dataset.py	/^def _threshold_baseline_epochs(/
+_word_epoch_words	./epocher/dataset.py	/^def _word_epoch_words(/
+average_word_occurances	./epocher/rsa.py	/^def average_word_occurances(/
+cache_result	./epocher/llm_bert.py	/^def cache_result(/
+check_decoding	./epocher/check_decoding.py	1
+compare_with_model	./scripts/rsa_experiments.py	/^def compare_with_model(/
+compare_with_model_layers_segmented	./scripts/rsa_experiments.py	/^def compare_with_model_layers_segmented(/
+compute_all_rsa_matrics	./scripts/rsa_experiments.py	/^def compute_all_rsa_matrics(/
+compute_md5_hash	./epocher/llm_bert.py	/^def compute_md5_hash(/
+compute_rsa_matrix	./scripts/rsa_experiments.py	/^def compute_rsa_matrix(/
+compute_rsa_similarity	./scripts/rsa_experiments.py	/^def compute_rsa_similarity(/
+compute_similarity_matrics	./epocher/rsa.py	/^def compute_similarity_matrics(/
+compute_similarity_matrics	./scripts/rsa_experiments.py	/^def compute_similarity_matrics(/
+compute_similarity_matrix	./epocher/llm_bert.py	/^def compute_similarity_matrix(/
+compute_similarity_matrix	./epocher/llm_glove.py	/^def compute_similarity_matrix(/
+correlate	./epocher/check_decoding.py	/^def correlate(/
+create_rsa_matrix	./epocher/llm_bert.py	/^def create_rsa_matrix(/
+create_rsa_matrix	./epocher/llm_glove.py	/^def create_rsa_matrix(/
+create_word_epochs	./epocher/dataset.py	/^def create_word_epochs(/
+dataset	./epocher/dataset.py	1
+decod	./epocher/check_decoding.py	/^def decod(/
+env	./epocher/env.py	1
+extract_verbs_from_sentence	./epocher/verb_cat.py	/^def extract_verbs_from_sentence(/
+filter_stop_words	./epocher/stories.py	/^def filter_stop_words(/
+filter_word_events	./epocher/dataset.py	/^def filter_word_events(/
+find_word_events_from_annotation	./epocher/dataset.py	/^def find_word_events_from_annotation(/
+get_cached_result	./epocher/llm_bert.py	/^def get_cached_result(/
+get_experiment_story	./epocher/stories.py	/^def get_experiment_story(/
+get_salient_words	./epocher/stories.py	/^def get_salient_words(/
+get_story_key	./epocher/stories.py	/^def get_story_key(/
+get_whole_word_embeddings	./epocher/llm_bert.py	/^def get_whole_word_embeddings(/
+get_word_vectors	./epocher/llm_bert.py	/^def get_word_vectors(/
+get_word_vectors	./epocher/llm_glove.py	/^def get_word_vectors(/
+is_phoneme	./epocher/dataset.py	/^def is_phoneme(/
+is_word	./epocher/dataset.py	/^def is_word(/
+llm_bert	./epocher/llm_bert.py	1
+llm_glove	./epocher/llm_glove.py	1
+load_bids_path	./epocher/dataset.py	/^def load_bids_path(/
+load_experiment_salient_words	./epocher/stories.py	/^def load_experiment_salient_words(/
+load_experiment_stories	./epocher/stories.py	/^def load_experiment_stories(/
+load_glove_embeddings	./epocher/llm_glove.py	/^def load_glove_embeddings(/
+load_model_similarity_matrix	./epocher/rsa.py	/^def load_model_similarity_matrix(/
+load_similarity_matrix	./epocher/rsa.py	/^def load_similarity_matrix(/
+load_stimuli	./epocher/stories.py	/^def load_stimuli(/
+load_subject_ids	./epocher/dataset.py	/^def load_subject_ids(/
+load_subject_information	./epocher/dataset.py	/^def load_subject_information(/
+load_task_ids	./epocher/dataset.py	/^def load_task_ids(/
+load_word_index	./epocher/rsa.py	/^def load_word_index(/
+main	./scripts/ptags.py	/^def main(/
+main	./scripts/rsa_experiments.py	/^def main(/
+mark_verb_features	./epocher/verb_cat.py	/^def mark_verb_features(/
+normalize_vectors	./epocher/llm_bert.py	/^def normalize_vectors(/
+normalize_vectors	./epocher/llm_glove.py	/^def normalize_vectors(/
+parse_event_description	./epocher/dataset.py	/^def parse_event_description(/
+plot	./epocher/check_decoding.py	/^def plot(/
+plot_dendogram	./epocher/plots.py	/^def plot_dendogram(/
+plot_heatmap	./epocher/rsa.py	/^    def plot_heatmap(/
+plot_saved_similarity_matrix	./epocher/plots.py	/^def plot_saved_similarity_matrix(/
+plot_similarity_matrix	./epocher/plots.py	/^def plot_similarity_matrix(/
+plot_tsne	./epocher/plots.py	/^def plot_tsne(/
+plots	./epocher/plots.py	1
+ptags	./scripts/ptags.py	1
+rsa	./epocher/rsa.py	1
+rsa_experiments	./scripts/rsa_experiments.py	1
+segment	./epocher/check_decoding.py	/^def segment(/
+segment_by_phoneme	./epocher/dataset.py	/^def segment_by_phoneme(/
+segment_by_word	./epocher/dataset.py	/^def segment_by_word(/
+similarity_index_file_name	./epocher/plots.py	/^def similarity_index_file_name(/
+stories	./epocher/stories.py	1
+test_always_pass	./tests/test_rsa.py	/^def test_always_pass(/
+test_always_pass	./tests/test_stories.py	/^def test_always_pass(/
+test_bert	./tests/test_bert.py	1
+test_construct_subject_rsa	./tests/test_rsa.py	/^def test_construct_subject_rsa(/
+test_dataset	./tests/test_dataset.py	1
+test_get_epoch_word_map	./tests/test_dataset.py	/^def test_get_epoch_word_map(/
+test_get_indexu_stimulus_stories	./tests/test_bert.py	/^def test_get_indexu_stimulus_stories(/
+test_get_segmented_similarity_matrix	./tests/test_rsa.py	/^def test_get_segmented_similarity_matrix(/
+test_get_similarity_matrix	./tests/test_intrasubject_meg.py	/^def test_get_similarity_matrix(/
+test_glove	./tests/test_glove.py	1
+test_inter_subject_meg	./tests/test_inter_subject_meg.py	1
+test_intrasubject_meg	./tests/test_intrasubject_meg.py	1
+test_llm_glove	./tests/test_glove.py	/^def test_llm_glove(/
+test_load_raw_meta	./tests/test_rsa.py	/^def test_load_raw_meta(/
+test_load_subject_information	./tests/test_dataset.py	/^def test_load_subject_information(/
+test_rsa	./tests/test_rsa.py	1
+test_salient_words	./tests/test_stories.py	/^def test_salient_words(/
+test_segment_ica_epochmap	./tests/test_dataset.py	/^def test_segment_ica_epochmap(/
+test_segment_word_epcoh_map	./tests/test_dataset.py	/^def test_segment_word_epcoh_map(/
+test_something	./tests/test_verb_cat.py	/^def test_something(/
+test_stories	./tests/test_stories.py	/^def test_stories(/
+test_stories	./tests/test_stories.py	1
+test_verb_cat	./tests/test_verb_cat.py	1
+treat_file	./scripts/ptags.py	/^def treat_file(/
+verb_cat	./epocher/verb_cat.py	1
+verb_stanza	./epocher/verb_stanza.py	1
+word_index_file_name	./epocher/plots.py	/^def word_index_file_name(/
