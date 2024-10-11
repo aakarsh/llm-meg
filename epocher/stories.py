@@ -36,6 +36,7 @@ def select_words_by_part_of_speech(words,
 
     selected_words = [word for word, tag in tagged_words if len(word)>2 and 
             is_selectable_tag(tag, tags=word_pos) ]
+
     return list(set(selected_words))
 
 def get_salient_words(all_text, num_words=20):
