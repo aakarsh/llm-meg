@@ -242,7 +242,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
 
       word_index, target_word_vectors = D._get_target_word_vectors(subject_id, session_id, task_id,
-                              reference_word_idx = reference_word_idx
+                              reference_word_idx = reference_word_idxa,
                               n_components=n_components, tmax=tmax, 
                               word_pos=word_pos, use_ica=False)
 
