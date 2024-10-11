@@ -128,10 +128,16 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
 
-def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0, 
-        n_segments=20, n_components=15, tmax=0.25) :
+def _get_per_electrode_rsa(subject_id='01', session_id=0, task_id=0):
+    # TODO - Do per-electrode seperation.
+    pass
 
-    raw_data = load_raw_data(subject_id, task_id) # Load your MEG raw data here
+
+def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0, 
+        n_segments=20, n_components=15, tmax=0.25):
+
+    # Load your MEG raw data here 
+    raw_data = load_raw_data(subject_id, task_id)
     windowed_similarity = []
     
     # Assuming you already have the word events processed
@@ -147,12 +153,11 @@ def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0,
         windowed_similarity.append(rsa_value)
 
     # Optionally, plot the results for continuous RSA values over time
-    plt.plot(range(0, len(windowed_similarity) * step_size, step_size), windowed_similarity)
-    plt.xlabel("Time (ms)")
-    plt.ylabel("RSA Similarity")
-    plt.title("Sliding Window RSA Similarity Over Time")
-    plt.show()
-    
+    # plt.plot(range(0, len(windowed_similarity) * step_size, step_size), windowed_similarity)
+    # plt.xlabel("Time (ms)")
+    # plt.ylabel("RSA Similarity")
+    # plt.title("Sliding Window RSA Similarity Over Time")
+    # plt.show()
     return windowed_similarity
 
 def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
@@ -163,6 +168,8 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
         Segmented siilarity matrices.
     """
     # Initialize dictionary to store ICA-transformed epochs
+    # TODO - We can't use ICA, should use oly for artifact removal. 
+    # Need to do something else. 
     word_index, word_metadata_df, word_epoch_map, ica_epochs = \
          D._get_ica_epochs(subject_id, session_id, task_id,
                                   n_components=n_components, tmax=tmax)

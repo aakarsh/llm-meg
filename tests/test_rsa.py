@@ -2,8 +2,15 @@ import epocher.stories as S
 import epocher.dataset as D
 import epocher.rsa as R
 
-def test_always_pass():
-    pass
+
+def test_get_per_electrode_rsa():
+    """
+    """
+    R._get_per_electrode_rsa(subject_id='01', session_id=0, task_id=0)
+
+def test_rsa_matrices_for_nouns():
+    """
+    """
 
 def test_load_raw_meta():
     raw_file = D._get_raw_file('01', 0, 0)
