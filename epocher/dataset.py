@@ -64,7 +64,7 @@ def _load_epoch_map(subject_id='01', session_id=0, task_id=0, n_components=15,
 
 def _get_target_word_vectors(subject_id='01', session_id=0, task_id=0, n_components=15, 
                                 tmax=0.25, reference_word_idx=None, 
-                                word_pos=['VB'], use_ica=True):
+                                word_pos=['VB'], use_ica=False):
 
       # Initialize dictionary to store ICA-transformed epochs
       word_index, current_word_epoch_map = _load_epoch_map(subject_id, session_id, task_id,
@@ -90,7 +90,7 @@ def _get_target_word_vectors(subject_id='01', session_id=0, task_id=0, n_compone
 
       # convert to numpy array
       target_word_vectors = np.array(target_word_vectors)
-      return target_word_vectors
+      return word_index, target_word_vectors
 
 
 def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, 

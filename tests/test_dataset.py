@@ -1,13 +1,13 @@
 import epocher.dataset as D
 
 def test_get_target_word_vectors():
-    target_word_vectors = D._get_target_word_vectors(subject_id='01', session_id=0, task_id=0)
+    word_index, target_word_vectors = D._get_target_word_vectors(subject_id='01', session_id=0, task_id=0)
     print(target_word_vectors.shape)
     assert len(target_word_vectors) > 0
     assert (72, 9568) == target_word_vectors.shape
 
 def test_get_target_word_vectors_direct():
-    target_word_vectors = D._get_target_word_vectors(subject_id='01', session_id=0, task_id=0, use_ica=False)
+    word_index, target_word_vectors = D._get_target_word_vectors(subject_id='01', session_id=0, task_id=0, use_ica=False)
     print(target_word_vectors.shape)
     assert len(target_word_vectors) > 0
     assert (72, 9568) == target_word_vectors.shape
