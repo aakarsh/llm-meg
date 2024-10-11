@@ -35,3 +35,6 @@ def test_get_segmented_similarity_matrix():
     assert (10, len(word_index), len(word_index)) == similarity_matrices.shape
  
 
+
+def test_plot_similarity_matrix():
+    pass
