@@ -8,10 +8,18 @@ def test_get_per_electrode_rsa():
     """
     R._get_per_electrode_rsa(subject_id='01', session_id=0, task_id=0)
 
-def test_rsa_matrices_for_nouns():
+def test_get_similarity_matrix_nouns():
     """
     """
-    pass
+    word_index, similarity_matrices = R._get_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
+                                         n_components=15, tmax=0.25, 
+                                        reference_word_idx = None, 
+                                        save_similarity_matrix=False, 
+                                        word_pos=['NN'],
+                                        debug=False)
+    assert len(similarity_matrices) > 0
+    assert (len(word_index), len(word_index)) == similarity_matrices.shape
+ 
 
 def test_load_raw_meta():
     raw_file = D._get_raw_file('01', 0, 0)
