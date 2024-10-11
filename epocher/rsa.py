@@ -128,10 +128,6 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
 
-def _get_per_electrode_rsa(subject_id='01', session_id=0, task_id=0):
-    # TODO - Do per-electrode seperation.
-    pass
-
 
 def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0, 
         n_segments=20, n_components=15, tmax=0.25):
@@ -235,6 +231,14 @@ def average_word_occurances(word_index, ica_epochs):
         # Average the ICA components over time
         ica_average_map[word] = epochs_ica.average().copy()
       return ica_average_map
+
+def _get_per_per_electrode(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
+        reference_word_idx=None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
+        """
+        Show the working on a per-electrode basis.
+        """
+    pass
+
 
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
         reference_word_idx=None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
