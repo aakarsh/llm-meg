@@ -21,7 +21,11 @@ def load_stimuli(directory):
     return content_map
 
 
-def select_words_by_part_of_speech(words, num_words = None, word_pos=['VB']):
+def select_words_by_part_of_speech(words, 
+        num_words=None, word_pos=['VB']):
+    """
+    Filter the words by the parts of speech
+    """
     tagged_words = nltk.pos_tag(words)
 
     def is_selectable_tag(current_tag, tags=['VB']):
@@ -30,9 +34,9 @@ def select_words_by_part_of_speech(words, num_words = None, word_pos=['VB']):
                 return True
         return False
 
-    salient_words = [word for word, tag in tagged_words if len(word)>2 and 
+    selected_words = [word for word, tag in tagged_words if len(word)>2 and 
             is_selectable_tag(tag) ]
-    return list(set(salient_words))
+    return list(set(selected_words))
 
 def get_salient_words(all_text, num_words=20):
     # Tokenization: Remove punctuation and split into words

@@ -9,6 +9,7 @@ _decod_one_subject	./epocher/check_decoding.py	/^def _decod_one_subject(/
 _get_epoch_word_map	./epocher/dataset.py	/^def _get_epoch_word_map(/
 _get_epochs	./epocher/check_decoding.py	/^def _get_epochs(/
 _get_epochs	./epocher/dataset.py	/^def _get_epochs(/
+_get_epochs	./epocher/dataset.py	/^def _get_epochs(/
 _get_ica_epochs	./epocher/dataset.py	/^def _get_ica_epochs(/
 _get_raw_file	./epocher/dataset.py	/^def _get_raw_file(/
 _get_segmented_similarity_matrix	./epocher/rsa.py	/^def _get_segmented_similarity_matrix(/
@@ -33,13 +34,10 @@ compute_similarity_matrix	./epocher/llm_glove.py	/^def compute_similarity_matrix
 correlate	./epocher/check_decoding.py	/^def correlate(/
 create_rsa_matrix	./epocher/llm_bert.py	/^def create_rsa_matrix(/
 create_rsa_matrix	./epocher/llm_glove.py	/^def create_rsa_matrix(/
-create_word_epochs	./epocher/dataset.py	/^def create_word_epochs(/
 dataset	./epocher/dataset.py	1
 decod	./epocher/check_decoding.py	/^def decod(/
 env	./epocher/env.py	1
 extract_verbs_from_sentence	./epocher/verb_cat.py	/^def extract_verbs_from_sentence(/
-filter_word_events	./epocher/dataset.py	/^def filter_word_events(/
-find_word_events_from_annotation	./epocher/dataset.py	/^def find_word_events_from_annotation(/
 get_cached_result	./epocher/llm_bert.py	/^def get_cached_result(/
 get_experiment_story	./epocher/stories.py	/^def get_experiment_story(/
 get_salient_words	./epocher/stories.py	/^def get_salient_words(/
@@ -47,9 +45,7 @@ get_story_key	./epocher/stories.py	/^def get_story_key(/
 get_whole_word_embeddings	./epocher/llm_bert.py	/^def get_whole_word_embeddings(/
 get_word_vectors	./epocher/llm_bert.py	/^def get_word_vectors(/
 get_word_vectors	./epocher/llm_glove.py	/^def get_word_vectors(/
-is_phoneme	./epocher/dataset.py	/^def is_phoneme(/
 is_selectable_tag	./epocher/stories.py	/^    def is_selectable_tag(/
-is_word	./epocher/dataset.py	/^def is_word(/
 llm_bert	./epocher/llm_bert.py	1
 llm_glove	./epocher/llm_glove.py	1
 load_bids_path	./epocher/dataset.py	/^def load_bids_path(/

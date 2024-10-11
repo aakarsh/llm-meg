@@ -102,6 +102,7 @@ def main():
     generate_parser = subparsers.add_parser('generate', help='Generate similarity matrix for a subject')
     generate_parser.add_argument('--subject_id', type=str, required=True, help='ID of the subject')
     generate_parser.add_argument('--task_id', type=int, required=True, help='ID of the task')
+    generate_parser.add_argument('--pos',default='VB', type=str, required=False, help='Filter words by part of speech')
 
     generate_all_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
     generate_all_parser.add_argument('--segmented', type=bool, required=False, help='Segment word into parts, each with its won similairty matrix', default=None)

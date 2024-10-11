@@ -38,36 +38,9 @@ def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",
     bids_path = BIDSPath(root=DATASET_ROOT, subject=subject, session=session, task=task,datatype=datatype)
     return bids_path
 
-def is_word(event_json):
-    return event_json['kind'] == "word"
-
-def is_phoneme(event_json):
-    return event_json['kind'] == 'phoneme'
-
-def filter_word_events(event_json_strings):
-    event_jsons = list(map(parse_event_description, event_json_strings))
-    return list(filter(is_word, event_jsons))
-
-def find_word_events_from_annotation(raw):
-    all_events, all_event_id = mne.events_from_annotations(raw)
-    word_events = list(map(str, filter_word_events(all_event_id)))
-    all_word_events = []
-    all_word_event_id = {}
-    for word_event in word_events:
-        word_event_id = all_event_id[word_event]
-        for event in all_events:
-            if word_event_id == event[2]:
-                all_word_events.append(event)
-                all_word_event_id[word_event] = word_event_id
-
-    return all_word_events, all_word_event_id
-
-def create_word_epochs(raw, tmin=-.01, tmax=.25):
-   all_events, all_event_id = find_word_events_from_annotation(raw) 
-   epochs = mne.Epochs(raw, event_id = all_event_id, detrend=1, baseline=None, event_repeated='drop', tmin=tmin,tmax=tmax)
-   return epochs
-
-def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25):
+def _get_ica_epochs(subject_id='01', session_id=0, 
+                    task_id=0, n_components=15, tmax=0.25, 
+                    word_pos=['VB']):
       """
       ICA: Aggregate for same task accross sessions. 
       """
@@ -76,7 +49,8 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, t
           session_id = session_id[0]
 
       word_index, word_metadata_df, word_epoch_map = \
-          _get_epoch_word_map(subject_id, session_id, task_id, tmax=tmax)
+          _get_epoch_word_map(subject_id, session_id, task_id, 
+                  tmax=tmax, word_pos=word_pos)
 
       # Initialize dictionary to store ICA-transformed epochs
       ica_epochs = {}
@@ -110,7 +84,8 @@ def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, n_components=15, t
       return word_index, word_metadata_df, word_epoch_map, ica_epochs
 
 
-def _get_epoch_word_map(subject_id, session_id, task_id, tmax=0.25, word_pos=None):
+def _get_epoch_word_map(subject_id, session_id, task_id, 
+                            tmax=0.25, word_pos=["VB"]):
     """ 
     We use a 250 ms window.
     """
@@ -302,7 +277,7 @@ def segment_by_phoneme(raw):
 def _word_epoch_words(word_meta, word_pos=['VB']):
     unique_words = list(word_meta["word"].unique())
     lower_case_unique_words = list(map(lambda s : s.lower(), unique_words))
-    selected_words = S.select_words_by_part_of_speech(lower_case_unique_words)
+    selected_words = S.select_words_by_part_of_speech(lower_case_unique_words, word_pos=word_pos)
     return selected_words
 
 def _get_raw_file(subject, session, task):
