@@ -11,7 +11,7 @@ _get_epochs	./epocher/check_decoding.py	/^def _get_epochs(/
 _get_epochs	./epocher/dataset.py	/^def _get_epochs(/
 _get_epochs	./epocher/dataset.py	/^def _get_epochs(/
 _get_ica_epochs	./epocher/dataset.py	/^def _get_ica_epochs(/
-_get_per_per_electrode	./epocher/rsa.py	/^def _get_per_per_electrode(/
+_get_per_electrode_similarity_matrix	./epocher/rsa.py	/^def _get_per_electrode_similarity_matrix(/
 _get_raw_file	./epocher/dataset.py	/^def _get_raw_file(/
 _get_segmented_similarity_matrix	./epocher/rsa.py	/^def _get_segmented_similarity_matrix(/
 _get_similarity_matrix	./epocher/rsa.py	/^def _get_similarity_matrix(/
