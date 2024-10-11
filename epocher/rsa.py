@@ -128,6 +128,33 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
 
+def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0, 
+        n_segments=20, n_components=15, tmax=0.25) :
+
+    raw_data = load_raw_data(subject_id, task_id) # Load your MEG raw data here
+    windowed_similarity = []
+    
+    # Assuming you already have the word events processed
+    for start in range(0, raw_data.times[-1] - window_size + 1, step_size):
+        end = start + window_size
+        # Extract MEG data for this window
+        data_window = raw_data.copy().crop(tmin=start, tmax=end)
+        # Compute similarity matrix for this window
+        similarity_matrix = compute_similarity_matrix(data_window)
+        
+        # Calculate RSA value with reference
+        rsa_value = _compare_rsa(similarity_matrix, ref_rsa)
+        windowed_similarity.append(rsa_value)
+
+    # Optionally, plot the results for continuous RSA values over time
+    plt.plot(range(0, len(windowed_similarity) * step_size, step_size), windowed_similarity)
+    plt.xlabel("Time (ms)")
+    plt.ylabel("RSA Similarity")
+    plt.title("Sliding Window RSA Similarity Over Time")
+    plt.show()
+    
+    return windowed_similarity
+
 def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
                                         n_segments=20, n_components=15, tmax=0.25, 
                                         reference_word_idx = None, save_similarity_matrix=False, 
