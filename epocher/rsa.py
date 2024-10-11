@@ -203,7 +203,7 @@ def average_word_occurances(word_index, ica_epochs):
       return ica_average_map
 
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
-        reference_word_idx = None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
+        reference_word_idx=None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
 
       # Initialize dictionary to store ICA-transformed epochs
       word_index, word_metadata_df, word_epoch_map, ica_epochs = \

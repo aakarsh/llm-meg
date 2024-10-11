@@ -94,7 +94,7 @@ def _get_epoch_word_map(subject_id, session_id, task_id,
     words_meta = word_epochs.metadata
 
     # Filter out the stop words.
-    words_found = _word_epoch_words(words_meta)
+    words_found = _word_epoch_words(words_meta, word_pos=word_pos)
 
     words_found_metadata_df =  words_meta[words_meta["word"].isin(words_found)]
     words_sorted_metadata_df = words_found_metadata_df.sort_values(by="word")

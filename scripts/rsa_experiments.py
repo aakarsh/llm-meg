@@ -107,7 +107,7 @@ def main():
 
     generate_all_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
     generate_all_parser.add_argument('--segmented', type=bool, required=False, help='Segment word into parts, each with its won similairty matrix', default=None)
-    generate_all_parser.add_argument('--pos',default='VB', type=str, required=False, help='Filter words by part of speech')
+    generate_all_parser.add_argument('--word_pos',default='VB', type=str, required=False, help='Filter words by part of speech')
     
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
     plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=False, help='ID of the subject', default=None)
@@ -134,7 +134,8 @@ def main():
     elif args.command == 'generate':
         compute_rsa_matrix(subject_id=args.subject_id, task_id=args.task_id)
     elif args.command == 'generate-all':
-        compute_all_rsa_matrics(segmented=args.segmented)
+        compute_all_rsa_matrics(segmented=args.segmented, 
+                word_pos=args.word_pos.split(","))
     elif args.command == 'generate-model':
        compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer)
     elif args.command == 'compare-model':
