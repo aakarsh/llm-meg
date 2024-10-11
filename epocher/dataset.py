@@ -329,6 +329,7 @@ def _get_raw_file(subject, session, task):
 
 def _get_epochs(type="ICA"):
     pass
+
 """
 def _get_epochs(subject, segment=segment_by_phoneme):
     all_epochs = list()
