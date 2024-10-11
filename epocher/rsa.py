@@ -128,6 +128,12 @@ def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
 
 
+
+
+
+
+
+
 def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
                                         n_segments=20, n_components=15, tmax=0.25, 
                                         reference_word_idx = None, save_similarity_matrix=False, 
