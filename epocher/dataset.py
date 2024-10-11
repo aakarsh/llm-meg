@@ -38,9 +38,8 @@ def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",
     bids_path = BIDSPath(root=DATASET_ROOT, subject=subject, session=session, task=task,datatype=datatype)
     return bids_path
 
-def _get_ica_epochs(subject_id='01', session_id=0, 
-                    task_id=0, n_components=15, tmax=0.25, 
-                    word_pos=['VB']):
+def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, 
+        n_components=15, tmax=0.25, word_pos=['VB']):
       """
       ICA: Aggregate for same task accross sessions. 
       """

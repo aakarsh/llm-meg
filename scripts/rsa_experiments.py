@@ -53,14 +53,15 @@ def compare_with_model_layers_segmented(model, save_comparisons=True):
     # np.save(comparison_file_name, correlation_comparisons)
 
 
-def compute_all_rsa_matrics(task_id = None, segmented=False):
+def compute_all_rsa_matrics(task_id=None, segmented=False, word_pos =["VB"]):
     subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() if not task_id else [task_id] 
 
     for subject_id in subject_ids:
         for task_id in task_ids: 
             if not segmented:
-                rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, save_similarity_matrix=True)
+                rsa._get_similarity_matrix(subject_id=subject_id, task_id=task_id, 
+                        word_pos=word_pos, save_similarity_matrix=True)
             else:
                 print("Generating segmented matrices")
                 rsa._get_segmented_similarity_matrix(subject_id=subject_id, 
@@ -106,6 +107,7 @@ def main():
 
     generate_all_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
     generate_all_parser.add_argument('--segmented', type=bool, required=False, help='Segment word into parts, each with its won similairty matrix', default=None)
+    generate_all_parser.add_argument('--pos',default='VB', type=str, required=False, help='Filter words by part of speech')
     
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
     plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=False, help='ID of the subject', default=None)

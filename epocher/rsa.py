@@ -32,16 +32,16 @@ from . import dataset as D
 from . import llm_glove as G
 from . import llm_bert as B
 
-# TODO: Slice the epochs.
-# TODO: 1. Refactor the code above to resue the peoching
-# TODO: 2. Crate windowed sections of the code above. 
-# TODO: 3. Save the window id and interface to a similarity file.
-# TODO: 4. For each window id and BERT Layer embedding compute the correlation score. 
-# TODO: 5. Plot the Correlation Coefficient between each BERT Layer and the time window which it explains most.
-# TODO: 6. Perform per-electrode correlations 
-# TODO: 7. Look at doing noun comparisons.
-# TODO: 8. Look at doing functional part of speech comparisons
-# TODO: 9. Look at doing BootStrapping and Cross Validation
+# TODO: Slice the epochs:
+# TODO: 1.  Refactor the code above to resue the epoching
+# TODO: 2.  Create windowed sections of the code above. 
+# TODO: 3.  Save the window id and interface to a similarity file.
+# TODO: 4.  For each window id and BERT Layer embedding compute the correlation score. 
+# TODO: 5.  Plot the Correlation Coefficient between each BERT Layer and the time window which it explains most.
+# TODO: 6.  Perform per-electrode correlations 
+# TODO: 7.  Look at doing noun comparisons.
+# TODO: 8.  Look at doing functional part of speech comparisons
+# TODO: 9.  Look at doing boot-strapping and Cross-validation
 # TODO: 10. Look at encoding models.
 # TODO: 10. Look at sentence concept. 
 
@@ -120,7 +120,8 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
 
 
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
-    word_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, task_id=task_id, tmax=tmax)
+    word_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, 
+            task_id=task_id, tmax=tmax)
     _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, 
             session_id=session_id, task_id=task_id, tmax=tmax, reference_word_idx = word_index)
 
@@ -202,11 +203,12 @@ def average_word_occurances(word_index, ica_epochs):
       return ica_average_map
 
 def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
-        reference_word_idx = None, save_similarity_matrix=False, debug=False):
+        reference_word_idx = None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
 
       # Initialize dictionary to store ICA-transformed epochs
       word_index, word_metadata_df, word_epoch_map, ica_epochs = \
-          D._get_ica_epochs(subject_id, session_id, task_id,n_components=n_components, tmax=tmax)
+          D._get_ica_epochs(subject_id, session_id, task_id,
+                              n_components=n_components, tmax=tmax, word_pos=word_pos)
 
       # Overwrite word index with reference word index
       if reference_word_idx: 
@@ -253,11 +255,12 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
       if save_similarity_matrix: 
           # Serialize the word index as JSON
-          word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_word_index.json'
+          pos_tag =  "_".join(word_pos)
+          word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_pos_{pos_tag}_word_index.json'
           with open(word_index_file, 'w') as f:
               json.dump(word_index, f)
           #Serialize the similarity matrix as an `.npy` file
-          similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
+          similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_pos_{pos_tag}_similarity_matrix.npy'
           np.save(similarity_matrix_file, similarity_matrix)
 
       return word_index, similarity_matrix
