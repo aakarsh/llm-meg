@@ -326,6 +326,9 @@ def _get_raw_file(subject, session, task):
     raw.load_data().filter(0.5, 30.0, n_jobs=1)
     return raw  
 
+
+def _get_epochs(type="ICA"):
+    pass
 """
 def _get_epochs(subject, segment=segment_by_phoneme):
     all_epochs = list()
