@@ -53,8 +53,8 @@ def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
     return correlation
 
-def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE"):
-    word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id)
+def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE", word_pos=None):
+    word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, word_pos=word_pos)
     model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model)
     # load model word index. make sure only intersection of 
     # these two are considered in model comparison. 
@@ -284,6 +284,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
       return word_index, similarity_matrix
 
 
+# TODO Need to handle part of speech here.
 def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
@@ -324,13 +325,11 @@ def load_word_index(subject_id, task_id, model=None, output_dir = OUTPUT_DIR, se
          word_index = json.load(infile)
     return word_index
 
-def load_model_similarity_matrix(subject_id, task_id, model):
-    similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-    similarity_matrix = np.load(similarity_matrix_file)
 
-    return similarity_matrix
-
-def load_similarity_matrix(subject_id, task_id, model=None, segmented=False, layer_id=None):
+def load_similarity_matrix(subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
+    file_name_prefix=f'{OUTPUT_DIR}/'
+    if model:
+        pass 
     similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
     if model:
         if layer_id:
@@ -342,6 +341,5 @@ def load_similarity_matrix(subject_id, task_id, model=None, segmented=False, lay
             
     word_index = load_word_index(subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id)
     similarity_matrix = np.load(similarity_matrix_file)
-
     return word_index, similarity_matrix
  

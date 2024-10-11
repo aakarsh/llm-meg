@@ -83,6 +83,7 @@ def _get_target_word_vectors_per_electrode(subject_id='01', session_id=0, task_i
         # Average the ICA components over time
         epoch_average = word_epochs.average().get_data()  # Shape: (n_channels, n_times)
 
+        # TODO don't flatten the data , but rather keep the elecrode dimensions
         # Flatten the data (optional: you can decide to not flatten depending on your approach)
         vector = epoch_average.flatten()
         target_word_vectors.append(vector)
