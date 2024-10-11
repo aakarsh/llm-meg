@@ -38,6 +38,45 @@ def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",
     bids_path = BIDSPath(root=DATASET_ROOT, subject=subject, session=session, task=task,datatype=datatype)
     return bids_path
 
+def _get_target_word_vectors(subject_id='01', session_id=0, task_id=0, n_components=15, 
+                                tmax=0.25, reference_word_idx=None, 
+                                word_pos=['VB'], use_ica=True):
+
+      # Initialize dictionary to store ICA-transformed epochs
+      word_index, word_metadata_df, word_epoch_map, ica_epochs  = None, None, None, None
+
+      if use_ica:
+          word_index, word_metadata_df, word_epoch_map, ica_epochs = \
+              _get_ica_epochs(subject_id, session_id, task_id,
+                                  n_components=n_components, tmax=tmax, word_pos=word_pos)
+      else:
+          word_index, word_metadata_df, word_epoch_map = \
+              _get_epoch_word_map(subject_id, session_id, task_id, 
+                      tmax=tmax, word_pos=word_pos)
+
+      # Overwrite word index with reference word index
+      if reference_word_idx: 
+          word_index = reference_word_idx
+
+      # Extract ICA data for RSA
+      target_word_vectors = []
+
+      for word in word_index:
+        # print("word", word)
+        epochs_ica = ica_epochs[word]
+        # Average the ICA components over time
+        avg_ica = epochs_ica.average().get_data()  # Shape: (n_channels, n_times)
+
+        # Flatten the data (optional: you can decide to not flatten depending on your approach)
+        vector = avg_ica.flatten()
+        target_word_vectors.append(vector)
+        # print("vector",vector.shape, vector) 
+
+      # convert to numpy array
+      target_word_vectors = np.array(target_word_vectors)
+      return target_word_vectors
+
+
 def _get_ica_epochs(subject_id='01', session_id=0, task_id=0, 
         n_components=15, tmax=0.25, word_pos=['VB']):
       """

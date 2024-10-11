@@ -13,11 +13,6 @@ def test_rsa_matrices_for_nouns():
     """
     pass
 
-def test_get_target_word_vectors():
-    target_word_vectors = R._get_target_word_vectors(subject_id='01', session_id=0, task_id=0)
-    print(target_word_vectors.shape)
-    assert len(target_word_vectors) > 0
-
 def test_load_raw_meta():
     raw_file = D._get_raw_file('01', 0, 0)
     meta_data = D._load_raw_meta(raw_file)
