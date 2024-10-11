@@ -234,6 +234,15 @@ def average_word_occurances(word_index, ica_epochs):
 
 def _get_per_per_electrode(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
         reference_word_idx=None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
+
+      word_index, target_word_vectors = \
+          D._get_target_word_vectors(subject_id, session_id, task_id,
+                                          reference_word_idx = reference_word_idx,
+                                          n_components=n_components, 
+                                          tmax=tmax, 
+                                          word_pos=word_pos, 
+                                          use_ica=False)
+
     pass
 
 
