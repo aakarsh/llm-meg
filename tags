@@ -11,9 +11,13 @@ _get_epochs	./epocher/check_decoding.py	/^def _get_epochs(/
 _get_epochs	./epocher/dataset.py	/^def _get_epochs(/
 _get_epochs	./epocher/dataset.py	/^def _get_epochs(/
 _get_ica_epochs	./epocher/dataset.py	/^def _get_ica_epochs(/
+_get_per_per_electrode	./epocher/rsa.py	/^def _get_per_per_electrode(/
 _get_raw_file	./epocher/dataset.py	/^def _get_raw_file(/
 _get_segmented_similarity_matrix	./epocher/rsa.py	/^def _get_segmented_similarity_matrix(/
 _get_similarity_matrix	./epocher/rsa.py	/^def _get_similarity_matrix(/
+_get_sliding_window_rsa	./epocher/rsa.py	/^def _get_sliding_window_rsa(/
+_get_target_word_vectors	./epocher/dataset.py	/^def _get_target_word_vectors(/
+_load_epoch_map	./epocher/dataset.py	/^def _load_epoch_map(/
 _load_raw_meta	./epocher/dataset.py	/^def _load_raw_meta(/
 _segment_word_epoch_map	./epocher/dataset.py	/^def _segment_word_epoch_map(/
 _threshold_baseline_epochs	./epocher/dataset.py	/^def _threshold_baseline_epochs(/
@@ -81,21 +85,25 @@ segment_by_word	./epocher/dataset.py	/^def segment_by_word(/
 select_words_by_part_of_speech	./epocher/stories.py	/^def select_words_by_part_of_speech(/
 similarity_index_file_name	./epocher/plots.py	/^def similarity_index_file_name(/
 stories	./epocher/stories.py	1
-test_always_pass	./tests/test_rsa.py	/^def test_always_pass(/
 test_always_pass	./tests/test_stories.py	/^def test_always_pass(/
 test_bert	./tests/test_bert.py	1
 test_construct_subject_rsa	./tests/test_rsa.py	/^def test_construct_subject_rsa(/
 test_dataset	./tests/test_dataset.py	1
 test_get_epoch_word_map	./tests/test_dataset.py	/^def test_get_epoch_word_map(/
 test_get_indexu_stimulus_stories	./tests/test_bert.py	/^def test_get_indexu_stimulus_stories(/
+test_get_per_electrode_rsa	./tests/test_rsa.py	/^def test_get_per_electrode_rsa(/
 test_get_segmented_similarity_matrix	./tests/test_rsa.py	/^def test_get_segmented_similarity_matrix(/
 test_get_similarity_matrix	./tests/test_intrasubject_meg.py	/^def test_get_similarity_matrix(/
+test_get_similarity_matrix_nouns	./tests/test_rsa.py	/^def test_get_similarity_matrix_nouns(/
+test_get_target_word_vectors	./tests/test_dataset.py	/^def test_get_target_word_vectors(/
+test_get_target_word_vectors_direct	./tests/test_dataset.py	/^def test_get_target_word_vectors_direct(/
 test_glove	./tests/test_glove.py	1
 test_inter_subject_meg	./tests/test_inter_subject_meg.py	1
 test_intrasubject_meg	./tests/test_intrasubject_meg.py	1
 test_llm_glove	./tests/test_glove.py	/^def test_llm_glove(/
 test_load_raw_meta	./tests/test_rsa.py	/^def test_load_raw_meta(/
 test_load_subject_information	./tests/test_dataset.py	/^def test_load_subject_information(/
+test_plot_similarity_matrix	./tests/test_rsa.py	/^def test_plot_similarity_matrix(/
 test_rsa	./tests/test_rsa.py	1
 test_salient_words	./tests/test_stories.py	/^def test_salient_words(/
 test_segment_ica_epochmap	./tests/test_dataset.py	/^def test_segment_ica_epochmap(/

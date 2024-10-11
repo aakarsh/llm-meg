@@ -4,9 +4,7 @@ import epocher.rsa as R
 
 
 def test_get_per_electrode_rsa():
-    """
-    """
-    R._get_per_electrode_rsa(subject_id='01', session_id=0, task_id=0)
+    R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)
 
 def test_get_similarity_matrix_nouns():
     """
