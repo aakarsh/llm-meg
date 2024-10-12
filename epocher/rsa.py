@@ -310,7 +310,8 @@ def compute_similarity_matrics(subject_id,
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
-def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
+def make_filename_prefix(file_name_tag, subject_id, task_id, 
+        model=None, segmented=False, layer_id=None, word_pos=None):
     """Generate a filename prefix based on parameters for saving/loading files."""
     file_name_parts = []
     if subject_id is not None:
@@ -331,7 +332,8 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
     file_name_parts.append(file_name_tag)
     return f"{OUTPUT_DIR}/{'_'.join(file_name_parts)}"
 
-def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, segmented=False, model=None, layer_id=None, word_pos=None):
+def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, 
+        segmented=False, model=None, layer_id=None, word_pos=None):
     """Save both the word index and similarity matrix to files."""
     word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
     similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
