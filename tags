@@ -6,6 +6,7 @@ _compare_segemnts_with_model_layers	./epocher/rsa.py	/^def _compare_segemnts_wit
 _compare_subjects	./epocher/rsa.py	/^def _compare_subjects(/
 _compare_with_model	./epocher/rsa.py	/^def _compare_with_model(/
 _decod_one_subject	./epocher/check_decoding.py	/^def _decod_one_subject(/
+_file_exists	./epocher/rsa.py	/^def _file_exists(/
 _get_epoch_word_map	./epocher/dataset.py	/^def _get_epoch_word_map(/
 _get_epochs	./epocher/check_decoding.py	/^def _get_epochs(/
 _get_epochs	./epocher/dataset.py	/^def _get_epochs(/
@@ -17,8 +18,10 @@ _get_segmented_similarity_matrix	./epocher/rsa.py	/^def _get_segmented_similarit
 _get_similarity_matrix	./epocher/rsa.py	/^def _get_similarity_matrix(/
 _get_sliding_window_rsa	./epocher/rsa.py	/^def _get_sliding_window_rsa(/
 _get_target_word_vectors	./epocher/dataset.py	/^def _get_target_word_vectors(/
+_get_target_word_vectors_per_electrode	./epocher/dataset.py	/^def _get_target_word_vectors_per_electrode(/
 _load_epoch_map	./epocher/dataset.py	/^def _load_epoch_map(/
 _load_raw_meta	./epocher/dataset.py	/^def _load_raw_meta(/
+_save_to_file	./epocher/rsa.py	/^def _save_to_file(/
 _segment_word_epoch_map	./epocher/dataset.py	/^def _segment_word_epoch_map(/
 _threshold_baseline_epochs	./epocher/dataset.py	/^def _threshold_baseline_epochs(/
 _word_epoch_words	./epocher/dataset.py	/^def _word_epoch_words(/
@@ -56,7 +59,6 @@ load_bids_path	./epocher/dataset.py	/^def load_bids_path(/
 load_experiment_salient_words	./epocher/stories.py	/^def load_experiment_salient_words(/
 load_experiment_stories	./epocher/stories.py	/^def load_experiment_stories(/
 load_glove_embeddings	./epocher/llm_glove.py	/^def load_glove_embeddings(/
-load_model_similarity_matrix	./epocher/rsa.py	/^def load_model_similarity_matrix(/
 load_similarity_matrix	./epocher/rsa.py	/^def load_similarity_matrix(/
 load_stimuli	./epocher/stories.py	/^def load_stimuli(/
 load_subject_ids	./epocher/dataset.py	/^def load_subject_ids(/
@@ -65,6 +67,7 @@ load_task_ids	./epocher/dataset.py	/^def load_task_ids(/
 load_word_index	./epocher/rsa.py	/^def load_word_index(/
 main	./scripts/ptags.py	/^def main(/
 main	./scripts/rsa_experiments.py	/^def main(/
+make_filename_prefix	./epocher/rsa.py	/^def make_filename_prefix(/
 mark_verb_features	./epocher/verb_cat.py	/^def mark_verb_features(/
 normalize_vectors	./epocher/llm_bert.py	/^def normalize_vectors(/
 normalize_vectors	./epocher/llm_glove.py	/^def normalize_vectors(/
