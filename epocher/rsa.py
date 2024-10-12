@@ -326,7 +326,6 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
     file_name_parts.append(file_name_tag)
     file_name_full = '_'.join(file_name_parts) 
     similarity_matrix_file = f'{OUTPUT_DIR}/{file_name_full}'
- 
 
 def load_word_index(subject_id, task_id, 
         model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False, word_pos=word_pos):
