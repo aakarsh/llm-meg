@@ -118,16 +118,12 @@ def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model
     plot_heatmap(retval_similarity_matrix)
     return retval_similarity_matrix 
 
-
 def _compare_subjects(subject_id_1, subject_id_2, session_id=0, task_id=0, tmax=0.25):
     word_index, similarity_matrix_0 = _get_similarity_matrix(subject_id=subject_id_1, session_id=session_id, 
             task_id=task_id, tmax=tmax)
     _, similarity_matrix_1 =  _get_similarity_matrix(subject_id=subject_id_2, 
             session_id=session_id, task_id=task_id, tmax=tmax, reference_word_idx = word_index)
-
     return word_index, _compare_rsa(similarity_matrix_0, similarity_matrix_1)
-
-
 
 def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0, 
         n_segments=20, n_components=15, tmax=0.25):
@@ -234,10 +230,9 @@ def average_word_occurances(word_index, ica_epochs):
 
 def _get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_components=15, tmax=0.25, 
         reference_word_idx=None, save_similarity_matrix=False, word_pos=['VB'], debug=False):
-
     word_index, target_word_vectors = \
           D._get_target_word_vectors(subject_id, session_id, task_id,
-                                          reference_word_idx = reference_word_idx,
+                                          reference_word_idx=reference_word_idx,
                                           n_components=n_components, 
                                           tmax=tmax, 
                                           word_pos=word_pos, 
@@ -250,7 +245,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
       word_index, target_word_vectors = \
           D._get_target_word_vectors(subject_id, session_id, task_id,
-                                          reference_word_idx = reference_word_idx,
+                                          reference_word_idx=reference_word_idx,
                                           n_components=n_components, 
                                           tmax=tmax, 
                                           word_pos=word_pos, 
@@ -283,10 +278,8 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
       return word_index, similarity_matrix
 
-
 # TODO Need to handle part of speech here.
-def compute_similarity_matrics(subject_id, task_id, 
-        model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
+def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
     if model == "GLOVE":
@@ -311,38 +304,46 @@ def compute_similarity_matrics(subject_id, task_id,
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
+def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
+    similarity_file_prefix=f'{OUTPUT_DIR}/'
+    file_name_parts = []
+
+    if subject_id:
+        file_name_parts.append(f'subject_{subject_id}')
+    if task_id:
+        file_name_parts.append(f'task_{task_id}')
+    if word_pos:
+        pos_tag = '_'.join(word_pos)
+        file_name_paths.append(f'pos_{pos_tag}')
+    if  segmented:
+        file_name_parts.append(f'segmented')
+    else: # model, and segmented.
+        if model:
+            file_name_parts.append(f'model_{model}')
+            if layer_id:
+                file_name_parts.append(f'layer_{layer_id}')
+
+    file_name_parts.append(file_name_tag)
+    file_name_full = '_'.join(file_name_parts) 
+    similarity_matrix_file = f'{OUTPUT_DIR}/{file_name_full}'
+ 
+
 def load_word_index(subject_id, task_id, 
-        model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False):
-    word_index_file = f'{output_dir}/subject_{subject_id}_task_{task_id}_word_index.json'
-    if model: 
-        word_index_file = f'{output_dir}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'
-        if layer_id: 
-            word_index_file = f'{output_dir}/model_{model}__layer_-{layer_id}_subject_{subject_id}_task_{task_id}_word_index.json'
-
-    if segmented:
-        word_index_file = f'{output_dir}/segmented-subject_{subject_id}_task_{task_id}_word_index.json'
-
+        model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False, word_pos=word_pos):
+    word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
     word_index = None
     with open(word_index_file, 'r') as infile:
          word_index = json.load(infile)
-    return word_index
+    return word_index 
 
+def load_similarity_matrix(subject_id, task_id, model=None, 
+                                segmented=False, layer_id=None, word_pos=None):
 
-def load_similarity_matrix(subject_id, task_id, 
-        model=None, segmented=False, layer_id=None, word_pos=None):
-    file_name_prefix=f'{OUTPUT_DIR}/'
-    if model:
-        pass 
-    similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-    if model:
-        if layer_id:
-            similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}__layer_-{layer_id}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-        else:
-            similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-    if segmented:
-            similarity_matrix_file = f'{OUTPUT_DIR}/segmented-subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-            
-    word_index = load_word_index(subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id)
+    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
     similarity_matrix = np.load(similarity_matrix_file)
+
+    word_index = load_word_index(subject_id, task_id, 
+                                    model=model, layer_id=layer_id, segmented=segmented, word_pos=word_pos)
+
     return word_index, similarity_matrix
  
