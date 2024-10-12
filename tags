@@ -2,7 +2,7 @@ PATHS	./epocher/check_decoding.py	/^class PATHS:/
 __init__	./epocher/__init__.py	1
 __init__	./tests/__init__.py	1
 _compare_rsa	./epocher/rsa.py	/^def _compare_rsa(/
-_compare_segemnts_with_model_layers	./epocher/rsa.py	/^def _compare_segemnts_with_model_layers(/
+_compare_segments_with_model_layers	./epocher/rsa.py	/^def _compare_segments_with_model_layers(/
 _compare_subjects	./epocher/rsa.py	/^def _compare_subjects(/
 _compare_with_model	./epocher/rsa.py	/^def _compare_with_model(/
 _decod_one_subject	./epocher/check_decoding.py	/^def _decod_one_subject(/
@@ -20,6 +20,7 @@ _get_sliding_window_rsa	./epocher/rsa.py	/^def _get_sliding_window_rsa(/
 _get_target_word_vectors	./epocher/dataset.py	/^def _get_target_word_vectors(/
 _get_target_word_vectors_per_electrode	./epocher/dataset.py	/^def _get_target_word_vectors_per_electrode(/
 _load_epoch_map	./epocher/dataset.py	/^def _load_epoch_map(/
+_load_from_file	./epocher/rsa.py	/^def _load_from_file(/
 _load_raw_meta	./epocher/dataset.py	/^def _load_raw_meta(/
 _save_to_file	./epocher/rsa.py	/^def _save_to_file(/
 _segment_word_epoch_map	./epocher/dataset.py	/^def _segment_word_epoch_map(/
@@ -82,6 +83,7 @@ plots	./epocher/plots.py	1
 ptags	./scripts/ptags.py	1
 rsa	./epocher/rsa.py	1
 rsa_experiments	./scripts/rsa_experiments.py	1
+save_similarity_data	./epocher/rsa.py	/^def save_similarity_data(/
 segment	./epocher/check_decoding.py	/^def segment(/
 segment_by_phoneme	./epocher/dataset.py	/^def segment_by_phoneme(/
 segment_by_word	./epocher/dataset.py	/^def segment_by_word(/

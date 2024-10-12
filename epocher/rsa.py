@@ -306,7 +306,6 @@ def compute_similarity_matrics(subject_id,
         raise RuntimeError(f'Unkown model: {model}')
     
     if save_similarity_matrix: 
-      # save word index.
       save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  model=model, layer_id=hidden_layer, segmented=False, word_pos=word_pos)
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
