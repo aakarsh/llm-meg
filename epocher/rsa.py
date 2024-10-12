@@ -230,12 +230,7 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
 
     segmented_similarity_matrices = np.array(similarity_matrices)
     if save_similarity_matrix: 
-      # Serialize the word index as JSON
-      word_index_file = make_filename_prefix('word_index.json', subject_id, task_id,  segmented=True,  word_pos=word_pos)
-      _save_to_file(word_index, word_index_file)
-      # Serialize the similarity matrix as an `.npy` file
-      similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id,  segmented=True,  word_pos=word_pos)
-      _save_to_file(segmented_similarity_matrices, similarity_matrix_file)
+        save_similarity_data(word_index, segmented_similarity_matrices, subject_id, task_id, segmented=True, word_pos=word_pos)
     return word_index, segmented_similarity_matrices
 
 
@@ -287,12 +282,8 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
       similarity_matrix = cosine_similarity(normalized_vectors)
 
       if save_similarity_matrix: 
-          # Serialize the word index as JSON
-          word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, word_pos=word_pos)
-          _save_to_file(word_index, word_index_file)
-          #Serialize the similarity matrix as an `.npy` file
-          similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, word_pos=word_pos)
-          _save_to_file(similarity_matrix, similarity_matrix_file)
+        save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  word_pos=word_pos)
+
       return word_index, similarity_matrix
 
 def compute_similarity_matrics(subject_id, 
@@ -320,14 +311,7 @@ def compute_similarity_matrics(subject_id,
 
     if save_similarity_matrix: 
       # save word index.
-      word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, 
-              model=model, segmented=segmented, layer_id=hidden_layer, word_pos=word_pos)
-      _save_to_file(word_index, word_index_file)
-
-      # save similarity matrix.
-      similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', 
-              subject_id, task_id, model=model,  layer_id=hidden_layer, word_pos=word_pos)
-      _save_to_file(similarity_matrix, similarity_matrix_file)
+      save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  model=model, segmented=False, word_pos=word_pos)
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
@@ -353,6 +337,14 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
 
     file_name_parts.append(file_name_tag)
     return f"{OUTPUT_DIR}/{'_'.join(file_name_parts)}"
+
+def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, segmented=False, model=None, layer_id=None, word_pos=None):
+    """Save both the word index and similarity matrix to files."""
+    word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
+    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
+    _save_to_file(word_index, word_index_file)
+    _save_to_file(similarity_matrix, similarity_matrix_file)
+
 
 def load_word_index(subject_id, task_id, 
         model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=False, word_pos=None):
