@@ -230,7 +230,8 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
 
     segmented_similarity_matrices = np.array(similarity_matrices)
     if save_similarity_matrix: 
-        save_similarity_data(word_index, segmented_similarity_matrices, subject_id, task_id, segmented=True, word_pos=word_pos)
+        save_similarity_data(word_index, segmented_similarity_matrices, 
+                subject_id, task_id, segmented=True, word_pos=word_pos)
     return word_index, segmented_similarity_matrices
 
 
@@ -287,10 +288,10 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
       return word_index, similarity_matrix
 
 def compute_similarity_matrics(subject_id, 
-        task_id, model="GLOVE", hidden_layer=-1, word_pos=['VB'],
+        task_id, model="GLOVE", hidden_layer=None, word_pos=['VB'],
         save_similarity_matrix=True):
     """
-    TODO: Need to handle part of speech here.
+    Compute the simialirty matrix for given 
     """
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
@@ -299,34 +300,28 @@ def compute_similarity_matrics(subject_id,
           similarity_matrix = G.create_rsa_matrix(word_index)
     elif model == "BERT":
           # some words not found
-          word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, hidden_layer=hidden_layer)
+          word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, 
+                  hidden_layer=hidden_layer)
     else:
         raise RuntimeError(f'Unkown model: {model}')
-
-
-    # something.
-    layer_tag = ""
-    if model == "BERT" and hidden_layer!=-1:
-        layer_tag = f"_layer_{hidden_layer}"
-
+    
     if save_similarity_matrix: 
       # save word index.
-      save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  model=model, segmented=False, word_pos=word_pos)
+      save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  model=model, layer_id=hidden_layer, segmented=False, word_pos=word_pos)
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
 def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
     """Generate a filename prefix based on parameters for saving/loading files."""
     file_name_parts = []
-
-    if subject_id:
+    if subject_id is not None:
         file_name_parts.append(f'subject_{subject_id}')
-    if task_id:
+    if task_id is not None:
         file_name_parts.append(f'task_{task_id}')
-    if word_pos:
+    if word_pos is not None and len(word_pos)>0:
         pos_tag = '_'.join(word_pos)
         file_name_parts.append(f'pos_{pos_tag}')
-    if  segmented:
+    if segmented:
         file_name_parts.append(f'segmented')
     else: # model, and segmented.
         if model is not None:
@@ -343,7 +338,6 @@ def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, seg
     similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
     _save_to_file(word_index, word_index_file)
     _save_to_file(similarity_matrix, similarity_matrix_file)
-
 
 def load_word_index(subject_id, task_id, 
         model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=None, word_pos=None):

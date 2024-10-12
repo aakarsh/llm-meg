@@ -156,7 +156,9 @@ def get_word_vectors(words, glove_embeddings):
     return np.array(vectors)
 
 
-def create_rsa_matrix(words, task_id, hidden_layer=-1):
+def create_rsa_matrix(words, task_id, hidden_layer=None):
+    if hidden_layer is None:
+        hidden_layer = -1
     words_found, word_embeddings = get_whole_word_embeddings(words, task_id, hidden_layer=hidden_layer)
     word_vectors = get_word_vectors(words_found, word_embeddings)
     # Normalize word vectors before computing cosine similarity
