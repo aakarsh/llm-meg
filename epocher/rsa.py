@@ -1,3 +1,4 @@
+import os 
 import pandas as pd
 import json
 import numpy as np
@@ -5,8 +6,6 @@ import mne
 from mne_bids import BIDSPath # Import the BIDSPath class
 import mne
 import mne_bids
-import numpy as np
-import pandas as pd
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.pipeline import make_pipeline
@@ -19,9 +18,7 @@ from pathlib import Path
 import matplotlib
 import logging
 
-import mne
 from mne.preprocessing import ICA
-import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -334,7 +331,7 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
 
 
 def load_word_index(subject_id, task_id, 
-        model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False, word_pos=word_pos):
+        model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=False, word_pos=None):
     word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
     _file_exists(word_index_file)
 
@@ -351,8 +348,7 @@ def load_similarity_matrix(subject_id, task_id, model=None,
 
     similarity_matrix = np.load(similarity_matrix_file)
 
-    word_index = load_word_index(subject_id, task_id, 
-                                    model=model, layer_id=layer_id, segmented=segmented, word_pos=word_pos)
+    word_index = load_word_index(subject_id, task_id, model=model, layer_id=layer_id, segmented=segmented, word_pos=word_pos)
 
     return word_index, similarity_matrix
  
