@@ -99,7 +99,7 @@ def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE", word_p
     # Compare the submatrices using RSA or other metrics
     return _compare_rsa(human_similarity_submatrix, model_similarity_submatrix)
 
-def _compare_segemnts_with_model_layers(subject_id, task_id, session_id=0, model="BERT"):
+def _compare_segments_with_model_layers(subject_id, task_id, session_id=0, model="BERT"):
     retval_similarity_matrix = np.zeros((20, 12))
 
     for segment_idx in range(1, 20):
@@ -317,7 +317,6 @@ def compute_similarity_matrics(subject_id,
 
 def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
     """Generate a filename prefix based on parameters for saving/loading files."""
-    similarity_file_prefix=f'{OUTPUT_DIR}/'
     file_name_parts = []
 
     if subject_id:
