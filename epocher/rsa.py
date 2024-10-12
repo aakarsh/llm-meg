@@ -218,7 +218,7 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
        normalized_vectors = []
        for vec in target_word_vectors:
             vec_flat = vec.flatten()  # Flatten the vector
-            norm = np.linalg.norm(vec_flat)  # Compute the L2 norm
+            norm = np.linalg.norm(vec_flat) + 1e-10  # Compute the L2 norm
             normalized_vec = vec_flat / norm  # Normalize the vector
             normalized_vectors.append(normalized_vec)
 
@@ -346,8 +346,9 @@ def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, seg
 
 
 def load_word_index(subject_id, task_id, 
-        model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=False, word_pos=None):
-    word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
+        model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=None, word_pos=None):
+    word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, 
+            segmented=segmented, layer_id=layer_id, word_pos=word_pos)
     return _load_from_file(word_index_file)
 
 def load_similarity_matrix(subject_id, task_id, model=None, 
