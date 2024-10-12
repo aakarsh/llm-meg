@@ -66,10 +66,11 @@ def _load_epoch_map(subject_id='01', session_id=0, task_id=0, n_components=15,
 def _get_target_word_vectors_per_electrode(subject_id='01', session_id=0, task_id=0, n_components=15, 
                                 tmax=0.25, reference_word_idx=None, 
                                 word_pos=['VB'], use_ica=False):
+
       # Initialize dictionary to store ICA-transformed epochs
-      word_index, current_word_epoch_map = _load_epoch_map(subject_id, session_id, task_id,
-                                                              n_components=n_components, tmax=tmax, 
-                                                              word_pos=word_pos, use_ica=use_ica) 
+      word_index, current_word_epoch_map = _load_epoch_map(subject_id, session_id, task_id, 
+              n_components=n_components, tmax=tmax, word_pos=word_pos, use_ica=use_ica) 
+
       # Overwrite word index with reference word index
       if reference_word_idx: 
           word_index = reference_word_idx
@@ -83,7 +84,7 @@ def _get_target_word_vectors_per_electrode(subject_id='01', session_id=0, task_i
         # Average the ICA components over time
         epoch_average = word_epochs.average().get_data()  # Shape: (n_channels, n_times)
 
-        # TODO don't flatten the data , but rather keep the elecrode dimensions
+        # TODO Don't flatten the data , but rather keep the elecrode dimensions
         # Flatten the data (optional: you can decide to not flatten depending on your approach)
         vector = epoch_average.flatten()
         target_word_vectors.append(vector)
@@ -91,9 +92,9 @@ def _get_target_word_vectors_per_electrode(subject_id='01', session_id=0, task_i
 
       # convert to numpy array
       target_word_vectors = np.array(target_word_vectors)
+
       return word_index, target_word_vectors
 
-    pass
 
 def _get_target_word_vectors(subject_id='01', session_id=0, task_id=0, n_components=15, 
                                 tmax=0.25, reference_word_idx=None, 

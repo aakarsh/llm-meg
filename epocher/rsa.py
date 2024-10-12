@@ -285,7 +285,8 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
 
 # TODO Need to handle part of speech here.
-def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
+def compute_similarity_matrics(subject_id, task_id, 
+        model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
     if model == "GLOVE":
@@ -310,7 +311,8 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
-def load_word_index(subject_id, task_id, model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False):
+def load_word_index(subject_id, task_id, 
+        model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False):
     word_index_file = f'{output_dir}/subject_{subject_id}_task_{task_id}_word_index.json'
     if model: 
         word_index_file = f'{output_dir}/model_{model}_subject_{subject_id}_task_{task_id}_word_index.json'
@@ -326,7 +328,8 @@ def load_word_index(subject_id, task_id, model=None, output_dir = OUTPUT_DIR, se
     return word_index
 
 
-def load_similarity_matrix(subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
+def load_similarity_matrix(subject_id, task_id, 
+        model=None, segmented=False, layer_id=None, word_pos=None):
     file_name_prefix=f'{OUTPUT_DIR}/'
     if model:
         pass 
