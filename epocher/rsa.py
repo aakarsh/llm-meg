@@ -297,10 +297,10 @@ def compute_similarity_matrics(subject_id,
     similarity_matrix = None
 
     if model == "GLOVE":
-          similarity_matrix = G.create_rsa_matrix(word_index)
+      similarity_matrix = G.create_rsa_matrix(word_index)
     elif model == "BERT":
-          # some words not found
-          word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, 
+      # Some words not found
+      word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, 
                   hidden_layer=hidden_layer)
     else:
         raise RuntimeError(f'Unkown model: {model}')
