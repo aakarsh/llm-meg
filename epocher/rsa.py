@@ -1,29 +1,29 @@
-import os 
-import pandas as pd
-import json
-import numpy as np
-import mne
-from mne_bids import BIDSPath # Import the BIDSPath class
-import mne
-import mne_bids
+from mne_bids import BIDSPath 
+from mne.preprocessing import ICA
+from pathlib import Path
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler, scale
+
 from tqdm import trange
+
 from wordfreq import zipf_frequency
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pathlib import Path
-import matplotlib
+
+import json
 import logging
-
-from mne.preprocessing import ICA
+import matplotlib
 import matplotlib.pyplot as plt
-from sklearn.metrics.pairwise import cosine_similarity
-
+import mne
+import mne_bids
+import numpy as np
+import os 
+import pandas as pd
+import seaborn as sns
 
 from .env import *
+
 from . import stories as S 
 from . import dataset as D
 from . import llm_glove as G
@@ -44,11 +44,32 @@ from . import llm_bert as B
 
 # Assumning each word is devided into 100 onsite times, then we will have 100 rsa which compare word in that window
 
-
 # Helper function to check file existence
 def _file_exists(filepath):
+    """Check if a file exists at the given filepath."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
+
+def _save_to_file(data, filename):
+    """Save data to file in either JSON or NumPy format based on extension."""
+    if filename.endswith('.json'):
+        with open(filename, 'w') as f:
+            json.dump(data, f)
+    elif filename.endswith('.npy'):
+        np.save(filename, data)
+    else:
+        raise ValueError("Unsupported file format. Use .json or .npy")
+
+def _load_from_file(filename):
+    """Load data from a file in either JSON or NumPy format based on extension."""
+    _file_exists(filename)
+    if filename.endswith('.json'):
+        with open(filename, 'r') as f:
+            return json.load(f)
+    elif filename.endswith('.npy'):
+        return np.load(filename)
+    else:
+        raise ValueError("Unsupported file format. Use .json or .npy")
 
 def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
@@ -156,10 +177,10 @@ def _get_sliding_window_rsa(subject_id='01', session_id=0, task_id=0,
 
 def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
                                         n_segments=20, n_components=15, tmax=0.25, 
-                                        reference_word_idx = None, save_similarity_matrix=False, 
-                                        debug=False):
+                                        reference_word_idx=None, save_similarity_matrix=False, 
+                                        debug=False, word_pos=['VB']):
     """
-        Segmented siilarity matrices.
+	Segmented siilarity matrices.
     """
     # Initialize dictionary to store ICA-transformed epochs
     # TODO - We can't use ICA, should use oly for artifact removal. 
@@ -211,12 +232,12 @@ def _get_segmented_similarity_matrix(subject_id='01', session_id=0, task_id=0,
     if save_similarity_matrix: 
       # Serialize the word index as JSON
       word_index_file = f'{OUTPUT_DIR}/segmented-subject_{subject_id}_task_{task_id}_word_index.json'
-      with open(word_index_file, 'w') as f:
-          json.dump(word_index, f)
-      #Serialize the similarity matrix as an `.npy` file
-      similarity_matrix_file = f'{OUTPUT_DIR}/segmented-subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-      np.save(similarity_matrix_file, segmented_similarity_matrices)
+      word_index_file = make_filename_prefix('word_index.json', subject_id, task_id,  segmented=True,  word_pos=word_pos)
 
+	  _save_to_file(word_index, word_index_file)
+      # Serialize the similarity matrix as an `.npy` file
+      similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id,  segmented=True,  word_pos=word_pos)
+	  _save_to_file(segmented_similarity_matrices, similarity_matrix_file)
     return word_index, segmented_similarity_matrices
 
 
@@ -272,18 +293,22 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
           # Serialize the word index as JSON
           pos_tag =  "_".join(word_pos)
           word_index_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_pos_{pos_tag}_word_index.json'
-          with open(word_index_file, 'w') as f:
-              json.dump(word_index, f)
-          #Serialize the similarity matrix as an `.npy` file
-          similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_pos_{pos_tag}_similarity_matrix.npy'
-          np.save(similarity_matrix_file, similarity_matrix)
-
+		  _save_to_file(word_index, word_index_file)
+	      #Serialize the similarity matrix as an `.npy` file
+          # similarity_matrix_file = f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_pos_{pos_tag}_similarity_matrix.npy'
+          similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
+		  _save_to_file(similarity_matrix, similarity_matrix_file)
       return word_index, similarity_matrix
 
-# TODO Need to handle part of speech here.
-def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=-1, save_similarity_matrix=True):
+def compute_similarity_matrics(subject_id, 
+        task_id, model="GLOVE", hidden_layer=-1, word_pos=['VB'],
+        save_similarity_matrix=True):
+    """
+    TODO: Need to handle part of speech here.
+    """
     word_index = load_word_index(subject_id, task_id)
     similarity_matrix = None
+
     if model == "GLOVE":
           similarity_matrix = G.create_rsa_matrix(word_index)
     elif model == "BERT":
@@ -292,17 +317,22 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=
     else:
         raise RuntimeError(f'Unkown model: {model}')
 
+
+    # something.
     layer_tag = ""
     if model == "BERT" and hidden_layer!=-1:
         layer_tag = f"_layer_{hidden_layer}"
+
     if save_similarity_matrix: 
-      # Serialize the word index as JSON
-      word_index_file = f'{OUTPUT_DIR}/model_{model}_{layer_tag}_subject_{subject_id}_task_{task_id}_word_index.json'
-      with open(word_index_file, 'w') as f:
-          json.dump(word_index, f)
-      # serialize the similarity matrix as an `.npy` file
-      similarity_matrix_file = f'{OUTPUT_DIR}/model_{model}_{layer_tag}_subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
-      np.save(similarity_matrix_file, similarity_matrix)
+      # save word index.
+      word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, 
+              model=model, segmented=segmented, layer_id=hidden_layer, word_pos=word_pos)
+      _save_to_file(word_index, word_index_file)
+
+      # save similarity matrix.
+      similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', 
+              subject_id, task_id, model=model,  layer_id=hidden_layer, word_pos=word_pos)
+      _save_to_file(similarity_matrix, similarity_matrix_file)
       print(f'Created {similarity_matrix_file}')
     return similarity_matrix  
 
@@ -329,26 +359,14 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
     file_name_parts.append(file_name_tag)
     return f"{OUTPUT_DIR}/{'_'.join(file_name_parts)}"
 
-
 def load_word_index(subject_id, task_id, 
         model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=False, word_pos=None):
     word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
-    _file_exists(word_index_file)
-
-    word_index = None
-    with open(word_index_file, 'r') as infile:
-         word_index = json.load(infile)
-    return word_index 
+	return _load_from_file(word_index_file)
 
 def load_similarity_matrix(subject_id, task_id, model=None, 
                                 segmented=False, layer_id=None, word_pos=None):
-
-    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
-    _file_exists(similarity_matrix_file)
-
-    similarity_matrix = np.load(similarity_matrix_file)
-
     word_index = load_word_index(subject_id, task_id, model=model, layer_id=layer_id, segmented=segmented, word_pos=word_pos)
-
+    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
+    similarity_matrix = _load_from_file(similarity_matrix_file)
     return word_index, similarity_matrix
- 
