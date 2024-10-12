@@ -271,7 +271,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
       normalized_vectors = []
       for vec in target_word_vectors:
         vec_flat = vec.flatten()  # Flatten the vector
-        norm = np.linalg.norm(vec_flat)  # Compute the L2 norm
+        norm = np.linalg.norm(vec_flat) + 1e-10  # Compute the L2 norm
         normalized_vec = vec_flat / norm  # Normalize the vector
         normalized_vectors.append(normalized_vec)
 
@@ -329,7 +329,7 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
     if  segmented:
         file_name_parts.append(f'segmented')
     else: # model, and segmented.
-        if model:
+        if model is not None:
             file_name_parts.append(f'model_{model}')
             if layer_id:
                 file_name_parts.append(f'layer_{layer_id}')
