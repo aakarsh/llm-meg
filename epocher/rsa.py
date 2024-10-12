@@ -48,6 +48,11 @@ from . import llm_bert as B
 # Assumning each word is devided into 100 onsite times, then we will have 100 rsa which compare word in that window
 
 
+# Helper function to check file existence
+def _file_exists(filepath):
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+
 def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
@@ -305,6 +310,7 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE", hidden_layer=
     return similarity_matrix  
 
 def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segmented=False, layer_id=None, word_pos=None):
+    """Generate a filename prefix based on parameters for saving/loading files."""
     similarity_file_prefix=f'{OUTPUT_DIR}/'
     file_name_parts = []
 
@@ -314,7 +320,7 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
         file_name_parts.append(f'task_{task_id}')
     if word_pos:
         pos_tag = '_'.join(word_pos)
-        file_name_paths.append(f'pos_{pos_tag}')
+        file_name_parts.append(f'pos_{pos_tag}')
     if  segmented:
         file_name_parts.append(f'segmented')
     else: # model, and segmented.
@@ -324,12 +330,14 @@ def make_filename_prefix(file_name_tag, subject_id, task_id, model=None, segment
                 file_name_parts.append(f'layer_{layer_id}')
 
     file_name_parts.append(file_name_tag)
-    file_name_full = '_'.join(file_name_parts) 
-    similarity_matrix_file = f'{OUTPUT_DIR}/{file_name_full}'
+    return f"{OUTPUT_DIR}/{'_'.join(file_name_parts)}"
+
 
 def load_word_index(subject_id, task_id, 
         model=None, output_dir = OUTPUT_DIR, segmented=False, layer_id=False, word_pos=word_pos):
     word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
+    _file_exists(word_index_file)
+
     word_index = None
     with open(word_index_file, 'r') as infile:
          word_index = json.load(infile)
@@ -339,6 +347,8 @@ def load_similarity_matrix(subject_id, task_id, model=None,
                                 segmented=False, layer_id=None, word_pos=None):
 
     similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
+    _file_exists(similarity_matrix_file)
+
     similarity_matrix = np.load(similarity_matrix_file)
 
     word_index = load_word_index(subject_id, task_id, 
