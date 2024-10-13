@@ -33,7 +33,6 @@ DATASET_ROOT="/content/drive/MyDrive/TUE-SUMMER-2024/ulm-meg/"
 
 ph_info = pd.read_csv(MEG_MASC_ROOT+"/phoneme_info.csv")
 
-
 def load_bids_path(root=DATASET_ROOT, subject="01", datatype="meg", session="0",  task="1"):
     bids_path = BIDSPath(root=DATASET_ROOT, subject=subject, session=session, task=task,datatype=datatype)
     return bids_path
@@ -58,8 +57,6 @@ def _load_epoch_map(subject_id='01', session_id=0, task_id=0, n_components=15,
               baseline_period = (-0.2, 0)
               # Apply baseline correction to the ICA-transformed data
               epochs.apply_baseline(baseline=baseline_period)
-
- 
       return word_index, current_word_epoch_map
 
 
@@ -388,55 +385,4 @@ def _get_raw_file(subject, session, task):
     raw.load_data().filter(0.5, 30.0, n_jobs=1)
     return raw  
 
-
-def _get_epochs(type="ICA"):
-    pass
-
-"""
-def _get_epochs(subject, segment=segment_by_phoneme):
-    all_epochs = list()
-    for session in range(2):
-        for task in range(4):
-            print(".", end="")
-            bids_path = mne_bids.BIDSPath(
-                subject=subject,
-                session=str(session),
-                task=str(task),
-                datatype="meg",
-                root=MEG_MASC_ROOT
-            )
-            try:
-                raw = mne_bids.read_raw_bids(bids_path)
-            except FileNotFoundError:
-                print("missing", subject, session, task)
-                continue
-            raw = raw.pick_types(
-                meg=True, misc=False, eeg=False, eog=False, ecg=False
-            )
-            # pick the frequency
-            raw.load_data().filter(0.5, 30.0, n_jobs=1)
-
-            epochs = segment(raw)
-            epochs.metadata["half"] = np.round(
-                np.linspace(0, 1.0, len(epochs))
-            ).astype(int)
-            epochs.metadata["task"] = task
-            epochs.metadata["session"] = session
-
-            all_epochs.append(epochs)
-    if not len(all_epochs):
-        return
-    epochs = mne.concatenate_epochs(all_epochs)
-    m = epochs.metadata
-    label = (
-        "t"
-        + m.task.astype(str)
-        + "_s"
-        + m.session.astype(str)
-        + "_h"
-        + m.half.astype(str)
-    )
-    epochs.metadata["label"] = label
-    return epochs
-"""
 

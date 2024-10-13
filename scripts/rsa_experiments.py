@@ -97,25 +97,26 @@ def main():
     compare_parser = subparsers.add_parser('compare', help='Compare RSA similarity between two subjects')
     compare_parser.add_argument('--subject1', type=str, required=True, help='ID of the first subject')
     compare_parser.add_argument('--subject2', type=str, required=True, help='ID of the second subject')
-    compare_parser.add_argument('--task_id', type=int, required=True, help='ID of the task to compare')
+    compare_parser.add_argument('--task-id', type=int, required=True, help='ID of the task to compare')
 
     # Subcommand for generating similarity matrix for one subject
     generate_parser = subparsers.add_parser('generate', help='Generate similarity matrix for a subject')
-    generate_parser.add_argument('--subject_id', type=str, required=True, help='ID of the subject')
-    generate_parser.add_argument('--task_id', type=int, required=True, help='ID of the task')
-    generate_parser.add_argument('--pos',default='VB', type=str, required=False, help='Filter words by part of speech')
+    generate_parser.add_argument('--subject-id', type=str, required=True, help='ID of the subject')
+    generate_parser.add_argument('--task-id', type=int, required=True, help='ID of the task')
+    generate_parser.add_argument('--word-pos', default='VB', type=str, required=False, help='Filter words by part of speech')
 
     generate_all_parser = subparsers.add_parser('generate-all', help='Generate all similarity matrics for all tasks.')
     generate_all_parser.add_argument('--segmented', type=bool, required=False, help='Segment word into parts, each with its won similairty matrix', default=None)
-    generate_all_parser.add_argument('--word_pos',default='VB', type=str, required=False, help='Filter words by part of speech')
+    generate_all_parser.add_argument('--word-pos',default='VB', type=str, required=False, help='Filter words by part of speech')
     
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
-    plot_rsa_tabe_parser.add_argument('--subject_id', type=str, required=False, help='ID of the subject', default=None)
-    plot_rsa_tabe_parser.add_argument('--task_id', type=int, required=False, help='ID of the task', default=None)
+    plot_rsa_tabe_parser.add_argument('--subject-id', type=str, required=False, help='ID of the subject', default=None)
+    plot_rsa_tabe_parser.add_argument('--task-id', type=int, required=False, help='ID of the task', default=None)
 
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
     generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
-    generate_model.add_argument('--hidden-layer', type=int, required=False, help='Model Name', default=-1)
+    generate_model.add_argument('--hidden-layer', type=int, required=False, help='Model Name', default=None)
+    generate_model.add_argument('--word-pos',default='VB', type=str, required=False, help='Filter words by part of speech')
 
     compare_model = subparsers.add_parser('compare-model', help='Generate comparisons')
     compare_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
@@ -134,8 +135,7 @@ def main():
     elif args.command == 'generate':
         compute_rsa_matrix(subject_id=args.subject_id, task_id=args.task_id)
     elif args.command == 'generate-all':
-        compute_all_rsa_matrics(segmented=args.segmented, 
-                word_pos=args.word_pos.split(","))
+        compute_all_rsa_matrics(segmented=args.segmented, word_pos=args.word_pos.split(","))
     elif args.command == 'generate-model':
        compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer)
     elif args.command == 'compare-model':

@@ -24,8 +24,6 @@ def word_index_file_name(subject_id, task_id):
 def similarity_index_file_name(subject_id, task_id):
     return f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
 
-   
-
 def plot_saved_similarity_matrix(subject_id=None, task_id=None):
     if subject_id == None and task_id == None:
         for subject_id in D.load_subject_ids():
@@ -51,7 +49,6 @@ def plot_similarity_matrix(word_index, similarity_matrix,
     # Assuming 'similarity_matrix' is already computed
     # Set up the labels for the heatmap
     labels = word_index 
-
 
     # Calculate dynamic figure size based on number of words and the cell size
     num_words = len(word_index)
