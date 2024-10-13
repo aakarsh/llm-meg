@@ -28,11 +28,11 @@ def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None, s
                 word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id, word_pos=word_pos)
                 sort_tag = ""
                 if sort_order == "spectral": 
-                    word_index, similarity_matrix = rsa.sort_by_spectral_clustering(word_index, similairty_matrix)
+                    word_index, similarity_matrix = rsa.sort_by_spectral_clustering(word_index, similarity_matrix)
                     sort_tag = "_sort_spectral_"
                 elif sort_order == "heirarchical":
-                    word_index, similarity_matrix = rsa.sort_by_hierarchical_order(word_index, similairty_matrix)
-                    sort_tag = "_sort_heirarchical_":
+                    word_index, similarity_matrix = rsa.sort_by_hierarchical_order(word_index, similarity_matrix)
+                    sort_tag = "_sort_heirarchical_"
                 else:
                     sort_tag=""
                 similairty_matrix_image_path = rsa.make_filename_prefix(f'{sort_tag}similarity_matrix.png', subject_id, task_id, 
