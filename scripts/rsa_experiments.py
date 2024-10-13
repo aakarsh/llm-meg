@@ -69,7 +69,7 @@ def compute_all_rsa_matrics(task_id=None, segmented=False, word_pos =["VB"]):
                                                         save_similarity_matrix=True)
   
 
-def compute_similarity_matrics(task_id=None, model='GLOVE', hidden_layer=-1):
+def compute_similarity_matrics(task_id=None, model='GLOVE', hidden_layer=None, word_pos=['VB']):
     subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() if not task_id else [task_id] 
 
@@ -78,7 +78,8 @@ def compute_similarity_matrics(task_id=None, model='GLOVE', hidden_layer=-1):
              similarity_matrix_0 = \
                 rsa.compute_similarity_matrics(subject_id, task_id, 
                         model=model, save_similarity_matrix=True, 
-                        hidden_layer=hidden_layer)
+                        hidden_layer=hidden_layer, 
+                        word_pos = word_pos)
 
 
 def compute_rsa_matrix(subject_id, task_id):
@@ -137,7 +138,7 @@ def main():
     elif args.command == 'generate-all':
         compute_all_rsa_matrics(segmented=args.segmented, word_pos=args.word_pos.split(","))
     elif args.command == 'generate-model':
-       compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer)
+       compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer, word_pos=args.word_pos.split(","))
     elif args.command == 'compare-model':
        compare_with_model(args.model)
     elif args.command == 'compare-segmented-model-layers':

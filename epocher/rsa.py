@@ -292,7 +292,7 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE",
     """
     Compute the simialirty matrix for given 
     """
-    word_index = load_word_index(subject_id, task_id)
+    word_index = load_word_index(subject_id, task_id, word_pos=word_pos)
     similarity_matrix = None
 
     if model == "GLOVE":
@@ -305,7 +305,8 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE",
         raise RuntimeError(f'Unkown model: {model}')
     
     if save_similarity_matrix: 
-      save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  model=model, layer_id=hidden_layer, segmented=False, word_pos=word_pos)
+      save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  
+              model=model, layer_id=hidden_layer, segmented=False, word_pos=word_pos)
     return similarity_matrix  
 
 def make_filename_prefix(file_name_tag, subject_id, task_id, 
