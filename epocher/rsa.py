@@ -339,6 +339,24 @@ def save_similarity_data(word_index, similarity_matrix, subject_id, task_id,
     _save_to_file(word_index, word_index_file)
     _save_to_file(similarity_matrix, similarity_matrix_file)
 
+def sort_by_hierarchical_order(word_index, similarity_matrix):
+    dissimilarity_matrix = 1 - similarity_matrix
+    linkage_matrix = sch.linkage(dissimilarity_matrix, method='ward')
+    dendrogram = sch.dendrogram(linkage_matrix, no_plot=True)
+    order = dendrogram['leaves']
+    reordered_similarity_matrix = similarity_matrix[np.ix_(order, order)]
+    sorted_word_list = [word_index[i] for i in order]
+    return sorted_word_list, reordered_similarity_matrix
+
+def sort_by_spectral_clustering(word_index, similarity_matrix):
+    dissimilarity_matrix = 1 - similarity_matrix
+    embedding = SpectralEmbedding(n_components=1, affinity='precomputed')
+    order = np.argsort(embedding.fit_transform(dissimilarity_matrix).ravel())
+    reordered_similarity_matrix = similarity_matrix[np.ix_(order, order)]
+    sorted_word_list = [word_index[i] for i in order]
+    return sorted_word_list, reordered_similarity_matrix
+
+
 def load_word_index(subject_id, task_id, 
         model=None, output_dir=OUTPUT_DIR, segmented=False, layer_id=None, word_pos=None):
     word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, model=model, 

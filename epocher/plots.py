@@ -18,7 +18,7 @@ from .env import *
 import epocher.dataset as D
 import epocher.rsa as rsa
 
-def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None):
+def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None, sort_clustering=None):
     if subject_id == None and task_id == None:
         for subject_id in D.load_subject_ids():
             for task_id in D.load_task_ids():
@@ -63,7 +63,7 @@ def plot_similarity_matrix(word_index, similarity_matrix,
     plt.savefig(file_path, bbox_inches='tight')
     # Show the plot
     plt.show()
-
+    plt.close()
 
 def plot_dendogram(word_index, similarity_matrix, h=80, w=64, file_path="./images/dendogram_words.png"):
     # Perform hierarchical clustering
