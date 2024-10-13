@@ -350,10 +350,12 @@ def sort_by_hierarchical_order(word_index, similarity_matrix):
 
 def sort_by_spectral_clustering(word_index, similarity_matrix):
     dissimilarity_matrix = 1 - similarity_matrix
+
     embedding = SpectralEmbedding(n_components=1, affinity='precomputed')
     order = np.argsort(embedding.fit_transform(dissimilarity_matrix).ravel())
     reordered_similarity_matrix = similarity_matrix[np.ix_(order, order)]
     sorted_word_list = [word_index[i] for i in order]
+
     return sorted_word_list, reordered_similarity_matrix
 
 

@@ -18,12 +18,21 @@ from .env import *
 import epocher.dataset as D
 import epocher.rsa as rsa
 
-def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None, sort_clustering=None):
+def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None, sort_order=None):
     if subject_id == None and task_id == None:
         for subject_id in D.load_subject_ids():
             for task_id in D.load_task_ids():
                 word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id, word_pos=word_pos)
-                similairty_matrix_image_path = rsa.make_filename_prefix('similarity_matrix.png', subject_id, task_id, 
+                sort_tag = ""
+                if sort_order == "spectral": 
+                    word_index, similarity_matrix = rsa.sort_by_spectral_clustering(word_index, similairty_matrix)
+                    sort_tag = "_sort_spectral_"
+                elif sort_order == "heirarchical":
+                    word_index, similarity_matrix = rsa.sort_by_hierarchical_order(word_index, similairty_matrix)
+                    sort_tag = "_sort_heirarchical_":
+                else:
+                    sort_tag=""
+                similairty_matrix_image_path = rsa.make_filename_prefix(f'{sort_tag}similarity_matrix.png', subject_id, task_id, 
                         word_pos=word_pos, output_dir=IMAGES_DIR)
                 plot_similarity_matrix(word_index, similarity_matrix, file_path=similairty_matrix_image_path)
     else: # single 
