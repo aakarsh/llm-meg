@@ -76,9 +76,9 @@ def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
     return correlation
 
-def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE", word_pos=None):
+def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE", word_pos=['VB']):
     word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, word_pos=word_pos)
-    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model)
+    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, word_pos=word_pos)
     # load model word index. make sure only intersection of 
     # these two are considered in model comparison. 
     # Ensure that same words are included ? 

@@ -24,15 +24,14 @@ def word_index_file_name(subject_id, task_id):
 def similarity_index_file_name(subject_id, task_id):
     return f'{OUTPUT_DIR}/subject_{subject_id}_task_{task_id}_similarity_matrix.npy'
 
-def plot_saved_similarity_matrix(subject_id=None, task_id=None):
+def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None):
     if subject_id == None and task_id == None:
         for subject_id in D.load_subject_ids():
             for task_id in D.load_task_ids():
                 if os.path.exists(word_index_file_name(subject_id, task_id)) and \
                     os.path.exists(similarity_index_file_name(subject_id, task_id)):
-
                     file_path = f"./images/subject_id_{subject_id}_task_id_{task_id}_similarity_matrix.png" 
-                    word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id)
+                    word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id, word_pos=word_pos)
                     plot_similarity_matrix(word_index, similarity_matrix, file_path=file_path)
     else: # single 
         if os.path.exists(word_index_file_name(subject_id, task_id)) and \

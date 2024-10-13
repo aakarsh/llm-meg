@@ -26,15 +26,17 @@ def compute_rsa_similarity(subject1, subject2, task_id):
     correlation = rsa._compare_subjects(subject1, subject2, task_id=task_id)
     return correlation
 
-def compare_with_model(model, save_comparisons=True):
+def compare_with_model(model, save_comparisons=True, word_pos=['VB']):
     subject_ids = D.load_subject_ids()
     task_ids = D.load_task_ids() 
     correlation_comparisons = np.zeros((len(subject_ids), len(task_ids)))
     for subject_id in subject_ids:
         for task_id in task_ids: 
-             correlation = rsa._compare_with_model(subject_id, task_id, model=model)
-             print(f"Comparing {subject_id}, {task_id}: {correlation} with {model}")
+             correlation = rsa._compare_with_model(subject_id, task_id, model=model, word_pos=word_pos)
+             print(f"Comparing {subject_id}, {task_id}: {correlation} with {model}, {word_pos}")
              correlation_comparisons[(int(subject_id)-1, int(task_id)-1)] = correlation 
+
+    # summarize this as a plot ?
     comparison_file_name = f'{OUTPUT_DIR}/model_comparison_{model}_similarity_matrix.npy'
     np.save(comparison_file_name, correlation_comparisons)
 
@@ -117,10 +119,11 @@ def main():
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
     generate_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
     generate_model.add_argument('--hidden-layer', type=int, required=False, help='Model Name', default=None)
-    generate_model.add_argument('--word-pos',default='VB', type=str, required=False, help='Filter words by part of speech')
+    generate_model.add_argument('--word-pos',default=None, type=str, required=False, help='Filter words by part of speech')
 
     compare_model = subparsers.add_parser('compare-model', help='Generate comparisons')
     compare_model.add_argument('--model', type=str, required=True, help='Model Name', default=None)
+    compare_model.add_argument('--word-pos',default='VB', type=str, required=True, help='Filter words by part of speech')
     
     compare_segmented_model_layers = subparsers.add_parser('compare-segmented-model-layers', help='Generate comparisons')
     compare_segmented_model_layers.add_argument('--model', type=str, required=True, help='Model Name', default=None)
@@ -140,9 +143,9 @@ def main():
     elif args.command == 'generate-model':
        compute_similarity_matrics(model=args.model, hidden_layer=args.hidden_layer, word_pos=args.word_pos.split(","))
     elif args.command == 'compare-model':
-       compare_with_model(args.model)
+       compare_with_model(args.model, word_pos=args.word_pos.split(","))
     elif args.command == 'compare-segmented-model-layers':
-        compare_with_model_layers_segmented(args.model)
+        compare_with_model_layers_segmented(args.model, word_pos=args.word_pos.split(","))
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id)
     else:
