@@ -149,9 +149,8 @@ def main():
         compare_with_model_layers_segmented(args.model, word_pos=args.word_pos.split(","))
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id,word_pos=args.word_pos.split(","))
-
     # TODO : per-electrode topographic map with time.
-    # TODO:  spliding-window by nouns vs verbs.
+    # TODO : spliding-window by nouns vs verbs.
     else:
         print("Please provide a valid command ('compare' or 'generate').")
 
