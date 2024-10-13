@@ -21,6 +21,9 @@ import numpy as np
 import os 
 import pandas as pd
 import seaborn as sns
+import scipy.cluster.hierarchy as sch
+from sklearn.manifold import SpectralEmbedding
+
 
 from .env import *
 

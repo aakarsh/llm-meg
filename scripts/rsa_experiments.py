@@ -115,6 +115,7 @@ def main():
     plot_rsa_tabe_parser = subparsers.add_parser('plot-rsa-table', help='Plot RSA Confusion Table for a sobject and task, use cached results')
     plot_rsa_tabe_parser.add_argument('--subject-id', type=str, required=False, help='ID of the subject', default=None)
     plot_rsa_tabe_parser.add_argument('--task-id', type=int, required=False, help='ID of the task', default=None)
+    plot_rsa_tabe_parser.add_argument('--sort-order', type=int, required=False, help='ID of the task', default=None)
     plot_rsa_tabe_parser.add_argument('--word-pos',default='VB', type=str, required=True, help='Filter words by part of speech')
 
     generate_model = subparsers.add_parser('generate-model', help='Generate all similarity matrics for all tasks.')
@@ -148,7 +149,7 @@ def main():
     elif args.command == 'compare-segmented-model-layers':
         compare_with_model_layers_segmented(args.model, word_pos=args.word_pos.split(","))
     elif args.command == 'plot-rsa-table':
-        P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id,word_pos=args.word_pos.split(","))
+        P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id,word_pos=args.word_pos.split(","), sort_order=args.sort_order)
     # TODO : per-electrode topographic map with time.
     # TODO : spliding-window by nouns vs verbs.
     else:

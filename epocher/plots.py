@@ -19,7 +19,10 @@ import epocher.dataset as D
 import epocher.rsa as rsa
 
 def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None, sort_order=None):
-    if subject_id == None and task_id == None:
+    if not(subject_id == None and task_id == None):
+        subject_id = [subject_id]
+        task_id  = [task_id]
+    elif subject_id == None and task_id == None:
         for subject_id in D.load_subject_ids():
             for task_id in D.load_task_ids():
                 word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id, word_pos=word_pos)
@@ -35,12 +38,8 @@ def plot_saved_similarity_matrix(subject_id=None, task_id=None, word_pos=None, s
                 similairty_matrix_image_path = rsa.make_filename_prefix(f'{sort_tag}similarity_matrix.png', subject_id, task_id, 
                         word_pos=word_pos, output_dir=IMAGES_DIR)
                 plot_similarity_matrix(word_index, similarity_matrix, file_path=similairty_matrix_image_path)
-    else: # single 
-        word_index, similarity_matrix = rsa.load_similarity_matrix(subject_id, task_id, word_pos=word_pos)
-        similairty_matrix_image_path = rsa.make_filename_prefix('similarity_matrix.png', subject_id, task_id, 
-                            word_pos=word_pos, output_dir=IMAGES_DIR)
-        plot_similarity_matrix(word_index, similarity_matrix, file_path=similairty_matrix_image_path)
- 
+    else:
+        raise RuntimeError("Specify subject and task id, or leave both them empty")
 
 def plot_similarity_matrix(word_index, similarity_matrix, 
         h=160, w=128, 
