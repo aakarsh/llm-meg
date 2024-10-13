@@ -155,7 +155,6 @@ def get_word_vectors(words, glove_embeddings):
             vectors.append(np.zeros(300))  # If word not found, use a zero vector
     return np.array(vectors)
 
-
 def create_rsa_matrix(words, task_id, hidden_layer=None):
     if hidden_layer is None:
         hidden_layer = -1
