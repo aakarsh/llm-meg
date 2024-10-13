@@ -310,7 +310,7 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE",
     return similarity_matrix  
 
 def make_filename_prefix(file_name_tag, subject_id, task_id, 
-        model=None, segmented=False, layer_id=None, word_pos=None):
+        model=None, segmented=False, layer_id=None, word_pos=None, output_dir=OUTPUT_DIR):
     """Generate a filename prefix based on parameters for saving/loading files."""
     file_name_parts = []
     if subject_id is not None:
@@ -329,7 +329,7 @@ def make_filename_prefix(file_name_tag, subject_id, task_id,
                 file_name_parts.append(f'layer_{layer_id}')
 
     file_name_parts.append(file_name_tag)
-    return f"{OUTPUT_DIR}/{'_'.join(file_name_parts)}"
+    return f"{output_dir}/{'_'.join(file_name_parts)}"
 
 def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, 
         segmented=False, model=None, layer_id=None, word_pos=None):
