@@ -63,6 +63,7 @@ def _save_to_file(data, filename):
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
+
 def _load_from_file(filename):
     """Load data from a file in either JSON or NumPy format based on extension."""
     _file_exists(filename)
@@ -74,10 +75,12 @@ def _load_from_file(filename):
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
+
 def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
     correlation = np.corrcoef(similarity_matrix_0.flatten(), similarity_matrix_1.flatten())[0, 1]
     return correlation
+
 
 def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE", word_pos=['VB']):
     word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, word_pos=word_pos)
@@ -123,7 +126,7 @@ def _compare_segments_with_model_layers(subject_id, task_id, session_id=0, model
             model_word_index_positions = [model_word_index.index(word) for word in common_words]
 
             # Subset the similarity matrices using the indices of common words
-            similarity_matrix=similarity_matrix[segment_idx]
+            similarity_matrix = similarity_matrix[segment_idx]
             human_similarity_submatrix = similarity_matrix[np.ix_(word_index_positions, word_index_positions)]
             model_similarity_submatrix = model_similarity_matrix[np.ix_(model_word_index_positions, model_word_index_positions)]
 
@@ -290,6 +293,7 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 
       return word_index, similarity_matrix
 
+
 def compute_similarity_matrics(subject_id, task_id, model="GLOVE", 
         hidden_layer=None, word_pos=['VB'], save_similarity_matrix=True):
     """
@@ -311,6 +315,7 @@ def compute_similarity_matrics(subject_id, task_id, model="GLOVE",
       save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  
               model=model, layer_id=hidden_layer, segmented=False, word_pos=word_pos)
     return similarity_matrix  
+
 
 def make_filename_prefix(file_name_tag, subject_id, task_id, 
         model=None, segmented=False, layer_id=None, word_pos=None, output_dir=OUTPUT_DIR):
@@ -334,13 +339,19 @@ def make_filename_prefix(file_name_tag, subject_id, task_id,
     file_name_parts.append(file_name_tag)
     return f"{output_dir}/{'_'.join(file_name_parts)}"
 
+
 def save_similarity_data(word_index, similarity_matrix, subject_id, task_id, 
         segmented=False, model=None, layer_id=None, word_pos=None):
     """Save both the word index and similarity matrix to files."""
-    word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
-    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
+    # word_index.json
+    word_index_file = make_filename_prefix('word_index.json', subject_id, task_id, 
+            segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
+    # similarity_matrix
+    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, 
+            segmented=segmented, model=model, layer_id=layer_id, word_pos=word_pos)
     _save_to_file(word_index, word_index_file)
     _save_to_file(similarity_matrix, similarity_matrix_file)
+
 
 def sort_by_hierarchical_order(word_index, similarity_matrix):
     dissimilarity_matrix = 1 - similarity_matrix
@@ -351,14 +362,13 @@ def sort_by_hierarchical_order(word_index, similarity_matrix):
     sorted_word_list = [word_index[i] for i in order]
     return sorted_word_list, reordered_similarity_matrix
 
+
 def sort_by_spectral_clustering(word_index, similarity_matrix):
     dissimilarity_matrix = 1 - similarity_matrix
-
     embedding = SpectralEmbedding(n_components=1, affinity='precomputed')
     order = np.argsort(embedding.fit_transform(dissimilarity_matrix).ravel())
     reordered_similarity_matrix = similarity_matrix[np.ix_(order, order)]
     sorted_word_list = [word_index[i] for i in order]
-
     return sorted_word_list, reordered_similarity_matrix
 
 
@@ -368,9 +378,29 @@ def load_word_index(subject_id, task_id,
             segmented=segmented, layer_id=layer_id, word_pos=word_pos)
     return _load_from_file(word_index_file)
 
+
 def load_similarity_matrix(subject_id, task_id, model=None, 
-                                segmented=False, layer_id=None, word_pos=None):
-    word_index = load_word_index(subject_id, task_id, model=model, layer_id=layer_id, segmented=segmented, word_pos=word_pos)
-    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
+                            segmented=False, layer_id=None, word_pos=None):
+    word_index = load_word_index(subject_id, task_id, 
+            model=model, layer_id=layer_id, segmented=segmented, word_pos=word_pos)
+    similarity_matrix_file = make_filename_prefix('similarity_matrix.npy', subject_id, task_id, 
+            model=model, segmented=segmented, layer_id=layer_id, word_pos=word_pos)
     similarity_matrix = _load_from_file(similarity_matrix_file)
     return word_index, similarity_matrix
+
+# TODO: How can we compute noise ceiling ?
+#
+# 1. Compute Individual RDMs
+# 2. Averaging RDMs Across Subjects/Trials.
+# 3. Leave-one-out Approach.
+# 4. Bootstrap Resampling 
+# 5. (...)
+
+def something():
+    pass
+
+def something_else():
+    pass
+
+def abc():
+    pass
