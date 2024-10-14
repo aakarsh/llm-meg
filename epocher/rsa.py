@@ -394,13 +394,14 @@ def load_similarity_matrix(subject_id, task_id, model=None,
 # 2. Averaging RDMs Across Subjects/Trials.
 # 3. Leave-one-out Approach.
 # 4. Bootstrap Resampling 
-# 5. (...)
-
-def something():
+# 5. .,.,.
+#
+#
+def _something():
     pass
 
-def something_else():
+def _else():
     pass
 
-def abc():
+def _abc():
     pass
