@@ -399,20 +399,33 @@ def load_similarity_matrix(subject_id, task_id, model=None,
 def load_subject_rdms_by_task_id(task_id, word_pos=['VB']):
     pass
 
-def compute_average_rdm(task_id, word_pos=['VB']):
-    """
-    Compute the average rdm accross participants
-    """
+def compute_average_rdm(rdms): 
+    return np.mean(rdms, axis=0) 
+
+def _get_task_rdms(task_id, word_pos=['VB']):
     rdms = []
     first_word_index = None
     for subject_id in D.load_subject_ids():
          word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id, 
                  word_pos=word_pos)
-         if first_word_index is None: 
-            first_word_index = word_index
          rdm = 1 - similarity_matrix
          rdms.append(rdm)
-    return first_word_index, np.mean(rdms, axis=0) 
+    return rdms
+
+def _get_task_word_indx(task_id, word_pos=['VB']):
+     first_subject_id = D.load_subject_ids()[0]
+     word_index, _ = load_similarity_matrix(first_subject_id, task_id, 
+             word_pos = word_pos)
+     return word_index
+
+
+def compute_average_rdm_for_task_id(task_id, word_pos=['VB']):
+    """
+    Compute the average rdm accross participants
+    """
+    first_word_index = _get_task_word_index(task_id, word_pos=word_pos) 
+    rdms = _get_task_rdms(task_id, word_pos=word_pos)
+    return first_word_index, compute_average_rdm(rdms)
 
 def leave_one_out_noise_ceiling(task_id, word_pos=['VB']):
     pass
