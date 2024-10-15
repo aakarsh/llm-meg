@@ -464,8 +464,10 @@ def leave_one_out_noise_ceiling(rdms):
 
     return lower_bound, upper_bound
 
-def compute_noice_cealing_bounds(task_id, word_pos=['VB']):
-	pass
+def compute_noise_ceiling_bounds(task_id, word_pos=['VB']):
+    first_word_index = _get_task_word_index(task_id, word_pos=word_pos) 
+    rdms = _get_task_rdms(task_id, word_pos=word_pos)
+    return leave_one_out_noise_ceiling(rdms)
 
 def _something():
     pass

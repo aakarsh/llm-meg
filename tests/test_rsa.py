@@ -6,6 +6,9 @@ import epocher.rsa as R
 def test_noise_celing_per_story():
     word_index, avg_rdm = R.compute_average_rdm_for_task_id(0)
     assert avg_rdm.shape == (len(word_index), len(word_index))
+    low, upper = R.compute_noise_ceiling_bounds(0)
+    assert low > 0 and upper > 0
+    print("low", low, "upper", upper)
 
 def test_get_per_electrode_rsa():
     R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)
