@@ -4,7 +4,8 @@ import epocher.rsa as R
 
 
 def test_noise_celing_per_story():
-    pass
+    word_index, avg_rdm = R.compute_average_rdm(0)
+    assert avg_rdm.shape == (len(word_index), len(word_index))
 
 def test_get_per_electrode_rsa():
     R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)

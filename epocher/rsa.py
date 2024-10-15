@@ -396,8 +396,25 @@ def load_similarity_matrix(subject_id, task_id, model=None,
 # 4. Bootstrap Resampling 
 # 5. .....
 
-def average_rdm(task_id): 
-    # Compute the averate stimulus 
+def load_subject_rdms_by_task_id(task_id, word_pos=['VB']):
+    pass
+
+def compute_average_rdm(task_id, word_pos=['VB']):
+    """
+    Compute the average rdm accross participants
+    """
+    rdms = []
+    first_word_index = None
+    for subject_id in D.load_subject_ids():
+         word_index, similarity_matrix = load_similarity_matrix(subject_id, task_id, 
+                 word_pos=word_pos)
+         if first_word_index is None: 
+            first_word_index = word_index
+         rdm = 1 - similarity_matrix
+         rdms.append(rdm)
+    return first_word_index, np.mean(rdms, axis=0) 
+
+def leave_one_out_noise_ceiling(task_id, word_pos=['VB']):
     pass
 
 def _something():
