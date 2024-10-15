@@ -469,6 +469,9 @@ def compute_noise_ceiling_bounds(task_id, word_pos=['VB']):
     rdms = _get_task_rdms(task_id, word_pos=word_pos)
     return leave_one_out_noise_ceiling(rdms)
 
+# Determine the P-Values using permutation testing of RDMS.
+
+
 def _something():
     pass
 
