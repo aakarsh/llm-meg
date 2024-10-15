@@ -230,7 +230,6 @@ def parse_event_description(event_json_str):
     return json.loads(event_json_str)
 
 
-
 def load_subject_information():
     # Read information about subjects
     subjects = pd.read_csv(MEG_MASC_ROOT +  "/participants.tsv", sep="\t")

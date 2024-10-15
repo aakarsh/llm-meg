@@ -4,7 +4,7 @@ import epocher.rsa as R
 
 
 def test_noise_celing_per_story():
-    word_index, avg_rdm = R.compute_average_rdm(0)
+    word_index, avg_rdm = R.compute_average_rdm_for_task_id(0)
     assert avg_rdm.shape == (len(word_index), len(word_index))
 
 def test_get_per_electrode_rsa():

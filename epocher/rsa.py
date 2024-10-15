@@ -400,6 +400,10 @@ def load_subject_rdms_by_task_id(task_id, word_pos=['VB']):
     pass
 
 def compute_average_rdm(rdms): 
+    f_rdm = rdms[0]
+    for rdm in rdms:
+        assert f_rdm.shape ==rdm.shape
+
     return np.mean(rdms, axis=0) 
 
 def _get_task_rdms(task_id, word_pos=['VB']):
@@ -412,7 +416,7 @@ def _get_task_rdms(task_id, word_pos=['VB']):
          rdms.append(rdm)
     return rdms
 
-def _get_task_word_indx(task_id, word_pos=['VB']):
+def _get_task_word_index(task_id, word_pos=['VB']):
      first_subject_id = D.load_subject_ids()[0]
      word_index, _ = load_similarity_matrix(first_subject_id, task_id, 
              word_pos = word_pos)
