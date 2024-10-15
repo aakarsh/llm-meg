@@ -3,6 +3,9 @@ import epocher.dataset as D
 import epocher.rsa as R
 
 
+def test_noise_celing_per_story():
+    pass
+
 def test_get_per_electrode_rsa():
     R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)
 

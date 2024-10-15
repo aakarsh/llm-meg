@@ -394,9 +394,12 @@ def load_similarity_matrix(subject_id, task_id, model=None,
 # 2. Averaging RDMs Across Subjects/Trials.
 # 3. Leave-one-out Approach.
 # 4. Bootstrap Resampling 
-# 5. .,.,.
-#
-#
+# 5. .....
+
+def average_rdm(task_id): 
+    # Compute the averate stimulus 
+    pass
+
 def _something():
     pass
 
