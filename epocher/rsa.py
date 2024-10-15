@@ -431,8 +431,41 @@ def compute_average_rdm_for_task_id(task_id, word_pos=['VB']):
     rdms = _get_task_rdms(task_id, word_pos=word_pos)
     return first_word_index, compute_average_rdm(rdms)
 
-def leave_one_out_noise_ceiling(task_id, word_pos=['VB']):
-    pass
+
+def leave_one_out_noise_ceiling(rdms):
+    """
+    Compute the noise ceiling using a leave-one-out approach.
+    Args:
+    - rdms: list of RDMs for each participant.
+    
+    Returns:
+    - lower_bound: The lower bound of the noise ceiling.
+    - upper_bound: The upper bound of the noise ceiling.
+    """
+    n = len(rdms)
+    lower_bound_scores = []
+    upper_bound_scores = []
+
+    for i in range(n):
+        # Leave-one-out average RDM excluding participant i
+        loo_average_rdm = compute_average_rdm([rdms[j] for j in range(n) if j != i])
+
+        # Correlation between participant i's RDM and LOO average
+        correlation_loo = np.corrcoef(rdms[i].flatten(), loo_average_rdm.flatten())[0, 1]
+        lower_bound_scores.append(correlation_loo)
+
+        # Correlation between participant i's RDM and the overall average RDM (upper bound)
+        overall_average_rdm = compute_average_rdm(rdms)
+        correlation_all = np.corrcoef(rdms[i].flatten(), overall_average_rdm.flatten())[0, 1]
+        upper_bound_scores.append(correlation_all)
+
+    lower_bound = np.mean(lower_bound_scores)
+    upper_bound = np.mean(upper_bound_scores)
+
+    return lower_bound, upper_bound
+
+def compute_noice_cealing_bounds(task_id, word_pos=['VB']):
+	pass
 
 def _something():
     pass
