@@ -506,20 +506,86 @@ def permutation_test_rsa(model_rdm, brain_rdm, n_permutations=1000):
 
 
 def compute_model_p_value(task_id, model='BERT', word_pos=['VB']): 
+    """
     # TOOD: Fix there is an issue where I am creating and  
     # saving BERT per subject which makes no sense.
     #
     # 1. Load model RDM for a subject.
     # 2. Load averge RDM across all subjects. 
+    """
     word_index, average_rdm = compute_average_rdm_for_task_id(task_id, word_pos=word_pos)
     proto_subject_id = D.load_subject_ids()[0] # prototypical subject
     model_word_index, similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, 
             model=model, word_pos=word_pos)
+
     model_rdm = 1 - similarity_matrix
+
     assert average_rdm.shape == similarity_matrix.shape
     assert set(word_index) == set(model_word_index)
 
     original_rsa_score, p_value = permutation_test_rsa(average_rdm, model_rdm)
     return original_rsa_score, p_value
+
+
+# TODO : Something.
+def sliding_window_rsa_per_electrode(subject_id, task_id, 
+        model='BERT', window_size=0.1, step_size=0.05, word_pos=['VB']):
+    """
+    Perform per-electrode sliding window RSA.
+
+    Args:
+    - subject_id: Subject identifier
+    - task_id: Task identifier
+    - model: Model to compare against ('BERT' or 'GLOVE')
+    - window_size: Size of the sliding window in seconds
+    - step_size: Step size for the sliding window in seconds
+    - word_pos: List of parts of speech tags to consider
+
+    Returns:
+    - rsa_values: A dictionary with keys as time points and values as RSA values for all electrodes.
+    """
+    # Load MEG data for subject
+    #TODO: implement this function to load the MEG raw data
+    raw = load_raw_data(subject_id, task_id)  
+    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, word_pos=word_pos)
+
+    # Prepare data for sliding window
+    sfreq = raw.info['sfreq']
+    window_samples = int(window_size * sfreq)
+    step_samples = int(step_size * sfreq)
+
+    rsa_values = []
+    times = np.arange(0, raw.times[-1] - window_size, step_size)
+
+    # Iterate over time windows
+    for start_time in times:
+        start_sample = int(start_time * sfreq)
+        end_sample = start_sample + window_samples
+
+        # Extract data for the current window (shape: n_channels x n_times)
+        data_window = raw[:, start_sample:end_sample][0]
+
+        # Compute cosine similarity across all electrodes (channels)
+        rsa_per_electrode = []
+        for electrode_data in data_window:
+            # Flatten data for each electrode for RSA computation
+            electrode_vector = electrode_data.flatten()
+            # Normalize
+            norm = np.linalg.norm(electrode_vector) + 1e-10
+            normalized_vector = electrode_vector / norm
+            # Compute RSA between electrode data and model similarity matrix
+            rsa_value = np.corrcoef(normalized_vector, model_similarity_matrix.flatten())[0, 1]
+            rsa_per_electrode.append(rsa_value)
+        
+        rsa_values.append(rsa_per_electrode)
+
+    return np.array(rsa_values), times
+
+
+
+
+
+
+
 
 
