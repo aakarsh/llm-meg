@@ -527,7 +527,8 @@ def compute_model_p_value(task_id, model='BERT', word_pos=['VB']):
     return original_rsa_score, p_value
 
 
-# TODO : Something.
+# TODO :
+#        Something
 def sliding_window_rsa_per_electrode(subject_id, task_id, 
         model='BERT', window_size=0.1, step_size=0.05, word_pos=['VB']):
     """

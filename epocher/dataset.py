@@ -383,4 +383,66 @@ def _get_raw_file(subject, session, task):
     raw.load_data().filter(0.5, 30.0, n_jobs=1)
     return raw  
 
+def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0, 
+    window_size=0.1, step_size=0.05, word_pos=['VB'], use_ica=False):
+    """
+    Perform per-electrode sliding window RSA using existing epoch map.
+    
+    Args:
+    - subject_id: Subject identifier.
+    - session_id: Session identifier.
+    - task_id: Task identifier.
+    - window_size: Size of the sliding window in seconds.
+    - step_size: Step size for the sliding window in seconds.
+    - word_pos: List of parts of speech tags to consider.
+    - use_ica: Boolean indicating if ICA-transformed data should be used.
+    
+    Returns:
+    - rsa_values: A dictionary with keys as time points and values as RSA values for all electrodes.
+    """
+    
+    # Load word epochs for each word using your existing method
+    word_index, word_epoch_map = _load_epoch_map(subject_id, session_id, task_id, 
+            use_ica=use_ica, word_pos=word_pos)
 
+    # Initialize the sliding window RSA
+    sfreq = word_epoch_map[word_index[0]].info['sfreq']  # Sampling frequency from the epochs
+    window_samples = int(window_size * sfreq)
+    step_samples = int(step_size * sfreq)
+    
+    rsa_values = []  # Will store RSA values for each time window
+    time_points = []
+
+    # Loop through all words
+    for word in word_index:
+        epochs = word_epoch_map[word]  # Shape: (n_epochs, n_channels, n_times)
+
+        if len(epochs) == 0:
+            continue
+
+        n_channels = len(epochs.ch_names)
+        n_times = len(epochs.times)
+
+        # Perform sliding window over the time dimension for each electrode
+        for start in range(0, n_times - window_samples + 1, step_samples):
+            end = start + window_samples
+            
+            # Average over trials for the current time window.
+            epoch_window = epochs.get_data()[:, :, start:end]  # Shape: (n_epochs, n_channels, window_samples)
+            avg_window = np.mean(epoch_window, axis=0)  # Shape: (n_channels, window_samples)
+            
+            rsa_per_electrode = []
+            
+            # Compute RSA for each electrode
+            for ch in range(n_channels):
+                electrode_vector = avg_window[ch, :].flatten()
+                norm = np.linalg.norm(electrode_vector) + 1e-10  # Avoid division by zero
+                normalized_vector = electrode_vector / norm
+                # Ok the self similarity part is nutso. 
+                rsa_value = np.corrcoef(normalized_vector, normalized_vector)[0, 1]  # Self-similarity here for simplicity
+                rsa_per_electrode.append(rsa_value)
+            
+            rsa_values.append(rsa_per_electrode)
+            time_points.append(epochs.times[start])
+
+    return np.array(rsa_values), time_points

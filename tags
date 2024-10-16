@@ -9,8 +9,6 @@ _decod_one_subject	./epocher/check_decoding.py	/^def _decod_one_subject(/
 _file_exists	./epocher/rsa.py	/^def _file_exists(/
 _get_epoch_word_map	./epocher/dataset.py	/^def _get_epoch_word_map(/
 _get_epochs	./epocher/check_decoding.py	/^def _get_epochs(/
-_get_epochs	./epocher/dataset.py	/^def _get_epochs(/
-_get_epochs	./epocher/dataset.py	/^def _get_epochs(/
 _get_ica_epochs	./epocher/dataset.py	/^def _get_ica_epochs(/
 _get_per_electrode_similarity_matrix	./epocher/rsa.py	/^def _get_per_electrode_similarity_matrix(/
 _get_raw_file	./epocher/dataset.py	/^def _get_raw_file(/
@@ -19,6 +17,8 @@ _get_similarity_matrix	./epocher/rsa.py	/^def _get_similarity_matrix(/
 _get_sliding_window_rsa	./epocher/rsa.py	/^def _get_sliding_window_rsa(/
 _get_target_word_vectors	./epocher/dataset.py	/^def _get_target_word_vectors(/
 _get_target_word_vectors_per_electrode	./epocher/dataset.py	/^def _get_target_word_vectors_per_electrode(/
+_get_task_rdms	./epocher/rsa.py	/^def _get_task_rdms(/
+_get_task_word_index	./epocher/rsa.py	/^def _get_task_word_index(/
 _load_epoch_map	./epocher/dataset.py	/^def _load_epoch_map(/
 _load_from_file	./epocher/rsa.py	/^def _load_from_file(/
 _load_raw_meta	./epocher/dataset.py	/^def _load_raw_meta(/
@@ -32,7 +32,11 @@ check_decoding	./epocher/check_decoding.py	1
 compare_with_model	./scripts/rsa_experiments.py	/^def compare_with_model(/
 compare_with_model_layers_segmented	./scripts/rsa_experiments.py	/^def compare_with_model_layers_segmented(/
 compute_all_rsa_matrics	./scripts/rsa_experiments.py	/^def compute_all_rsa_matrics(/
+compute_average_rdm	./epocher/rsa.py	/^def compute_average_rdm(/
+compute_average_rdm_for_task_id	./epocher/rsa.py	/^def compute_average_rdm_for_task_id(/
 compute_md5_hash	./epocher/llm_bert.py	/^def compute_md5_hash(/
+compute_model_p_value	./epocher/rsa.py	/^def compute_model_p_value(/
+compute_noise_ceiling_bounds	./epocher/rsa.py	/^def compute_noise_ceiling_bounds(/
 compute_rsa_matrix	./scripts/rsa_experiments.py	/^def compute_rsa_matrix(/
 compute_rsa_similarity	./scripts/rsa_experiments.py	/^def compute_rsa_similarity(/
 compute_similarity_matrics	./epocher/rsa.py	/^def compute_similarity_matrics(/
@@ -54,6 +58,7 @@ get_whole_word_embeddings	./epocher/llm_bert.py	/^def get_whole_word_embeddings(
 get_word_vectors	./epocher/llm_bert.py	/^def get_word_vectors(/
 get_word_vectors	./epocher/llm_glove.py	/^def get_word_vectors(/
 is_selectable_tag	./epocher/stories.py	/^    def is_selectable_tag(/
+leave_one_out_noise_ceiling	./epocher/rsa.py	/^def leave_one_out_noise_ceiling(/
 llm_bert	./epocher/llm_bert.py	1
 llm_glove	./epocher/llm_glove.py	1
 load_bids_path	./epocher/dataset.py	/^def load_bids_path(/
@@ -64,6 +69,7 @@ load_similarity_matrix	./epocher/rsa.py	/^def load_similarity_matrix(/
 load_stimuli	./epocher/stories.py	/^def load_stimuli(/
 load_subject_ids	./epocher/dataset.py	/^def load_subject_ids(/
 load_subject_information	./epocher/dataset.py	/^def load_subject_information(/
+load_subject_rdms_by_task_id	./epocher/rsa.py	/^def load_subject_rdms_by_task_id(/
 load_task_ids	./epocher/dataset.py	/^def load_task_ids(/
 load_word_index	./epocher/rsa.py	/^def load_word_index(/
 main	./scripts/ptags.py	/^def main(/
@@ -73,6 +79,7 @@ mark_verb_features	./epocher/verb_cat.py	/^def mark_verb_features(/
 normalize_vectors	./epocher/llm_bert.py	/^def normalize_vectors(/
 normalize_vectors	./epocher/llm_glove.py	/^def normalize_vectors(/
 parse_event_description	./epocher/dataset.py	/^def parse_event_description(/
+permutation_test_rsa	./epocher/rsa.py	/^def permutation_test_rsa(/
 plot	./epocher/check_decoding.py	/^def plot(/
 plot_dendogram	./epocher/plots.py	/^def plot_dendogram(/
 plot_heatmap	./epocher/rsa.py	/^    def plot_heatmap(/
@@ -88,10 +95,14 @@ segment	./epocher/check_decoding.py	/^def segment(/
 segment_by_phoneme	./epocher/dataset.py	/^def segment_by_phoneme(/
 segment_by_word	./epocher/dataset.py	/^def segment_by_word(/
 select_words_by_part_of_speech	./epocher/stories.py	/^def select_words_by_part_of_speech(/
-similarity_index_file_name	./epocher/plots.py	/^def similarity_index_file_name(/
+sliding_window_rsa_per_electrode	./epocher/dataset.py	/^def sliding_window_rsa_per_electrode(/
+sliding_window_rsa_per_electrode	./epocher/rsa.py	/^def sliding_window_rsa_per_electrode(/
+sort_by_hierarchical_order	./epocher/rsa.py	/^def sort_by_hierarchical_order(/
+sort_by_spectral_clustering	./epocher/rsa.py	/^def sort_by_spectral_clustering(/
 stories	./epocher/stories.py	1
 test_always_pass	./tests/test_stories.py	/^def test_always_pass(/
 test_bert	./tests/test_bert.py	1
+test_compute_model_p_value	./tests/test_rsa.py	/^def test_compute_model_p_value(/
 test_construct_subject_rsa	./tests/test_rsa.py	/^def test_construct_subject_rsa(/
 test_dataset	./tests/test_dataset.py	1
 test_get_epoch_word_map	./tests/test_dataset.py	/^def test_get_epoch_word_map(/
@@ -108,11 +119,14 @@ test_intrasubject_meg	./tests/test_intrasubject_meg.py	1
 test_llm_glove	./tests/test_glove.py	/^def test_llm_glove(/
 test_load_raw_meta	./tests/test_rsa.py	/^def test_load_raw_meta(/
 test_load_subject_information	./tests/test_dataset.py	/^def test_load_subject_information(/
+test_noise_celing_per_story	./tests/test_rsa.py	/^def test_noise_celing_per_story(/
+test_per_electrode_rsa	./tests/test_dataset.py	/^def test_per_electrode_rsa(/
 test_plot_similarity_matrix	./tests/test_rsa.py	/^def test_plot_similarity_matrix(/
 test_rsa	./tests/test_rsa.py	1
 test_salient_words	./tests/test_stories.py	/^def test_salient_words(/
 test_segment_ica_epochmap	./tests/test_dataset.py	/^def test_segment_ica_epochmap(/
 test_segment_word_epcoh_map	./tests/test_dataset.py	/^def test_segment_word_epcoh_map(/
+test_sliding_window_rsa_per_electrode	./tests/test_rsa.py	/^def test_sliding_window_rsa_per_electrode(/
 test_something	./tests/test_verb_cat.py	/^def test_something(/
 test_stories	./tests/test_stories.py	/^def test_stories(/
 test_stories	./tests/test_stories.py	1
@@ -120,4 +134,3 @@ test_verb_cat	./tests/test_verb_cat.py	1
 treat_file	./scripts/ptags.py	/^def treat_file(/
 verb_cat	./epocher/verb_cat.py	1
 verb_stanza	./epocher/verb_stanza.py	1
-word_index_file_name	./epocher/plots.py	/^def word_index_file_name(/

@@ -1,5 +1,10 @@
 import epocher.dataset as D
 
+
+def test_per_electrode_rsa():
+    result = D.sliding_window_rsa_per_electrode()
+    assert result is not None
+
 def test_get_target_word_vectors():
     word_index, target_word_vectors = \
             D._get_target_word_vectors(subject_id='01', session_id=0, task_id=0)
