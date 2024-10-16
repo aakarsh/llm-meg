@@ -13,18 +13,24 @@ def test_noise_celing_per_story():
 def test_get_per_electrode_rsa():
     R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)
 
+def test_compute_model_p_value():
+    rsa_score_b, p_value_b = R.compute_model_p_value(task_id=0, model="BERT")
+    rsa_score_g, p_value_g = R.compute_model_p_value(task_id=0, model="GLOVE")
+    print(f"BERT: {rsa_score_b}, pvalue: {p_value_b}")
+    print(f"GLOVE: {rsa_score_g}, pvalue: {p_value_g}")
+
 def test_get_similarity_matrix_nouns():
     """
     """
-    word_index, similarity_matrices = R._get_similarity_matrix(subject_id='01', session_id=0, task_id=0, 
-                                         n_components=15, tmax=0.25, 
-                                        reference_word_idx = None, 
-                                        save_similarity_matrix=False, 
+    word_index, similarity_matrices = R._get_similarity_matrix(subject_id='01', session_id=0, task_id=0,
+                                        n_components=15, tmax=0.25,
+                                        reference_word_idx = None,
+                                        save_similarity_matrix=False,
                                         word_pos=['NN'],
                                         debug=False)
     assert len(similarity_matrices) > 0
     assert (len(word_index), len(word_index)) == similarity_matrices.shape
- 
+
 
 def test_load_raw_meta():
     raw_file = D._get_raw_file('01', 0, 0)
