@@ -23,7 +23,8 @@ from mne.preprocessing import ICA
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
-
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
 
 from .env import *
 from . import stories as S 
@@ -383,10 +384,11 @@ def _get_raw_file(subject, session, task):
     raw.load_data().filter(0.5, 30.0, n_jobs=1)
     return raw  
 
-def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0, 
-    window_size=0.1, step_size=0.05, word_pos=['VB'], use_ica=False):
+def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, 
+        task_id=0, window_size=0.05, step_size=0.01, 
+        word_pos=['VB'], use_ica=False):
     """
-    Perform per-electrode sliding window RSA using existing epoch map.
+    Perform RSA between words for each electrode and each time window using a sliding window approach.
     
     Args:
     - subject_id: Subject identifier.
@@ -398,51 +400,59 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     - use_ica: Boolean indicating if ICA-transformed data should be used.
     
     Returns:
-    - rsa_values: A dictionary with keys as time points and values as RSA values for all electrodes.
+    - rsa_matrices_per_electrode: A dictionary with electrode names as keys and lists of RSA matrices (n_words x n_words) for each sliding window.
+    - time_points: A list of time points for each window.
     """
-    
     # Load word epochs for each word using your existing method
-    word_index, word_epoch_map = _load_epoch_map(subject_id, session_id, task_id, 
-            use_ica=use_ica, word_pos=word_pos)
+    word_index, word_epoch_map = _load_epoch_map(subject_id, session_id, task_id, use_ica=use_ica, word_pos=word_pos)
 
     # Initialize the sliding window RSA
     sfreq = word_epoch_map[word_index[0]].info['sfreq']  # Sampling frequency from the epochs
     window_samples = int(window_size * sfreq)
     step_samples = int(step_size * sfreq)
-    
-    rsa_values = []  # Will store RSA values for each time window
+
+    # Get the number of electrodes from one of the epochs
+    n_channels = word_epoch_map[word_index[0]].info['nchan']
+    channel_names = word_epoch_map[word_index[0]].info['ch_names']
+
+    rsa_matrices_per_electrode = {ch_name: [] for ch_name in channel_names}  # Initialize dictionary to store RSA per electrode
     time_points = []
 
-    # Loop through all words
-    for word in word_index:
-        epochs = word_epoch_map[word]  # Shape: (n_epochs, n_channels, n_times)
+    # Perform sliding window analysis
+    for start in range(0, len(word_epoch_map[word_index[0]].times) - window_samples + 1, step_samples):
+        end = start + window_samples
 
-        if len(epochs) == 0:
-            continue
+        # Loop through each electrode
+        for ch_idx, ch_name in enumerate(channel_names):
+            # Initialize a list to store activation for each word for the current electrode and time window
+            word_vectors = []
 
-        n_channels = len(epochs.ch_names)
-        n_times = len(epochs.times)
+            # Loop through each word
+            for word in word_index:
+                epochs = word_epoch_map[word]  # Shape: (n_epochs, n_channels, n_times)
 
-        # Perform sliding window over the time dimension for each electrode
-        for start in range(0, n_times - window_samples + 1, step_samples):
-            end = start + window_samples
-            
-            # Average over trials for the current time window.
-            epoch_window = epochs.get_data()[:, :, start:end]  # Shape: (n_epochs, n_channels, window_samples)
-            avg_window = np.mean(epoch_window, axis=0)  # Shape: (n_channels, window_samples)
-            
-            rsa_per_electrode = []
-            
-            # Compute RSA for each electrode
-            for ch in range(n_channels):
-                electrode_vector = avg_window[ch, :].flatten()
-                norm = np.linalg.norm(electrode_vector) + 1e-10  # Avoid division by zero
-                normalized_vector = electrode_vector / norm
-                # Ok the self similarity part is nutso. 
-                rsa_value = np.corrcoef(normalized_vector, normalized_vector)[0, 1]  # Self-similarity here for simplicity
-                rsa_per_electrode.append(rsa_value)
-            
-            rsa_values.append(rsa_per_electrode)
-            time_points.append(epochs.times[start])
+                if len(epochs) == 0:
+                    continue
 
-    return np.array(rsa_values), time_points
+                # Extract the electrode data for the current time window
+                epoch_window = epochs.get_data()[:, ch_idx, start:end]  # Shape: (n_epochs, window_samples)
+                avg_window = np.mean(epoch_window, axis=0)  # Average over epochs, Shape: (window_samples,)
+
+                # Normalize the average window vector
+                avg_vector = avg_window / (np.linalg.norm(avg_window) + 1e-10)  # Normalized vector, Shape: (window_samples,)
+                word_vectors.append(avg_vector)
+
+            # Convert to numpy array and normalize all word vectors
+            word_vectors = np.array(word_vectors)  # Shape: (n_words, window_samples)
+            word_vectors = normalize(word_vectors, axis=1)  # Normalize each word vector to unit length
+
+            # Calculate cosine similarity between all words (i.e., the RSA matrix)
+            rsa_matrix = cosine_similarity(word_vectors)  # Shape: (n_words, n_words)
+
+            # Store the RSA matrix for this electrode and time window
+            rsa_matrices_per_electrode[ch_name].append(rsa_matrix)
+
+        # Store the midpoint of the current time window
+        time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
+
+    return rsa_matrices_per_electrode, time_points

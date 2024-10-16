@@ -2,8 +2,9 @@ import epocher.dataset as D
 
 
 def test_per_electrode_rsa():
-    result = D.sliding_window_rsa_per_electrode()
-    assert result is not None
+    rsa_matrices_per_electrode, time_points = D.sliding_window_rsa_per_electrode()
+    print("time_points", len(time_points))
+    print("rsa_matrices_per_electrod", len(time_points))
 
 def test_get_target_word_vectors():
     word_index, target_word_vectors = \
