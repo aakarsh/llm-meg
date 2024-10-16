@@ -20,6 +20,11 @@ def test_compute_model_p_value():
         print(f"BERT {task_id}: {rsa_score_b}, pvalue: {p_value_b}")
         print(f"GLOVE {task_id}: {rsa_score_g}, pvalue: {p_value_g}")
 
+def test_sliding_window_rsa_per_electrode():
+    print("test_sliding_window_rsa_per_electrode")
+    results, times = R.sliding_window_rsa_per_electrode('01', task_id=0)
+    pass
+
 def test_get_similarity_matrix_nouns():
     """
     """

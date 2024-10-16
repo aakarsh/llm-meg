@@ -546,8 +546,9 @@ def sliding_window_rsa_per_electrode(subject_id, task_id,
     """
     # Load MEG data for subject
     #TODO: implement this function to load the MEG raw data
-    raw = load_raw_data(subject_id, task_id)  
-    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, word_pos=word_pos)
+    raw = load_raw_data(subject_id, task_id) 
+    model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, 
+            model=model, word_pos=word_pos)
 
     # Prepare data for sliding window
     sfreq = raw.info['sfreq']
@@ -578,7 +579,6 @@ def sliding_window_rsa_per_electrode(subject_id, task_id,
             rsa_per_electrode.append(rsa_value)
         
         rsa_values.append(rsa_per_electrode)
-
     return np.array(rsa_values), times
 
 
