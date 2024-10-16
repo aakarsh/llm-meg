@@ -512,9 +512,13 @@ def compute_model_p_value(task_id, model='BERT', word_pos=['VB']):
     # 1. Load model RDM for a subject.
     # 2. Load averge RDM across all subjects. 
     word_index, average_rdm = compute_average_rdm_for_task_id(task_id, , word_pos=word_pos)
-    load_model_rdm_for_task_id(model)
-
-    pass
+    proto_subject_id = D.load_subject_ids()[0] # prototypical subject
+    model_word_index, similarity_matrix = load_similarity_matrix(subject_id=proto_subject_id, task_id, 
+            model=model, word_pos=word_pos)
+    assert average_rdm.shape == similarity_matrix.shape
+    assert set(word_index) == model_word_index 
+    original_rsa_score , p_value = permutation_test_rsa(average_rdm, model_rdm)
+    return original_rsa_score , p_value
 
 def _something():
     pass
