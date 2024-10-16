@@ -297,21 +297,22 @@ def _get_similarity_matrix(subject_id='01', session_id=0, task_id=0, n_component
 def compute_similarity_matrics(subject_id, task_id, model="GLOVE", 
         hidden_layer=None, word_pos=['VB'], save_similarity_matrix=True):
     """
-    Compute the simialirty matrix for given 
+    Compute the simialirty matrix for given task given a model.
     """
-    word_index = load_word_index(subject_id, task_id, word_pos=word_pos)
+    # FIX: We are saving wordlist per subject, but do we need to ?
+    word_index = load_word_index(subject_id, task_id, word_pos=word_pos) 
     similarity_matrix = None
 
-    if model == "GLOVE":
+    if model == "GLOVE": # FIX: why would i need subject_id
       similarity_matrix = G.create_rsa_matrix(word_index)
-    elif model == "BERT":
+  elif model == "BERT": # FIX: why would i need subject_id
       # Some words not found
       word_index, similarity_matrix = B.create_rsa_matrix(word_index, task_id, 
                   hidden_layer=hidden_layer)
     else:
         raise RuntimeError(f'Unkown model: {model}')
     
-    if save_similarity_matrix: 
+    if save_similarity_matrix: # why would i need subject_id 
       save_similarity_data(word_index, similarity_matrix, subject_id, task_id,  
               model=model, layer_id=hidden_layer, segmented=False, word_pos=word_pos)
     return similarity_matrix  
@@ -503,14 +504,17 @@ def permutation_test_rsa(model_rdm, brain_rdm, n_permutations=1000):
 
     return original_rsa_score, p_value
 
-def compute_model_p(task, word_pos=['VB']): 
-	# TOOD: Fix - There is an issue where I am creating and 
-	# saving BERT per subject which makes no sense. 
-	# 1. load model RDM for a subject
-	# 2. Load averge rdm across all subjects. 
-	# 3.    
 
-	pass
+def compute_model_p_value(task_id, model='BERT', word_pos=['VB']): 
+    # TOOD: Fix there is an issue where I am creating and  
+    # saving BERT per subject which makes no sense.
+    #
+    # 1. Load model RDM for a subject.
+    # 2. Load averge RDM across all subjects. 
+    word_index, average_rdm = compute_average_rdm_for_task_id(task_id, , word_pos=word_pos)
+    load_model_rdm_for_task_id(model)
+
+    pass
 
 def _something():
     pass
