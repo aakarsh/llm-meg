@@ -515,16 +515,11 @@ def compute_model_p_value(task_id, model='BERT', word_pos=['VB']):
     proto_subject_id = D.load_subject_ids()[0] # prototypical subject
     model_word_index, similarity_matrix = load_similarity_matrix(subject_id=proto_subject_id, task_id, 
             model=model, word_pos=word_pos)
+    model_rdm = 1 - similarity_matrix
     assert average_rdm.shape == similarity_matrix.shape
     assert set(word_index) == model_word_index 
-    original_rsa_score , p_value = permutation_test_rsa(average_rdm, model_rdm)
-    return original_rsa_score , p_value
 
-def _something():
-    pass
+    original_rsa_score, p_value = permutation_test_rsa(average_rdm, model_rdm)
+    return original_rsa_score, p_value
 
-def _else():
-    pass
 
-def _abc():
-    pass
