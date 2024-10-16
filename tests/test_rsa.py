@@ -14,10 +14,11 @@ def test_get_per_electrode_rsa():
     R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)
 
 def test_compute_model_p_value():
-    rsa_score_b, p_value_b = R.compute_model_p_value(task_id=0, model="BERT")
-    rsa_score_g, p_value_g = R.compute_model_p_value(task_id=0, model="GLOVE")
-    print(f"BERT: {rsa_score_b}, pvalue: {p_value_b}")
-    print(f"GLOVE: {rsa_score_g}, pvalue: {p_value_g}")
+    for task_id in [0, 1,  3]:
+        rsa_score_b, p_value_b = R.compute_model_p_value(task_id, model="BERT")
+        rsa_score_g, p_value_g = R.compute_model_p_value(task_id, model="GLOVE")
+        print(f"BERT {task_id}: {rsa_score_b}, pvalue: {p_value_b}")
+        print(f"GLOVE {task_id}: {rsa_score_g}, pvalue: {p_value_g}")
 
 def test_get_similarity_matrix_nouns():
     """
