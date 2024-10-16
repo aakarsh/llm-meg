@@ -470,7 +470,47 @@ def compute_noise_ceiling_bounds(task_id, word_pos=['VB']):
     return leave_one_out_noise_ceiling(rdms)
 
 # Determine the P-Values using permutation testing of RDMS.
+def permutation_test_rsa(model_rdm, brain_rdm, n_permutations=1000):
+    """
+    Perform permutation testing for RSA to determine if model performance is better than chance.
+    
+    Args:
+    - model_rdm: numpy array, the RDM of the model (e.g., BERT RDM).
+    - brain_rdm: numpy array, the original RDM of brain data.
+    - n_permutations: int, number of permutations to perform.
+    
+    Returns:
+    - p_value: float, p-value indicating statistical significance of model performance.
+    """
+    # Compute original RSA score
+    original_rsa_score = np.corrcoef(model_rdm.flatten(), brain_rdm.flatten())[0, 1]
+    
+    # Create null distribution by shuffling labels
+    null_distribution = []
+    for _ in range(n_permutations):
+        # Randomly shuffle the brain RDM
+        shuffled_rdm = np.random.permutation(brain_rdm.flatten()).reshape(brain_rdm.shape)
+        # Compute RSA score with the shuffled RDM
+        permuted_rsa_score = np.corrcoef(model_rdm.flatten(), shuffled_rdm.flatten())[0, 1]
+        null_distribution.append(permuted_rsa_score)
 
+    # Convert null distribution to a numpy array for easier manipulation
+    null_distribution = np.array(null_distribution)
+    
+    # Calculate the p-value
+    count_greater_equal = np.sum(null_distribution >= original_rsa_score)
+    p_value = (count_greater_equal + 1) / (n_permutations + 1)  # Adding 1 to avoid p-value of 0
+
+    return original_rsa_score, p_value
+
+def compute_model_p(task, word_pos=['VB']): 
+	# TOOD: Fix - There is an issue where I am creating and 
+	# saving BERT per subject which makes no sense. 
+	# 1. load model RDM for a subject
+	# 2. Load averge rdm across all subjects. 
+	# 3.    
+
+	pass
 
 def _something():
     pass
