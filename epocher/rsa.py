@@ -706,13 +706,19 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     rsa_scores_per_window = np.array(rsa_scores_per_window).T  # Shape: (n_channels, n_windows)
 
-    # Plot topomap for each time window
-    montage = mne.channels.make_standard_montage('biosemi64')  # Use standard montage (adjust if necessary)
-    info = mne.create_info(ch_names, sfreq=1000, ch_types='eeg', montage=montage)
+    
+
+    # Create MNE info with MEG channel types
+    info = mne.create_info(ch_names, sfreq=1000, ch_types='mag')
+
+    # Use MEG-specific layout for plotting
+    layout = mne.channels.read_layout('Vectorview-all')
+    pos = layout.pos[:, :2]  # Extracting the positions for plotting
+    #info.set_montage(montage)  # Set the montage separately
 
     for t_idx, time_point in enumerate(time_points):
         plt.figure()
-        plot_topomap(rsa_scores_per_window[:, t_idx], info, show=False)
+        mne.viz.plot_topomap(rsa_scores_per_window[:, t_idx], pos[0:208], show=False, names=ch_names)
         plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
         plt.colorbar()
         plt.savefig(f'{OUPUT_DIR}/images/rsa_topomap_{t_idx:02d}.png')
