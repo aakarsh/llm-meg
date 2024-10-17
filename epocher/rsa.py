@@ -718,8 +718,8 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     for t_idx, time_point in enumerate(time_points):
         plt.figure()
-        mne.viz.plot_topomap(rsa_scores_per_window[:, t_idx], pos[0:208], show=False, names=ch_names)
+        im, _ = mne.viz.plot_topomap(rsa_scores_per_window[:, t_idx], pos[0:208], show=False, names=ch_names)
         plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
-        plt.colorbar()
-        plt.savefig(f'{OUPUT_DIR}/images/rsa_topomap_{t_idx:02d}.png')
+        plt.colorbar(im)  # Use the mappable object returned by plot_topomap
+        plt.savefig(f'{IMAGES_DIR}/rsa_topomap_{t_idx:02d}.png')
         plt.close()
