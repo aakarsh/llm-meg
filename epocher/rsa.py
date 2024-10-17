@@ -76,12 +76,14 @@ def _load_from_file(filename):
         raise ValueError("Unsupported file format. Use .json or .npy")
 
 # Function to save cache
-def _save_cache(data, filename):
+def _save_cache(filename, data):
     """Save data to cache in either JSON or NumPy format."""
     if filename.endswith('.json'):
         with open(filename, 'w') as f:
             json.dump(data, f)
     elif filename.endswith('.npy'):
+        np.save(filename, data)
+    elif filename.endswith('.npz'):
         np.save(filename, data)
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
@@ -567,7 +569,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     - time_points: A list of time points for each window.
     """
 
-    cache_filename = make_filename_prefix("siling_window_rsa.npy", subject_id, task_id)
+    cache_filename = make_filename_prefix("siling_window_rsa.npz", subject_id, task_id)
 
     # Check if cache file already exists
     if cache_output and os.path.exists(cache_filename) :
@@ -628,6 +630,6 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
         time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
 
     if cache_output:
-        _save_cache((rsa_matrices_per_electrode, time_points), cache_filename)
+        _save_cache(cache_filename, (rsa_matrices_per_electrode, time_points))
 
     return rsa_matrices_per_electrode, time_points
