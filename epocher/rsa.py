@@ -656,6 +656,69 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
 
     return rsa_matrices_per_electrode, time_points
 
+def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
+                                window_size=0.05, step_size=0.01, word_pos=['VB'],
+                                use_ica=False, cache_output=True):
+    """
+    Plot RSA line plot over time to visualize alignment with BERT model.
+
+    Args:
+    - subject_id, task_id, session_id: identifiers for MEG data.
+    - model: The model to compare the MEG signals with (e.g., BERT).
+    - window_size, step_size: parameters for the sliding window RSA.
+    - word_pos: The parts of speech tags for filtering words.
+    - use_ica: Boolean indicating if ICA-transformed data should be used.
+    - cache_output: Whether to use cached computations.
+    """
+
+    # Perform RSA per electrode using sliding window
+    rsa_matrices_per_electrode, time_points = sliding_window_rsa_per_electrode(
+        subject_id=subject_id,
+        session_id=session_id,
+        task_id=task_id,
+        window_size=window_size,
+        step_size=step_size,
+        word_pos=word_pos,
+        use_ica=use_ica,
+        cache_output=cache_output
+    )
+
+    # Load the BERT model RDM for comparison
+    proto_subject_id = D.load_subject_ids()[0]  # Prototypical subject for BERT
+    _, bert_similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, model=model, word_pos=word_pos)
+    bert_rdm = 1 - bert_similarity_matrix  # Convert similarity matrix to RDM
+
+    # Prepare to collect RSA alignment scores for each time window across electrodes
+    ch_names = list(rsa_matrices_per_electrode.keys())
+    rsa_scores_per_window = []
+
+    for t_idx, time_point in enumerate(time_points):
+        rsa_scores = []
+        for ch_name in ch_names:
+            # Extract the RSA matrix for the given channel at the current time window
+            rsa_matrix = rsa_matrices_per_electrode[ch_name][t_idx]
+
+            # Calculate RSA alignment score between electrode RDM and BERT RDM
+            rsa_score = np.corrcoef(rsa_matrix.flatten(), bert_rdm.flatten())[0, 1]
+            rsa_scores.append(rsa_score)
+
+        rsa_scores_per_window.append(rsa_scores)
+
+    # Convert to numpy array: Shape (n_windows, n_channels)
+    rsa_scores_per_window = np.array(rsa_scores_per_window)
+
+    # Average across electrodes for each time point
+    avg_rsa_scores_over_time = np.mean(rsa_scores_per_window, axis=1)
+
+    # Plot the average RSA scores over time
+    plt.figure(figsize=(10, 6))
+    plt.plot(time_points, avg_rsa_scores_over_time, marker='o', linestyle='-', color='b')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Average RSA Score')
+    plt.title('Average RSA Alignment Over Time with BERT Model')
+    plt.grid(True)
+    plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_lineplot.png')
+    plt.show()
 
 def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT', 
                                window_size=0.05, step_size=0.01, word_pos=['VB'], 

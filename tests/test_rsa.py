@@ -21,6 +21,8 @@ def test_per_electrode_rsa():
 def test_plot_rsa_topo_over_time():
     R.plot_rsa_topomap_over_time('01', 0)
 
+def test_plot_rsa_linepolot_over_time():
+    R.plot_rsa_lineplot_over_time('01', 0)
 
 def test_compute_model_p_value():
     for task_id in [0, 1,  3]:
