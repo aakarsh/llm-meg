@@ -385,7 +385,7 @@ def _get_raw_file(subject, session, task):
     return raw  
 
 def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0, 
-        window_size=0.05, step_size=0.01, word_pos=['VB'], use_ica=False):
+        window_size=0.05, step_size=0.01, word_pos=['VB'], use_ica=False, save_output=True):
     """
     Perform RSA between words for each electrode and each time window using a sliding window approach.
     

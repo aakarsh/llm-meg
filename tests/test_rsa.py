@@ -10,8 +10,13 @@ def test_noise_celing_per_story():
     assert low > 0 and upper > 0
     print("low", low, "upper", upper)
 
-def test_get_per_electrode_rsa():
-    R._get_per_electrode_similarity_matrix(subject_id='01', session_id=0, task_id=0)
+def test_per_electrode_rsa():
+    rsa_matrices_per_electrode, time_points = R.sliding_window_rsa_per_electrode()
+    print("time_points", len(time_points))
+    print("rsa_matrices_per_electrode:", len(time_points))
+    print("rsa_matrices_per_electrode.keys():", rsa_matrices_per_electrode.keys())
+    first_key = rsa_matrices_per_electrode.keys()[0]
+    print(rsa_matrices_per_electrode[first_key].shape)
 
 def test_compute_model_p_value():
     for task_id in [0, 1,  3]:
