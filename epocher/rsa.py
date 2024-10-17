@@ -23,7 +23,7 @@ import pandas as pd
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
 from sklearn.manifold import SpectralEmbedding
-
+from sklearn.preprocessing import normalize
 
 from .env import *
 
@@ -75,6 +75,27 @@ def _load_from_file(filename):
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
+# Function to save cache
+def _save_cache(data, filename):
+    """Save data to cache in either JSON or NumPy format."""
+    if filename.endswith('.json'):
+        with open(filename, 'w') as f:
+            json.dump(data, f)
+    elif filename.endswith('.npy'):
+        np.save(filename, data)
+    else:
+        raise ValueError("Unsupported file format. Use .json or .npy")
+
+# Function to load cache
+def _load_cache(filename):
+    """Load data from cache in either JSON or NumPy format."""
+    if filename.endswith('.json'):
+        with open(filename, 'r') as f:
+            return json.load(f)
+    elif filename.endswith('.npy'):
+        return np.load(filename, allow_pickle=True).item()
+    else:
+        raise ValueError("Unsupported file format. Use .json or .npy")
 
 def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     # Assuming rsa_matrix_1 and rsa_matrix_2 are your similarity matrices
@@ -526,9 +547,8 @@ def compute_model_p_value(task_id, model='BERT', word_pos=['VB']):
     original_rsa_score, p_value = permutation_test_rsa(average_rdm, model_rdm)
     return original_rsa_score, p_value
 
-
 def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0, 
-        window_size=0.05, step_size=0.01, word_pos=['VB'], use_ica=False, save_output=True):
+        window_size=0.05, step_size=0.01, word_pos=['VB'], use_ica=False, cache_output=True):
     """
     Perform RSA between words for each electrode and each time window using a sliding window approach.
     
@@ -546,8 +566,17 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     (n_words x n_words) for each sliding window.
     - time_points: A list of time points for each window.
     """
+
+    cache_filename = make_filename_prefix("siling_window_rsa.npy", subject_id, task_id)
+
+    # Check if cache file already exists
+    if cache_output and os.path.exists(cache_filename) :
+        print(f"Loading cached results from {cache_filename}")
+        return _load_cache(cache_filename)
+
     # Load word epochs for each word using your existing method
-    word_index, word_epoch_map = D._load_epoch_map(subject_id, session_id, task_id, use_ica=use_ica, word_pos=word_pos)
+    word_index, word_epoch_map = D._load_epoch_map(subject_id, session_id, task_id, 
+            use_ica=use_ica, word_pos=word_pos)
 
     # Initialize the sliding window RSA
     sfreq = word_epoch_map[word_index[0]].info['sfreq']  # Sampling frequency from the epochs
@@ -598,12 +627,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
         # Store the midpoint of the current time window
         time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
 
+    if cache_output:
+        _save_cache((rsa_matrices_per_electrode, time_points), cache_filename)
+
     return rsa_matrices_per_electrode, time_points
-
-
-
-
-
-
-
-
