@@ -655,3 +655,65 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     rsa_matrices_per_electrode = {channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
 
     return rsa_matrices_per_electrode, time_points
+
+
+def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT', 
+                               window_size=0.05, step_size=0.01, word_pos=['VB'], 
+                               use_ica=False, cache_output=True):
+    """
+    Plot RSA topomap over time to visualize alignment with BERT model.
+
+    Args:
+    - subject_id, task_id, session_id: identifiers for MEG data.
+    - model: The model to compare the MEG signals with (e.g., BERT).
+    - window_size, step_size: parameters for the sliding window RSA.
+    - word_pos: The parts of speech tags for filtering words.
+    - use_ica: Boolean indicating if ICA-transformed data should be used.
+    - cache_output: Whether to use cached computations.
+    """
+    # Perform RSA per electrode using sliding window
+    rsa_matrices_per_electrode, time_points = sliding_window_rsa_per_electrode(
+        subject_id=subject_id,
+        session_id=session_id,
+        task_id=task_id,
+        window_size=window_size,
+        step_size=step_size,
+        word_pos=word_pos,
+        use_ica=use_ica,
+        cache_output=cache_output
+    )
+
+    # Load the BERT model RDM for comparison
+    proto_subject_id = D.load_subject_ids()[0]  # Prototypical subject for BERT
+    _, bert_similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, model=model, word_pos=word_pos)
+    bert_rdm = 1 - bert_similarity_matrix  # Convert similarity matrix to RDM
+
+    # Prepare to collect RSA alignment scores for each time window across electrodes
+    ch_names = list(rsa_matrices_per_electrode.keys())
+    rsa_scores_per_window = []
+
+    for t_idx, time_point in enumerate(time_points):
+        rsa_scores = []
+        for ch_name in ch_names:
+            # Extract the RSA matrix for the given channel at the current time window
+            rsa_matrix = rsa_matrices_per_electrode[ch_name][t_idx]
+
+            # Calculate RSA alignment score between electrode RDM and BERT RDM
+            rsa_score = np.corrcoef(rsa_matrix.flatten(), bert_rdm.flatten())[0, 1]
+            rsa_scores.append(rsa_score)
+
+        rsa_scores_per_window.append(rsa_scores)
+
+    rsa_scores_per_window = np.array(rsa_scores_per_window).T  # Shape: (n_channels, n_windows)
+
+    # Plot topomap for each time window
+    montage = mne.channels.make_standard_montage('biosemi64')  # Use standard montage (adjust if necessary)
+    info = mne.create_info(ch_names, sfreq=1000, ch_types='eeg', montage=montage)
+
+    for t_idx, time_point in enumerate(time_points):
+        plt.figure()
+        plot_topomap(rsa_scores_per_window[:, t_idx], info, show=False)
+        plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
+        plt.colorbar()
+        plt.savefig(f'{OUPUT_DIR}/images/rsa_topomap_{t_idx:02d}.png')
+        plt.close()

@@ -18,6 +18,10 @@ def test_per_electrode_rsa():
     first_key = list(rsa_matrices_per_electrode.keys())[0]
     print(rsa_matrices_per_electrode[first_key].shape)
 
+def test_plot_rsa_topo_over_time():
+    R.plot_rsa_topomap_over_time('01', 0)
+
+
 def test_compute_model_p_value():
     for task_id in [0, 1,  3]:
         rsa_score_b, p_value_b = R.compute_model_p_value(task_id, model="BERT")
