@@ -717,7 +717,7 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
     #info.set_montage(montage)  # Set the montage separately
 
     for t_idx, time_point in enumerate(time_points):
-        plt.figure()
+        plt.figure(figsize=(160, 160))
         im, _ = mne.viz.plot_topomap(rsa_scores_per_window[:, t_idx], pos[0:208], show=False, names=ch_names)
         plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
         plt.colorbar(im)  # Use the mappable object returned by plot_topomap
