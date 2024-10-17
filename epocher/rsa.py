@@ -600,15 +600,16 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     n_channels = word_epoch_map[word_index[0]].info['nchan']
     channel_names = word_epoch_map[word_index[0]].info['ch_names']
 
-    rsa_matrices_per_electrode = { ch_name: [] for ch_name in channel_names }  # Initialize dictionary to store RSA per electrode
+    rsa_matrices = []  # Initialize list to store RSA matrices for all channels
     time_points = []
 
     # Perform sliding window analysis
     for start in range(0, len(word_epoch_map[word_index[0]].times) - window_samples + 1, step_samples):
         end = start + window_samples
 
+        rsa_matrices_window = []
         # Loop through each electrode
-        for ch_idx, ch_name in enumerate(channel_names):
+        for ch_idx in range(n_channels):
             # Initialize a list to store activation for each word for the current electrode and time window
             word_vectors = []
 
@@ -635,15 +636,22 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
             rsa_matrix = cosine_similarity(word_vectors)  # Shape: (n_words, n_words)
 
             # Store the RSA matrix for this electrode and time window
-            rsa_matrices_per_electrode[ch_name].append(rsa_matrix)
+            rsa_matrices_window.append(rsa_matrix)
 
+        # Append the RSA matrices for this window to the main list
+        rsa_matrices.append(rsa_matrices_window)
         # Store the midpoint of the current time window
         time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
+
+    # Convert rsa_matrices to numpy array for saving
+    rsa_matrices = np.array(rsa_matrices)  # Shape: (n_windows, n_channels, n_words, n_words)
 
     if cache_output:
         _save_cache(cache_file, { 'rsa_matrices': rsa_matrices, 
                                   'channel_names':channel_names, 
                                   'time_points': time_points})
         print(f"Saved computed results to cache at {cache_file}")
+
+    rsa_matrices_per_electrode = {channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
 
     return rsa_matrices_per_electrode, time_points
