@@ -575,7 +575,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     - time_points: A list of time points for each window.
     """
 
-    cache_file = make_filename_prefix("siling_window_rsa.npz", subject_id, task_id)
+    cache_file = make_filename_prefix("sliding_window_rsa.npz", subject_id, task_id)
 
     # Load from cache if available
     if cache_output and os.path.exists(cache_file):
