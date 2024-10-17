@@ -84,7 +84,10 @@ def _save_cache(filename, data):
     elif filename.endswith('.npy'):
         np.save(filename, data)
     elif filename.endswith('.npz'):
-        np.savez(filename, data)
+        if isinstance(data, dict):
+            np.savez(filename, **data)
+        else:
+            raise ValueError("Data must be a dictionary to save in '.npz' format.")
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
@@ -96,8 +99,9 @@ def _load_cache(filename):
             return json.load(f)
     elif filename.endswith('.npy'):
         return np.load(filename, allow_pickle=True).item()
-    elif filename.endstih('npz'):
-        return np.load(filename, allow_pickle=True)
+    elif filename.endswith('.npz'):
+        data = np.load(filename, allow_pickle=True)
+        return {key: data[key] for key in data.files}
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
@@ -571,12 +575,13 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     - time_points: A list of time points for each window.
     """
 
-    cache_filename = make_filename_prefix("siling_window_rsa.npz", subject_id, task_id)
+    cache_file = make_filename_prefix("siling_window_rsa.npz", subject_id, task_id)
 
-    # Check if cache file already exists
-    if cache_output and os.path.exists(cache_filename) :
-        print(f"Loading cached results from {cache_filename}")
-        return _load_cache(cache_filename)
+    # Load from cache if available
+    if cache_output and os.path.exists(cache_file):
+        print(f"Loading cached results from {cache_file}")
+        cached_data = _load_cache(cache_file)
+        return cached_data['rsa_matrices_per_electrode'], cached_data['time_points']
 
     # Load word epochs for each word using your existing method
     word_index, word_epoch_map = D._load_epoch_map(subject_id, session_id, task_id, 
@@ -632,6 +637,11 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
         time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
 
     if cache_output:
-        _save_cache(cache_filename, (rsa_matrices_per_electrode, time_points))
+        data_to_cache = {
+            'rsa_matrices_per_electrode': rsa_matrices_per_electrode,
+            'time_points': np.array(time_points)
+        }
+        _save_cache(cache_file, data_to_cache)
+        print(f"Saved computed results to cache at {cache_file}")
 
     return rsa_matrices_per_electrode, time_points
