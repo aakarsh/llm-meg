@@ -384,9 +384,8 @@ def _get_raw_file(subject, session, task):
     raw.load_data().filter(0.5, 30.0, n_jobs=1)
     return raw  
 
-def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, 
-        task_id=0, window_size=0.05, step_size=0.01, 
-        word_pos=['VB'], use_ica=False):
+def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0, 
+        window_size=0.05, step_size=0.01, word_pos=['VB'], use_ica=False):
     """
     Perform RSA between words for each electrode and each time window using a sliding window approach.
     
@@ -400,7 +399,8 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0,
     - use_ica: Boolean indicating if ICA-transformed data should be used.
     
     Returns:
-    - rsa_matrices_per_electrode: A dictionary with electrode names as keys and lists of RSA matrices (n_words x n_words) for each sliding window.
+    - rsa_matrices_per_electrode: A dictionary with electrode names as keys and lists of RSA matrices 
+    (n_words x n_words) for each sliding window.
     - time_points: A list of time points for each window.
     """
     # Load word epochs for each word using your existing method
@@ -415,7 +415,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0,
     n_channels = word_epoch_map[word_index[0]].info['nchan']
     channel_names = word_epoch_map[word_index[0]].info['ch_names']
 
-    rsa_matrices_per_electrode = {ch_name: [] for ch_name in channel_names}  # Initialize dictionary to store RSA per electrode
+    rsa_matrices_per_electrode = { ch_name: [] for ch_name in channel_names }  # Initialize dictionary to store RSA per electrode
     time_points = []
 
     # Perform sliding window analysis
@@ -456,3 +456,4 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0,
         time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
 
     return rsa_matrices_per_electrode, time_points
+
