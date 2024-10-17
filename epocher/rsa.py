@@ -84,7 +84,7 @@ def _save_cache(filename, data):
     elif filename.endswith('.npy'):
         np.save(filename, data)
     elif filename.endswith('.npz'):
-        np.save(filename, data)
+        np.savez(filename, data)
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
@@ -96,6 +96,8 @@ def _load_cache(filename):
             return json.load(f)
     elif filename.endswith('.npy'):
         return np.load(filename, allow_pickle=True).item()
+    elif filename.endstih('npz'):
+        return np.load(filename, allow_pickle=True)
     else:
         raise ValueError("Unsupported file format. Use .json or .npy")
 
