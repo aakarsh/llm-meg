@@ -85,7 +85,7 @@ def _save_cache(filename, data):
         np.save(filename, data)
     elif filename.endswith('.npz'):
         if isinstance(data, dict):
-            np.savez(filename, **data)
+            np.savez(filename, **{key: value for key, value in data.items()})
         else:
             raise ValueError("Data must be a dictionary to save in '.npz' format.")
     else:
@@ -579,9 +579,13 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
 
     # Load from cache if available
     if cache_output and os.path.exists(cache_file):
-        print(f"Loading cached results from {cache_file}")
-        cached_data = _load_cache(cache_file)
-        return cached_data['rsa_matrices_per_electrode'], cached_data['time_points']
+        loaded_data = _load_cache(cache_file)
+        rsa_matrices = loaded_data['rsa_matrices']
+        channel_names = loaded_data['channel_names']
+        time_points = loaded_data['time_points']
+        # Reconstruct the dictionary format for returning
+        rsa_matrices_per_electrode = {channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
+        return rsa_matrices_per_electrode, time_points
 
     # Load word epochs for each word using your existing method
     word_index, word_epoch_map = D._load_epoch_map(subject_id, session_id, task_id, 
@@ -637,11 +641,9 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
         time_points.append(word_epoch_map[word_index[0]].times[start] + (window_size / 2))
 
     if cache_output:
-        data_to_cache = {
-            'rsa_matrices_per_electrode': rsa_matrices_per_electrode,
-            'time_points': np.array(time_points)
-        }
-        _save_cache(cache_file, data_to_cache)
+        _save_cache(cache_file, { 'rsa_matrices': rsa_matrices, 
+                                  'channel_names':channel_names, 
+                                  'time_points': time_points})
         print(f"Saved computed results to cache at {cache_file}")
 
     return rsa_matrices_per_electrode, time_points

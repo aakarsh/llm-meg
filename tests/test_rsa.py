@@ -15,7 +15,7 @@ def test_per_electrode_rsa():
     print("time_points", len(time_points))
     print("rsa_matrices_per_electrode:", len(time_points))
     print("rsa_matrices_per_electrode.keys():", rsa_matrices_per_electrode.keys())
-    first_key = rsa_matrices_per_electrode.keys()[0]
+    first_key = list(rsa_matrices_per_electrode.keys())[0]
     print(rsa_matrices_per_electrode[first_key].shape)
 
 def test_compute_model_p_value():
