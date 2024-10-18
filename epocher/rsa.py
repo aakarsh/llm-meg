@@ -583,9 +583,10 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
         rsa_matrices = loaded_data['rsa_matrices']
         channel_names = loaded_data['channel_names']
         time_points = loaded_data['time_points']
+        pos = loaded_data['pos']
         # Reconstruct the dictionary format for returning
         rsa_matrices_per_electrode = {channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
-        return rsa_matrices_per_electrode, time_points
+        return rsa_matrices_per_electrode, time_points, pos
 
     # Load word epochs for each word using your existing method
     word_index, word_epoch_map = D._load_epoch_map(subject_id, session_id, task_id, 
@@ -599,6 +600,8 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     # Get the number of electrodes from one of the epochs
     n_channels = word_epoch_map[word_index[0]].info['nchan']
     channel_names = word_epoch_map[word_index[0]].info['ch_names']
+    info = word_epoch_map[word_index[0]].info
+    pos = mne.find_layout(info).pos # electrode potentials
 
     rsa_matrices = []  # Initialize list to store RSA matrices for all channels
     time_points = []
@@ -647,14 +650,15 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     rsa_matrices = np.array(rsa_matrices)  # Shape: (n_windows, n_channels, n_words, n_words)
 
     if cache_output:
-        _save_cache(cache_file, { 'rsa_matrices': rsa_matrices, 
-                                  'channel_names':channel_names, 
-                                  'time_points': time_points})
+        _save_cache(cache_file, { 'rsa_matrices': rsa_matrices,
+                                  'channel_names': channel_names, 
+                                  'pos': pos, # Q: Will it save correctly ?
+                                  'time_points': time_points })
         print(f"Saved computed results to cache at {cache_file}")
 
-    rsa_matrices_per_electrode = {channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
+    rsa_matrices_per_electrode = { channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
 
-    return rsa_matrices_per_electrode, time_points
+    return rsa_matrices_per_electrode, time_points, pos
 
 def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
                                 window_size=0.05, step_size=0.01, word_pos=['VB'],
@@ -672,7 +676,7 @@ def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
     """
 
     # Perform RSA per electrode using sliding window
-    rsa_matrices_per_electrode, time_points = sliding_window_rsa_per_electrode(
+    rsa_matrices_per_electrode, time_points, pos = sliding_window_rsa_per_electrode(
         subject_id=subject_id,
         session_id=session_id,
         task_id=task_id,
@@ -680,8 +684,7 @@ def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
         step_size=step_size,
         word_pos=word_pos,
         use_ica=use_ica,
-        cache_output=cache_output
-    )
+        cache_output=cache_output)
 
     # Load the BERT model RDM for comparison
     proto_subject_id = D.load_subject_ids()[0]  # Prototypical subject for BERT
@@ -835,7 +838,6 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     rsa_scores_per_window = np.array(rsa_scores_per_window).T  # Shape: (n_channels, n_windows)
 
-    
 
     # Create MNE info with MEG channel types
     info = mne.create_info(ch_names, sfreq=1000, ch_types='mag')

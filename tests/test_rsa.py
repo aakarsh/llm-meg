@@ -11,7 +11,7 @@ def test_noise_celing_per_story():
     print("low", low, "upper", upper)
 
 def test_per_electrode_rsa():
-    rsa_matrices_per_electrode, time_points = R.sliding_window_rsa_per_electrode()
+    rsa_matrices_per_electrode, time_points, pos  = R.sliding_window_rsa_per_electrode()
     print("time_points", len(time_points))
     print("rsa_matrices_per_electrode:", len(time_points))
     print("rsa_matrices_per_electrode.keys():", rsa_matrices_per_electrode.keys())
