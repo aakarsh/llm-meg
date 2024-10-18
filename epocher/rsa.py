@@ -688,8 +688,9 @@ def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     # Load the BERT model RDM for comparison
     proto_subject_id = D.load_subject_ids()[0]  # Prototypical subject for BERT
-    _, bert_similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, model=model, word_pos=word_pos)
-    bert_rdm = 1 - bert_similarity_matrix  # Convert similarity matrix to RDM
+    _, bert_similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, 
+            model=model, word_pos=word_pos)
+    bert_rdm = 1 - bert_similarity_matrix # Convert similarity matrix to RDM
 
     # Prepare to collect RSA alignment scores for each time window across electrodes
     ch_names = list(rsa_matrices_per_electrode.keys())
@@ -740,7 +741,7 @@ def plot_rsa_lineplot_per_channel(subject_id, task_id, session_id=0, model='BERT
     """
 
     # Perform RSA per electrode using sliding window
-    rsa_matrices_per_electrode, time_points = sliding_window_rsa_per_electrode(
+    rsa_matrices_per_electrode, time_points, pos = sliding_window_rsa_per_electrode(
         subject_id=subject_id,
         session_id=session_id,
         task_id=task_id,
@@ -804,7 +805,7 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
     - cache_output: Whether to use cached computations.
     """
     # Perform RSA per electrode using sliding window
-    rsa_matrices_per_electrode, time_points = sliding_window_rsa_per_electrode(
+    rsa_matrices_per_electrode, time_points, pos = sliding_window_rsa_per_electrode(
         subject_id=subject_id,
         session_id=session_id,
         task_id=task_id,
