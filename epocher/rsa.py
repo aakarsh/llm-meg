@@ -841,14 +841,33 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
 
     # Create MNE info with MEG channel types
-
     # Use MEG-specific layout for plotting
     #info.set_montage(montage)  # Set the montage separately
-
+    time_points=time_points[:3]
+    fig_width = 5
+    fig, axes = plt.subplots(figsize=(fig_width * len(time_points), fig_width), nrows=1, ncols=len(time_points), layout="constrained")
     for t_idx, time_point in enumerate(time_points):
-        plt.figure(figsize=(160, 150))
-        im, _ = mne.viz.plot_topomap(rsa_scores_per_window[:, t_idx], pos, show=False, names=ch_names)
-        plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
-        plt.colorbar(im)  # Use the mappable object returned by plot_topomap
-        plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_topomap_{t_idx:02d}.png')
-        plt.close()
+        rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
+        ax = axes[t_idx]
+        size=4
+        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,size*10 *pos, 
+                contours =6, 
+                size=size,  
+                res=128,
+                extrapolate="local", 
+                sphere=size*2, #(0.5, 0.5, 0.5, 4),
+                sensors=True,
+                #show=True,
+                #names=[f"{elt:.2f}" for elt in rsa_scores_timepoint],
+                vlim=(min(rsa_scores_timepoint), max(rsa_scores_timepoint)),
+                #ch_type= 'mag',
+                #names=ch_names, 
+                axes=ax
+                )
+        #plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
+        #plt.colorbar(im)  # Use the mappable object returned by plot_topomap
+    #fig.colorbar(im, ax=axes, orientation='horizontal', fraction=0.05)
+
+    plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_topomap.png')
+    plt.show()
+    plt.close()
