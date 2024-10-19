@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler, scale
 
 from tqdm import trange
 import imageio
+from PIL import Image
 
 from wordfreq import zipf_frequency
 
@@ -794,10 +795,22 @@ def plot_rsa_lineplot_per_channel(subject_id, task_id, session_id=0, model='BERT
     plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_per_channel_lineplot.png')
     plt.show()
 
+
+def resize_image_to_divisible_by_16(image_path, overwrite_image = True):
+    img = Image.open(image_path)
+    width, height = img.size
+    new_width = (width + 15) // 16 * 16
+    new_height = (height + 15) // 16 * 16
+    img_resized = img.resize((new_width, new_height))
+    if overwrite_image:
+        img_resized.save(image_path)
+    return img_resized
+
 def create_movie(image_files, output_movie, fps=2):
     # Read each image and write to a video file
     with imageio.get_writer(output_movie, mode='I', fps=fps) as writer:
         for image_path in image_files:
+            image = resize_image_to_divisible_by_16(image_path)
             image = imageio.imread(image_path)
             writer.append_data(image)
             print(f"Adding {image_path} to movie.")
@@ -851,7 +864,6 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     rsa_scores_per_window = np.array(rsa_scores_per_window).T  # Shape: (n_channels, n_windows)
 
-
     # Create MNE info with MEG channel types
     # Use MEG-specific layout for plotting
     max_total = np.max( rsa_scores_per_window)
@@ -860,7 +872,7 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
     for t_idx, time_point in enumerate(time_points):
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
         fig_width = 7 
-        fig_height =  5
+        fig_height = 5
         size = 1
         pos_scale = 1
         fig = plt.figure(figsize=(fig_width, fig_height),  constrained_layout=True) 
@@ -874,15 +886,11 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
         im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,pos_scale*pos, contours =6, 
                                         size=size,  res=1024, extrapolate="local", 
                                         vlim=(min_total, max_total), axes=ax)
-            #sensors=True,
-            #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
-            #names=channel_names,
-
         fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, 
                 model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
         image_files.append(fig_path)
         plt.tight_layout()
-        plt.savefig(fig_path)
+        fig.savefig(fig_path)
         plt.close()
 
     movie_path = make_filename_prefix(f'rsa_topomap.mp4', subject_id, task_id, 
