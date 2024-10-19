@@ -850,7 +850,6 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
             nrows=1, ncols=len(time_points), layout="constrained")
 
     for t_idx, time_point in enumerate(time_points):
-        plt.figure() 
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
         ax = axes[t_idx]
         size=1
@@ -861,15 +860,12 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
                 extrapolate="local", 
                 #sphere=size*2, #(0.5, 0.5, 0.5, 4),
                 #sensors=True,
-                #show=True,
+                show=True,
                 #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
                 vlim=(min(rsa_scores_timepoint), max(rsa_scores_timepoint)),
                 names=channel_names,
-                axes=ax)
-        plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
-        #plt.colorbar(im)  # Use the mappable object returned by plot_topomap
-    #fig.colorbar(im, ax=axes, orientation='horizontal', fraction=0.05)
-
-    plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_topomap.png')
-    plt.show()
+                axes=ax
+                )
+        plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_topomap.png')
+        plt.show()
     plt.close()
