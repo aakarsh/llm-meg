@@ -586,7 +586,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
         pos = loaded_data['pos']
         # Reconstruct the dictionary format for returning
         rsa_matrices_per_electrode = {channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
-        return rsa_matrices_per_electrode, time_points, pos
+        return rsa_matrices_per_electrode, time_points, pos, channel_names
 
     # Load word epochs for each word using your existing method
     word_index, word_epoch_map = D._load_epoch_map(subject_id, session_id, task_id, 
@@ -598,11 +598,13 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     step_samples = int(step_size * sfreq)
 
     # Get the number of electrodes from one of the epochs
-    n_channels = word_epoch_map[word_index[0]].info['nchan']
-    channel_names = word_epoch_map[word_index[0]].info['ch_names']
     info = word_epoch_map[word_index[0]].info
-    pos = mne.find_layout(info).pos # electrode potentials
 
+    n_channels = info['nchan']
+    layout = mne.find_layout(info)
+    pos = layout.pos # electrode positions
+    channel_names = layout.names
+    channel_idxs = layout.ids - 1 # We need to be zero indexed?
     rsa_matrices = []  # Initialize list to store RSA matrices for all channels
     time_points = []
 
@@ -612,7 +614,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
 
         rsa_matrices_window = []
         # Loop through each electrode
-        for ch_idx in range(n_channels):
+        for ch_idx in channel_idxs:
             # Initialize a list to store activation for each word for the current electrode and time window
             word_vectors = []
 
@@ -658,7 +660,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
 
     rsa_matrices_per_electrode = { channel_names[i]: rsa_matrices[:, i] for i in range(len(channel_names))}
 
-    return rsa_matrices_per_electrode, time_points, pos
+    return rsa_matrices_per_electrode, time_points, pos, channel_names
 
 def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
                                 window_size=0.05, step_size=0.01, word_pos=['VB'],
@@ -693,6 +695,7 @@ def plot_rsa_lineplot_over_time(subject_id, task_id, session_id=0, model='BERT',
     bert_rdm = 1 - bert_similarity_matrix # Convert similarity matrix to RDM
 
     # Prepare to collect RSA alignment scores for each time window across electrodes
+    # Ordering of ch_names matters !!
     ch_names = list(rsa_matrices_per_electrode.keys())
     rsa_scores_per_window = []
 
@@ -741,7 +744,7 @@ def plot_rsa_lineplot_per_channel(subject_id, task_id, session_id=0, model='BERT
     """
 
     # Perform RSA per electrode using sliding window
-    rsa_matrices_per_electrode, time_points, pos = sliding_window_rsa_per_electrode(
+    rsa_matrices_per_electrode, time_points, pos, channel_names = sliding_window_rsa_per_electrode(
         subject_id=subject_id,
         session_id=session_id,
         task_id=task_id,
@@ -758,7 +761,7 @@ def plot_rsa_lineplot_per_channel(subject_id, task_id, session_id=0, model='BERT
     bert_rdm = 1 - bert_similarity_matrix  # Convert similarity matrix to RDM
 
     # Prepare to collect RSA alignment scores for each time window across electrodes
-    ch_names = list(rsa_matrices_per_electrode.keys())
+    ch_names = channel_names
     rsa_scores_per_window = []
 
     for t_idx, time_point in enumerate(time_points):
@@ -805,7 +808,7 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
     - cache_output: Whether to use cached computations.
     """
     # Perform RSA per electrode using sliding window
-    rsa_matrices_per_electrode, time_points, pos = sliding_window_rsa_per_electrode(
+    rsa_matrices_per_electrode, time_points, pos, channel_names = sliding_window_rsa_per_electrode(
         subject_id=subject_id,
         session_id=session_id,
         task_id=task_id,
@@ -822,12 +825,11 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
     bert_rdm = 1 - bert_similarity_matrix  # Convert similarity matrix to RDM
 
     # Prepare to collect RSA alignment scores for each time window across electrodes
-    ch_names = list(rsa_matrices_per_electrode.keys())
     rsa_scores_per_window = []
 
     for t_idx, time_point in enumerate(time_points):
         rsa_scores = []
-        for ch_name in ch_names:
+        for ch_name in channel_names:
             # Extract the RSA matrix for the given channel at the current time window
             rsa_matrix = rsa_matrices_per_electrode[ch_name][t_idx]
 
@@ -842,29 +844,29 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     # Create MNE info with MEG channel types
     # Use MEG-specific layout for plotting
-    #info.set_montage(montage)  # Set the montage separately
-    time_points=time_points[:3]
-    fig_width = 5
-    fig, axes = plt.subplots(figsize=(fig_width * len(time_points), fig_width), nrows=1, ncols=len(time_points), layout="constrained")
+    time_points=time_points[:5]
+    fig_width = 20 
+    fig, axes = plt.subplots(figsize=(fig_width * len(time_points), fig_width), 
+            nrows=1, ncols=len(time_points), layout="constrained")
+
     for t_idx, time_point in enumerate(time_points):
+        plt.figure() 
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
         ax = axes[t_idx]
-        size=4
-        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,size*10 *pos, 
+        size=1
+        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,size*4 *pos, 
                 contours =6, 
                 size=size,  
-                res=128,
+                res=1024,
                 extrapolate="local", 
-                sphere=size*2, #(0.5, 0.5, 0.5, 4),
-                sensors=True,
+                #sphere=size*2, #(0.5, 0.5, 0.5, 4),
+                #sensors=True,
                 #show=True,
-                #names=[f"{elt:.2f}" for elt in rsa_scores_timepoint],
+                #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
                 vlim=(min(rsa_scores_timepoint), max(rsa_scores_timepoint)),
-                #ch_type= 'mag',
-                #names=ch_names, 
-                axes=ax
-                )
-        #plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
+                names=channel_names,
+                axes=ax)
+        plt.title(f'RSA Topomap at Time: {time_point:.2f} s')
         #plt.colorbar(im)  # Use the mappable object returned by plot_topomap
     #fig.colorbar(im, ax=axes, orientation='horizontal', fraction=0.05)
 
