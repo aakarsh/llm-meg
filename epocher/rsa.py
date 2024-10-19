@@ -793,6 +793,18 @@ def plot_rsa_lineplot_per_channel(subject_id, task_id, session_id=0, model='BERT
     plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_per_channel_lineplot.png')
     plt.show()
 
+def create_movie(image_files, output_path, fps=2):
+    # Create a list of full image paths
+    images = [os.path.join(image_dir, img) for img in image_files]
+
+    # Read each image and write to a video file
+    with imageio.get_writer(output_movie, mode='I', fps=fps) as writer:
+        for image_path in images:
+            image = imageio.imread(image_path)
+            writer.append_data(image)
+            print(f"Adding {image_path} to movie.")
+    print(f"Movie saved as {output_movie}")
+
 def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT', 
                                window_size=0.05, step_size=0.01, word_pos=['VB'], 
                                use_ica=False, cache_output=True):
@@ -844,16 +856,16 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     # Create MNE info with MEG channel types
     # Use MEG-specific layout for plotting
-    max_total = 1 
-    min_total = -1 
+    max_total = np.max( rsa_scores_per_window)
+    min_total = np.min(rsa_scores_per_window)
     for t_idx, time_point in enumerate(time_points):
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
         fig_width = 7 
         fig_height =  5
-        size=1
-        pos_scale=1  #4*size
-        fig = plt.figure(figsize=(fig_width, fig_height),  constrained_layout=True)  # Set figure size as needed
-        fig.suptitle(f'RSA Topomap at Time: {time_point:.2f} s', fontsize=14)
+        size = 1
+        pos_scale = 1
+        fig = plt.figure(figsize=(fig_width, fig_height),  constrained_layout=True) 
+        fig.suptitle(f'RSA Topomap at Time: {time_point:.2f} s', fontsize=9)
         # Create a custom axes on the figure with the specified position
         ax = fig.add_subplot(111) 
         ax.axis("off")
@@ -861,14 +873,16 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
         # Get RSA scores for this time point
         im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,pos_scale*pos, contours =6, 
-                                        size=size,  res=1024, extrapolate="local", vlim=(min_total, max_total), axes=ax
-                                            #sensors=True,
-                                            #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
-                                            #names=channel_names,
-                                            )
+                                        size=size,  res=1024, extrapolate="local", 
+                                        vlim=(min_total, max_total), axes=ax)
+            #sensors=True,
+            #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
+            #names=channel_names,
 
         plt.tight_layout()
-        fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
+        fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, 
+                model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
+
         plt.savefig(fig_path)
         plt.show()
         plt.close()
