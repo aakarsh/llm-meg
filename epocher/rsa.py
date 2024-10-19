@@ -575,7 +575,7 @@ def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0,
     - time_points: A list of time points for each window.
     """
 
-    cache_file = make_filename_prefix("sliding_window_rsa.npz", subject_id, task_id)
+    cache_file = make_filename_prefix("sliding_window_rsa.npz", subject_id, task_id,word_pos=word_pos)
 
     # Load from cache if available
     if cache_output and os.path.exists(cache_file):
@@ -844,28 +844,38 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     # Create MNE info with MEG channel types
     # Use MEG-specific layout for plotting
-    time_points=time_points[:5]
-    fig_width = 20 
-    fig, axes = plt.subplots(figsize=(fig_width * len(time_points), fig_width), 
-            nrows=1, ncols=len(time_points), layout="constrained")
-
+    max_total = np.max(rsa_scores_per_window)
+    min_total = np.min(rsa_scores_per_window)
     for t_idx, time_point in enumerate(time_points):
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
-        ax = axes[t_idx]
+        fig_width = 7 
+        fig_height =  5
         size=1
-        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,size*4 *pos, 
+        pos_scale=1  #4*size
+        fig = plt.figure(figsize=(fig_width, fig_height),  constrained_layout=True)  # Set figure size as needed
+        fig.suptitle(f'RSA Topomap at Time: {time_point:.2f} s', fontsize=14)
+        # Create a custom axes on the figure with the specified position
+        ax = fig.add_subplot(111) 
+        ax.axis("off")
+        ax.set(frame_on=False, xticks=[], yticks=[])
+
+        # Get RSA scores for this time point
+        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,pos_scale*pos, 
                 contours =6, 
                 size=size,  
                 res=1024,
                 extrapolate="local", 
-                #sphere=size*2, #(0.5, 0.5, 0.5, 4),
+                #outlines=None,
                 #sensors=True,
-                show=True,
                 #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
-                vlim=(min(rsa_scores_timepoint), max(rsa_scores_timepoint)),
-                names=channel_names,
+                vlim=(min_total, max_total),
+                #names=channel_names,
                 axes=ax
                 )
-        plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_topomap.png')
+        cbar = fig.colorbar(im, ax=ax, orientation='horizontal', fraction=0.05, pad=0.1)
+
+        plt.tight_layout()
+        fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
+        plt.savefig(fig_path)
         plt.show()
-    plt.close()
+        plt.close()
