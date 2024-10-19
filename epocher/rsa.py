@@ -844,8 +844,8 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
 
     # Create MNE info with MEG channel types
     # Use MEG-specific layout for plotting
-    max_total = np.max(rsa_scores_per_window)
-    min_total = np.min(rsa_scores_per_window)
+    max_total = 1 
+    min_total = -1 
     for t_idx, time_point in enumerate(time_points):
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
         fig_width = 7 
@@ -860,19 +860,12 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
         ax.set(frame_on=False, xticks=[], yticks=[])
 
         # Get RSA scores for this time point
-        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,pos_scale*pos, 
-                contours =6, 
-                size=size,  
-                res=1024,
-                extrapolate="local", 
-                #outlines=None,
-                #sensors=True,
-                #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
-                vlim=(min_total, max_total),
-                #names=channel_names,
-                axes=ax
-                )
-        cbar = fig.colorbar(im, ax=ax, orientation='horizontal', fraction=0.05, pad=0.1)
+        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint,pos_scale*pos, contours =6, 
+                                        size=size,  res=1024, extrapolate="local", vlim=(min_total, max_total), axes=ax
+                                            #sensors=True,
+                                            #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
+                                            #names=channel_names,
+                                            )
 
         plt.tight_layout()
         fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
