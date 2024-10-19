@@ -878,12 +878,11 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
             #names=[f"{name} ({elt:.2f})" for name, elt in zip(channel_names, rsa_scores_timepoint)],
             #names=channel_names,
 
-        plt.tight_layout()
         fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, 
                 model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
         image_files.append(fig_path)
+        plt.tight_layout()
         plt.savefig(fig_path)
-        plt.show()
         plt.close()
 
     movie_path = make_filename_prefix(f'rsa_topomap.mp4', subject_id, task_id, 
