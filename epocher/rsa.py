@@ -8,6 +8,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler, scale
 
 from tqdm import trange
+import imageio
 
 from wordfreq import zipf_frequency
 
@@ -793,13 +794,10 @@ def plot_rsa_lineplot_per_channel(subject_id, task_id, session_id=0, model='BERT
     plt.savefig(f'{IMAGES_DIR}/subject-{subject_id}-task-{task_id}-rsa_per_channel_lineplot.png')
     plt.show()
 
-def create_movie(image_files, output_path, fps=2):
-    # Create a list of full image paths
-    images = [os.path.join(image_dir, img) for img in image_files]
-
+def create_movie(image_files, output_movie, fps=2):
     # Read each image and write to a video file
     with imageio.get_writer(output_movie, mode='I', fps=fps) as writer:
-        for image_path in images:
+        for image_path in image_files:
             image = imageio.imread(image_path)
             writer.append_data(image)
             print(f"Adding {image_path} to movie.")
@@ -858,6 +856,7 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
     # Use MEG-specific layout for plotting
     max_total = np.max( rsa_scores_per_window)
     min_total = np.min(rsa_scores_per_window)
+    image_files = []
     for t_idx, time_point in enumerate(time_points):
         rsa_scores_timepoint =  rsa_scores_per_window[:, t_idx]
         fig_width = 7 
@@ -882,7 +881,13 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
         plt.tight_layout()
         fig_path = make_filename_prefix(f'rsa_topomap_{t_idx:02d}.png', subject_id, task_id, 
                 model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
-
+        image_files.append(fig_path)
         plt.savefig(fig_path)
         plt.show()
         plt.close()
+
+    movie_path = make_filename_prefix(f'rsa_topomap.mp4', subject_id, task_id, 
+                                            model=model, word_pos=word_pos, 
+                                            output_dir=IMAGES_DIR)
+    create_movie(image_files, movie_path)
+
