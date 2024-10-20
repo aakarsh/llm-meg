@@ -113,6 +113,35 @@ def _compare_rsa(similarity_matrix_0, similarity_matrix_1):
     return correlation
 
 
+def _compare_with_models_subjects(models=["GLOVE", "BERT"], save_comparison=True, word_pos=['VB']):
+    subject_ids = D.load_subject_ids()
+    task_ids = D.load_task_ids() 
+
+    correlation_comparisons = np.zeros((len(subject_ids), len(task_ids)))
+    correlations = []
+    for model_id in models:
+        for task_id in task_ids: 
+            for subject_id in subject_ids:
+                 correlation = _compare_with_model(subject_id, task_id, model=model_id, word_pos=word_pos)
+                 print(f"Comparing {subject_id}, {task_id}: {correlation} with {model_id}, {word_pos}")
+                 correlation_comparisons[(int(subject_id)-1, int(task_id)-1)] = correlation 
+                 correlations.append({'task_id': task_id, 
+                                         'subject_id': subject_id, 
+                                         'model' : model_id, 
+                                         'correlation': correlation, 
+                                         'word_pos': '-'.join(word_pos)})
+
+        # summarize this as a plot ?
+        if save_comparison:
+            comparison_file_name = f'{OUTPUT_DIR}/model_comparison_{model_id}_similarity_matrix.npy'
+            comparison_file_name = make_filename_prefix('comparison_similarity_matrix.npy', None, task_id, model=model_id, word_pos=word_pos)
+            np.save(comparison_file_name, correlation_comparisons)
+
+
+    noise_ceilings = { task_id: compute_noise_ceiling_bounds(task_id, word_pos=['VB']) for task_id in task_ids }
+    return correlations, noise_ceilings 
+
+
 def _compare_with_model(subject_id, task_id, session_id=0, model="GLOVE", word_pos=['VB']):
     word_index, similarity_matrix = load_similarity_matrix(subject_id=subject_id, task_id=task_id, word_pos=word_pos)
     model_word_index, model_similarity_matrix = load_similarity_matrix(subject_id, task_id, model=model, word_pos=word_pos)
