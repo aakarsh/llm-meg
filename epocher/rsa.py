@@ -937,3 +937,132 @@ def plot_rsa_topomap_over_time(subject_id, task_id, session_id=0, model='BERT',
                                             output_dir=IMAGES_DIR)
     create_movie(image_files, movie_path)
 
+
+
+
+def _average_rsa_across_subjects(all_subject_rsa_matrices, channel_names):
+    avg_rsa_matrices_per_electrode = {
+        ch_name: np.mean([rsa_matrices_per_electrode_subj[ch_name] for rsa_matrices_per_electrode_subj in all_subject_rsa_matrices], axis=0)
+        for ch_name in channel_names
+    }
+    return avg_rsa_matrices_per_electrode
+
+def sliding_window_rsa_per_electrode_across_subjects(subject_ids, session_id, task_id, window_size, step_size, word_pos=['VB'], use_ica=False, cache_output=True):
+    """
+    Perform sliding window RSA for each electrode across multiple subjects and compute the average.
+    Args:
+    - subject_ids: List of subject identifiers.
+    - session_id: Session identifier.
+    - task_id: Task identifier.
+    - window_size: Size of the sliding window in seconds.
+    - step_size: Step size for the sliding window in seconds.
+    - word_pos: List of parts of speech tags to consider.
+    - use_ica: Boolean indicating if ICA-transformed data should be used.
+    Returns:
+    - avg_rsa_matrices_per_electrode: A dictionary with electrode names as keys and lists of averaged RSA matrices (n_words x n_words) for each sliding window.
+    - time_points: A list of time points for each window.
+    - pos: Electrode positions.
+    - channel_names: Names of the channels.
+    """
+    all_subject_rsa_matrices = []
+    time_points = None
+    pos = None
+    channel_names = None
+
+    # Compute RSA for each subject
+    for subject_id in subject_ids:
+        rsa_matrices_per_electrode, time_points, pos, channel_names = sliding_window_rsa_per_electrode(
+            subject_id=subject_id,
+            session_id=session_id,
+            task_id=task_id,
+            window_size=window_size,
+            step_size=step_size,
+            word_pos=word_pos,
+            use_ica=use_ica,
+            cache_output=cache_output
+        )
+        all_subject_rsa_matrices.append(rsa_matrices_per_electrode)
+
+    # Average RSA values across subjects for each electrode
+    avg_rsa_matrices_per_electrode = _average_rsa_across_subjects(all_subject_rsa_matrices, channel_names)
+    return avg_rsa_matrices_per_electrode, time_points, pos, channel_names
+
+def plot_avg_rsa_topomap_across_subjects(subject_ids, task_id, session_id=0, model='BERT', window_size=0.05, step_size=0.01, word_pos=['VB'], use_ica=False, cache_output=True):
+    """
+    Plot the average RSA topomap across multiple subjects to visualize alignment with the BERT model.
+    Args:
+    - subject_ids: List of subject identifiers.
+    - task_id, session_id: identifiers for MEG data.
+    - model: The model to compare the MEG signals with (e.g., BERT).
+    - window_size, step_size: parameters for the sliding window RSA.
+    - word_pos: The parts of speech tags for filtering words.
+    - use_ica: Boolean indicating if ICA-transformed data should be used.
+    - cache_output: Whether to use cached computations.
+    """
+    # Compute sliding window RSA per electrode across multiple subjects
+    avg_rsa_matrices_per_electrode, time_points, pos, channel_names = sliding_window_rsa_per_electrode_across_subjects(
+        subject_ids=subject_ids,
+        session_id=session_id,
+        task_id=task_id,
+        window_size=window_size,
+        step_size=step_size,
+        word_pos=word_pos,
+        use_ica=use_ica,
+        cache_output=cache_output
+    )
+
+    # Load the BERT model RDM for comparison
+    proto_subject_id = subject_ids[0]  # Prototypical subject for BERT
+    _, bert_similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, model=model, word_pos=word_pos)
+    bert_rdm = 1 - bert_similarity_matrix  # Convert similarity matrix to RDM
+
+    # Prepare to collect RSA alignment scores for each time window across electrodes
+    rsa_scores_per_window = []
+
+    for t_idx, time_point in enumerate(time_points):
+        rsa_scores = []
+        for ch_name in channel_names:
+            # Extract the averaged RSA matrix for the given channel at the current time window
+            rsa_matrix = avg_rsa_matrices_per_electrode[ch_name][t_idx]
+
+            # Calculate RSA alignment score between averaged electrode RDM and BERT RDM
+            rsa_score = np.corrcoef(rsa_matrix.flatten(), bert_rdm.flatten())[0, 1]
+            rsa_scores.append(rsa_score)
+
+        rsa_scores_per_window.append(rsa_scores)
+
+    rsa_scores_per_window = np.array(rsa_scores_per_window).T  # Shape: (n_channels, n_windows)
+
+    # Create MNE info with MEG channel types
+    max_total = np.max(rsa_scores_per_window)
+    min_total = np.min(rsa_scores_per_window)
+    image_files = []
+    for t_idx, time_point in enumerate(time_points):
+        rsa_scores_timepoint = rsa_scores_per_window[:, t_idx]
+        fig_width = 7
+        fig_height = 5
+        size = 1
+        pos_scale = 1
+        fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
+        fig.suptitle(f'Average RSA Topomap at Time: {time_point:.2f} s', fontsize=9)
+        # Create a custom axes on the figure with the specified position
+        ax = fig.add_subplot(111)
+        ax.axis("off")
+        ax.set(frame_on=False, xticks=[], yticks=[])
+
+        # Get RSA scores for this time point
+        im, _ = mne.viz.plot_topomap(rsa_scores_timepoint, pos_scale * pos, contours=6,
+                                     size=size, res=1024, extrapolate="local",
+                                     vlim=(min_total, max_total), axes=ax)
+        fig_path = make_filename_prefix(f'avg_rsa_topomap_{t_idx:02d}.png', None, task_id,
+                                        model=model, word_pos=word_pos, output_dir=IMAGES_DIR)
+        image_files.append(fig_path)
+        plt.tight_layout()
+        fig.savefig(fig_path)
+        plt.close()
+
+    movie_path = make_filename_prefix(f'avg_rsa_topomap.mp4', None, task_id,
+                                      model=model, word_pos=word_pos,
+                                      output_dir=IMAGES_DIR)
+    create_movie(image_files, movie_path)
+
