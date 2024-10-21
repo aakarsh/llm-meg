@@ -41,7 +41,7 @@ def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, wor
 
     # Plot using Seaborn
     plt.figure(figsize=(12, 8))
-    ax = sns.barplot(x='task_id', y='correlation', hue='model', data=df, capsize=0.1, errwidth=1, errorbar='sd')
+    ax = sns.barplot(x='task_id', y='correlation', hue='model', data=df, capsize=0.1,  errorbar='sd')
 
     # Add noise ceiling bounds if provided
     if noise_ceiling_map:
@@ -67,6 +67,10 @@ def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, wor
     handles, labels = ax.get_legend_handles_labels()
     unique_handles_labels = dict(zip(labels, handles))
     plt.legend(unique_handles_labels.values(), unique_handles_labels.keys(), title='Legend')
+    average_rsa_plot_file = rsa.make_filename_prefix(f'average_rsa_plot.png', None, None, 
+                        word_pos=word_pos, output_dir=IMAGES_DIR)
+
+    plt.savefig(average_rsa_plot_file, bbox_inches='tight')
 
     # Display the plot
     plt.show()

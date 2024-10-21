@@ -129,6 +129,9 @@ def main():
     
     compare_segmented_model_layers = subparsers.add_parser('compare-segmented-model-layers', help='Generate comparisons')
     compare_segmented_model_layers.add_argument('--model', type=str, required=True, help='Model Name', default=None)
+
+    average_rsa_bar_plots = subparsers.add_parser('plot-bar-average-rsa', help='regenerate rsa plots')
+    average_rsa_bar_plots.add_argument('--word-pos',default='VB', type=str, required=True, help='Filter words by part of speech')
  
     args = parser.parse_args()
 
@@ -150,6 +153,9 @@ def main():
         compare_with_model_layers_segmented(args.model, word_pos=args.word_pos.split(","))
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id,word_pos=args.word_pos.split(","), sort_order=args.sort_order)
+    elif args.command == 'plot-bar-average-rsa':
+        correlations, noise_ceiling = rsa._compare_with_models_subjects(models=["GLOVE", "BERT"], word_pos=args.word_pos.split(","))
+        P.plot_average_rsa_from_correlations(correlations, noise_ceiling_map = noise_ceiling)
     # TODO : per-electrode topographic map with time.
     # TODO : spliding-window by nouns vs verbs.
     else:
