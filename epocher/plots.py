@@ -70,20 +70,6 @@ def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, wor
                     alpha=0.2,
                     label='Noise Ceiling' if i == 0 else ""
                 )
-    if True:
-        # Annotate p-values above the bars
-        for p, (task, model) in enumerate(zip(df['task_id'].unique(), df['model'].unique())):
-            subset = df[(df['task_id'] == task) & (df['model'] == model)]
-            for bar, (_, row) in zip(ax.patches, subset.iterrows()):
-                ax.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    bar.get_height(),
-                    f"{row['P_Value']:.9f}",
-                    ha='center',
-                    va='bottom',
-                    fontsize=10,
-                    color='black'
-                )
 
     # Add labels and title
     plt.xlabel('Tasks')

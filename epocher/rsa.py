@@ -565,7 +565,7 @@ def permutation_test_rsa(model_rdm, brain_rdm, n_permutations=1000):
     return original_rsa_score, p_value
 
 
-def compute_model_p_value(task_id, model='BERT', word_pos=['VB'], n_permutations=100): 
+def compute_model_p_value(task_id, model='BERT', word_pos=['VB'], n_permutations=10000): 
     """
     # TOOD: Fix there is an issue where I am creating and  
     # saving BERT per subject which makes no sense.
@@ -586,6 +586,7 @@ def compute_model_p_value(task_id, model='BERT', word_pos=['VB'], n_permutations
     # Filter RDMs based on the common word indices
     word_index_filtered = [word_index.index(word) for word in common_indices]
     model_word_index_filtered = [model_word_index.index(word) for word in common_indices]
+
     average_rdm = average_rdm[np.ix_(word_index_filtered, word_index_filtered)]
     model_rdm = 1 - similarity_matrix[np.ix_(model_word_index_filtered, model_word_index_filtered)]
 
