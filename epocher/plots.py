@@ -20,58 +20,55 @@ from .env import *
 import epocher.dataset as D
 import epocher.rsa as rsa
 
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 
-def plot_average_rsa_from_correlations(correlations, noise_ceiling=None):
+def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, word_pos=['VB']):
     """
     Plots the average RSA correlation for each task across subjects as a grouped bar plot for multiple models.
 
     :param correlations: List of dictionaries, each containing 'task_id', 'subject_id', 'model', 'correlation', and 'word_pos'.
-    :param noise_ceiling: Dictionary containing 'task_id' as keys and tuples of (lower_bound, upper_bound) as values.
+    :param noise_ceiling_map: Dictionary containing 'task_id' as keys and tuples of (lower_bound, upper_bound) as values.
+    :param word_pos: List of word parts of speech.
     """
     # Convert the list of correlations to a DataFrame for easier manipulation
     df = pd.DataFrame(correlations)
-
-    # Compute average and standard deviation across subjects for each model and task
-    summary_df = df.groupby(['task_id', 'model']).agg(
-        Average_RSA=('correlation', 'mean'),
-        Standard_Deviation=('correlation', 'std')
-    ).reset_index()
 
     # Set Seaborn's default style
     sns.set_theme(style="darkgrid")
 
     # Plot using Seaborn
     plt.figure(figsize=(12, 8))
-    ax = sns.barplot(x='task_id', y='Average_RSA', hue='model', data=summary_df, capsize=0.1, errwidth=1, ci=None)
+    ax = sns.barplot(x='task_id', y='correlation', hue='model', data=df, capsize=0.1, errwidth=1, errorbar='sd')
 
     # Add noise ceiling bounds if provided
-    if noise_ceiling:
-        for task_id, (lower_bound, upper_bound) in noise_ceiling.items():
-            plt.fill_between(
-                x=[task_id],
-                y1=lower_bound,
-                y2=upper_bound,
-                color='gray',
-                alpha=0.3,
-                label='Noise Ceiling' if task_id == list(noise_ceiling.keys())[0] else ""
-            )
-
-    # Add standard deviation error bars
-    for _, row in summary_df.iterrows():
-        task = row['task_id']
-        model = row['model']
-        avg_rsa = row['Average_RSA']
-        std_dev = row['Standard_Deviation']
-        x = summary_df[(summary_df['task_id'] == task) & (summary_df['model'] == model)].index[0]
-        ax.errorbar(x=x, y=avg_rsa, yerr=std_dev, fmt='none', c='black', capsize=3)
+    if noise_ceiling_map:
+        for i, task_id in enumerate(df['task_id'].unique()):
+            if task_id in noise_ceiling_map:
+                lower_bound, upper_bound = noise_ceiling_map[task_id]
+                # Position the noise ceiling to span across all models for a task
+                ax.fill_between(
+                    x=[i - 0.4, i + 0.4],
+                    y1=lower_bound,
+                    y2=upper_bound,
+                    color='gray',
+                    alpha=0.2,
+                    label='Noise Ceiling' if i == 0 else ""
+                )
 
     # Add labels and title
     plt.xlabel('Tasks')
     plt.ylabel('Average RSA Value')
     plt.title(f'Average RSA Values Across Tasks for Different Models (Word POS: {df["word_pos"].iloc[0]})')
 
+    # Adjust legend to remove duplicate entries
+    handles, labels = ax.get_legend_handles_labels()
+    unique_handles_labels = dict(zip(labels, handles))
+    plt.legend(unique_handles_labels.values(), unique_handles_labels.keys(), title='Legend')
+
     # Display the plot
-    plt.legend(title='Model')
     plt.show()
 
 
