@@ -154,8 +154,9 @@ def main():
     elif args.command == 'plot-rsa-table':
         P.plot_saved_similarity_matrix(subject_id=args.subject_id, task_id=args.task_id,word_pos=args.word_pos.split(","), sort_order=args.sort_order)
     elif args.command == 'plot-bar-average-rsa':
-        correlations, noise_ceiling = rsa._compare_with_models_subjects(models=["GLOVE", "BERT"], word_pos=args.word_pos.split(","))
-        P.plot_average_rsa_from_correlations(correlations, noise_ceiling_map = noise_ceiling)
+        word_pos=args.word_pos.split(",")
+        correlations, noise_ceiling = rsa._compare_with_models_subjects(models=["GLOVE", "BERT"], word_pos=word_pos)
+        P.plot_average_rsa_from_correlations(correlations, noise_ceiling_map = noise_ceiling, word_pos=word_pos)
     # TODO : per-electrode topographic map with time.
     # TODO : spliding-window by nouns vs verbs.
     else:
