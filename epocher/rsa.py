@@ -565,7 +565,7 @@ def permutation_test_rsa(model_rdm, brain_rdm, n_permutations=1000):
     return original_rsa_score, p_value
 
 
-def compute_model_p_value(task_id, model='BERT', word_pos=['VB']): 
+def compute_model_p_value(task_id, model='BERT', word_pos=['VB'], n_permutations=100): 
     """
     # TOOD: Fix there is an issue where I am creating and  
     # saving BERT per subject which makes no sense.
@@ -578,12 +578,21 @@ def compute_model_p_value(task_id, model='BERT', word_pos=['VB']):
     model_word_index, similarity_matrix = load_similarity_matrix(proto_subject_id, task_id, 
             model=model, word_pos=word_pos)
 
-    model_rdm = 1 - similarity_matrix
+    # Find intersection of word indices
+    common_indices = list(set(word_index).intersection(set(model_word_index)))
+    if not common_indices:
+        raise ValueError("No common words between MEG data and model data.")
+
+    # Filter RDMs based on the common word indices
+    word_index_filtered = [word_index.index(word) for word in common_indices]
+    model_word_index_filtered = [model_word_index.index(word) for word in common_indices]
+    average_rdm = average_rdm[np.ix_(word_index_filtered, word_index_filtered)]
+    model_rdm = 1 - similarity_matrix[np.ix_(model_word_index_filtered, model_word_index_filtered)]
 
     assert average_rdm.shape == similarity_matrix.shape
-    assert set(word_index) == set(model_word_index)
 
-    original_rsa_score, p_value = permutation_test_rsa(average_rdm, model_rdm)
+    original_rsa_score, p_value = permutation_test_rsa(average_rdm, model_rdm, n_permutations=n_permutations)
+    print("p_value", p_value, "oriinal rsa",original_rsa_score)
     return original_rsa_score, p_value
 
 def sliding_window_rsa_per_electrode(subject_id='01', session_id=0, task_id=0, 

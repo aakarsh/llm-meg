@@ -35,6 +35,18 @@ def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, wor
     """
     # Convert the list of correlations to a DataFrame for easier manipulation
     df = pd.DataFrame(correlations)
+    # Compute p-values for each task and model across subjects using permutation test
+    p_values = []
+    for task in df['task_id'].unique():
+        for model in df['model'].unique():
+            task_model_data = df[(df['task_id'] == task) & (df['model'] == model)]['correlation'].to_numpy()
+            if len(task_model_data) > 1:  # Ensure there are enough samples to compute p-value
+                _, p_val = rsa.compute_model_p_value(task, model=model, word_pos=word_pos)
+                p_values.append({'task_id': task, 'model': model, 'P_Value': p_val})
+
+    # Convert p-values to a DataFrame for easier merging
+    p_values_df = pd.DataFrame(p_values)
+    df = pd.merge(df, p_values_df, on=['task_id', 'model'], how='left')
 
     # Set Seaborn's default style
     sns.set_theme(style="darkgrid")
@@ -42,6 +54,7 @@ def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, wor
     # Plot using Seaborn
     plt.figure(figsize=(12, 8))
     ax = sns.barplot(x='task_id', y='correlation', hue='model', data=df, capsize=0.1,  errorbar='sd')
+
 
     # Add noise ceiling bounds if provided
     if noise_ceiling_map:
@@ -57,11 +70,27 @@ def plot_average_rsa_from_correlations(correlations, noise_ceiling_map=None, wor
                     alpha=0.2,
                     label='Noise Ceiling' if i == 0 else ""
                 )
+    if True:
+        # Annotate p-values above the bars
+        for p, (task, model) in enumerate(zip(df['task_id'].unique(), df['model'].unique())):
+            subset = df[(df['task_id'] == task) & (df['model'] == model)]
+            for bar, (_, row) in zip(ax.patches, subset.iterrows()):
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    bar.get_height(),
+                    f"{row['P_Value']:.9f}",
+                    ha='center',
+                    va='bottom',
+                    fontsize=10,
+                    color='black'
+                )
 
     # Add labels and title
     plt.xlabel('Tasks')
     plt.ylabel('Average RSA Value')
     plt.title(f'Average RSA Values Across Tasks for Different Models (Word POS: {df["word_pos"].iloc[0]})')
+
+
 
     # Adjust legend to remove duplicate entries
     handles, labels = ax.get_legend_handles_labels()
